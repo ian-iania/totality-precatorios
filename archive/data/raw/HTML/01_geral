@@ -1,0 +1,362 @@
+# Navigation and HTML rendered pages
+
+## 1. Home page https://www.tjrj.jus.br/web/precatorios
+## 2. Option 1: Regime Geral 
+https://www3.tjrj.jus.br/PortalConhecimento/precatorio/#!/entes-devedores/regime-geral
+
+Source code: 
+
+```html
+
+<!DOCTYPE html>
+<html ng-app="app" class="no-js" lang="pt-br" ng-controller="MenuControllerPrecatorio as vm">
+<head>
+    <base href="/PortalConhecimento/">
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta content="IE=edge" http-equiv="X-UA-Compatible">
+
+
+    <meta name="description" content="GED - Controle de arquivos">
+    <meta name="author" content="MPS Informática">
+    <meta name="keywords" content="Hólos, MPS, MPS Informática, Governo Digital, Processo Eletrônico, Processo Virtual, Documentos Eletrônicos">
+
+    <title>{{vm.TituloHeaderPrecatorio}}</title>
+    <script src="libs.js"></script>
+    <script src="angular.js"></script>
+    <script src="appPrecatorio.js"></script>
+    <script async src="//www.google-analytics.com/analytics.js"></script>
+    <link href="https://www.tjrj.jus.br/o/theme-tjrj/images/favicon.ico" rel="Shortcut Icon" />
+    <script language="javascript" type="text/javascript" src="https://www.tjrj.jus.br/consultas/redirecionador/js/integracaoPortal.js"></script>
+    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+    <!-- import para funcionamento integrado com o portal -->
+    <script language="javascript" type="text/javascript" src="https://www.tjrj.jus.br/js_funcoes/max_min_font_size2.js"></script>
+    <style type="text/css">
+        .tipoMovimento {
+            font-weight: bold;
+            background-color: #EEE6DA;
+        }
+
+        .info {
+            font-weight: bold;
+        }
+
+        #logomarca-tjrj-header {
+            width: 214px;
+            height: 59px;
+            margin-left: 40px;
+            margin-top: 8px;
+            margin-bottom: 5px;
+            background-repeat: no-repeat;
+
+        }
+
+        .banner-overwrite {
+            background-color: #f5f5f5 !important;
+            border-bottom: 5px solid #475b6f !important;
+        }
+
+        .centralizar-menu {
+            justify-content: center;
+            display: flex;
+        }
+
+    </style>
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="cache-control" content="no-cache" />
+    <meta http-equiv="Expires" content="-1" />
+</head>
+
+<body>
+    <span ng-bind-html="vm.Head.CompsJs"></span>
+    <span ng-bind-html="vm.Head.CompsCss"></span>
+    <link rel="stylesheet" href="style/StyleSheetPrecatorio.min.css" />
+    <link rel="stylesheet" href="style/loading-bar.min.css" />
+    <link rel="stylesheet" href="style/ui-bootstrap-csp.css" />
+    <link rel="stylesheet" href="style/angular-ui-tree.min.css" />
+    <link rel="stylesheet" href="style/angular-block-ui.min.css" />
+    <div>
+        <!-- CABEÇALHO -->
+        <nav class="banner-overwrite navbar navbar-default navbar-static-top">
+            <div class="navbar-header">
+                <a href="https://www.tjrj.jus.br/web/precatorios/home">
+                    <img id="logomarca-tjrj-header" src="/PortalConhecimento/Img/cliente/logo-tj-small.cf83d26df9560863.png" />
+                </a>
+            </div>
+        </nav>
+        <div block-ui="myBlockUI">
+            <!-- MENU HORIZONTAL -->
+            <div class="centralizar-menu">
+                <ul class="nav navbar-nav" aria-label="Páginas do site">
+                    <li role="presentation"><a href="https://www.tjrj.jus.br/web/precatorios/home" role="menuitem" title="Home">Home</a></li>
+                    <li role="presentation"><a href="https://www.tjrj.jus.br/web/precatorios/entenda-o-precatorio" role="menuitem" title="Entenda o precatório">Entenda o precatório</a></li>
+                    <li role="presentation"><a href="https://www.tjrj.jus.br/web/precatorios/legislacao" role="menuitem" title="Legislação">Legislação</a></li>
+                    <li role="presentation"><a href="https://www.tjrj.jus.br/web/precatorios/calculo" role="menuitem" title="Cálculo">Cálculo</a></li>
+                    <li role="presentation"><a href="https://www.tjrj.jus.br/web/precatorios/perguntas-frequentes" target="_blank" role="menuitem" title="Perguntas Frequentes">Perguntas Frequentes</a></li>
+                </ul>
+            </div>
+
+            <div id="container">
+
+                <div id="section2">
+                    <div id="content" name="content">
+                        <ng-view></ng-view>
+                    </div>
+                </div>
+                <div class="clear" />
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
+```
+
+## 2.1 Data into the first card: 
+
+"""
+INSS - INSTITUTO NACIONAL DO SEGURO SOCIAL
+
+Precatórios Pagos:14923
+
+Valor Prioridade:R$ 273.240,00
+
+Precatórios Pendentes:907
+
+Valor RPV:R$ 91.080,00
+
+Pagamentos realizados
+Consulte a sua posição
+Precatórios pendentes de pagamento
+Superpreferências pendentes de pagamento
+Ordem de rateio de pagamento
+Ente não possui certidão de adimplência
+Ente não possui certidão de regularidade
+Ente não possui precatórios parcelados
+""" 
+
+## 2.2 click into the option "Precatórios pendentes de pagamento", link https://www3.tjrj.jus.br/PortalConhecimento/precatorio#!/ordem-cronologica?idEntidadeDevedora=86
+
+Source code
+```html
+
+<!DOCTYPE html>
+<html ng-app="app" class="no-js" lang="pt-br" ng-controller="MenuControllerPrecatorio as vm">
+<head>
+    <base href="/PortalConhecimento/">
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta content="IE=edge" http-equiv="X-UA-Compatible">
+
+
+    <meta name="description" content="GED - Controle de arquivos">
+    <meta name="author" content="MPS Informática">
+    <meta name="keywords" content="Hólos, MPS, MPS Informática, Governo Digital, Processo Eletrônico, Processo Virtual, Documentos Eletrônicos">
+
+    <title>{{vm.TituloHeaderPrecatorio}}</title>
+    <script src="libs.js"></script>
+    <script src="angular.js"></script>
+    <script src="appPrecatorio.js"></script>
+    <script async src="//www.google-analytics.com/analytics.js"></script>
+    <link href="https://www.tjrj.jus.br/o/theme-tjrj/images/favicon.ico" rel="Shortcut Icon" />
+    <script language="javascript" type="text/javascript" src="https://www.tjrj.jus.br/consultas/redirecionador/js/integracaoPortal.js"></script>
+    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+    <!-- import para funcionamento integrado com o portal -->
+    <script language="javascript" type="text/javascript" src="https://www.tjrj.jus.br/js_funcoes/max_min_font_size2.js"></script>
+    <style type="text/css">
+        .tipoMovimento {
+            font-weight: bold;
+            background-color: #EEE6DA;
+        }
+
+        .info {
+            font-weight: bold;
+        }
+
+        #logomarca-tjrj-header {
+            width: 214px;
+            height: 59px;
+            margin-left: 40px;
+            margin-top: 8px;
+            margin-bottom: 5px;
+            background-repeat: no-repeat;
+
+        }
+
+        .banner-overwrite {
+            background-color: #f5f5f5 !important;
+            border-bottom: 5px solid #475b6f !important;
+        }
+
+        .centralizar-menu {
+            justify-content: center;
+            display: flex;
+        }
+
+    </style>
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="cache-control" content="no-cache" />
+    <meta http-equiv="Expires" content="-1" />
+</head>
+
+<body>
+    <span ng-bind-html="vm.Head.CompsJs"></span>
+    <span ng-bind-html="vm.Head.CompsCss"></span>
+    <link rel="stylesheet" href="style/StyleSheetPrecatorio.min.css" />
+    <link rel="stylesheet" href="style/loading-bar.min.css" />
+    <link rel="stylesheet" href="style/ui-bootstrap-csp.css" />
+    <link rel="stylesheet" href="style/angular-ui-tree.min.css" />
+    <link rel="stylesheet" href="style/angular-block-ui.min.css" />
+    <div>
+        <!-- CABEÇALHO -->
+        <nav class="banner-overwrite navbar navbar-default navbar-static-top">
+            <div class="navbar-header">
+                <a href="https://www.tjrj.jus.br/web/precatorios/home">
+                    <img id="logomarca-tjrj-header" src="/PortalConhecimento/Img/cliente/logo-tj-small.cf83d26df9560863.png" />
+                </a>
+            </div>
+        </nav>
+        <div block-ui="myBlockUI">
+            <!-- MENU HORIZONTAL -->
+            <div class="centralizar-menu">
+                <ul class="nav navbar-nav" aria-label="Páginas do site">
+                    <li role="presentation"><a href="https://www.tjrj.jus.br/web/precatorios/home" role="menuitem" title="Home">Home</a></li>
+                    <li role="presentation"><a href="https://www.tjrj.jus.br/web/precatorios/entenda-o-precatorio" role="menuitem" title="Entenda o precatório">Entenda o precatório</a></li>
+                    <li role="presentation"><a href="https://www.tjrj.jus.br/web/precatorios/legislacao" role="menuitem" title="Legislação">Legislação</a></li>
+                    <li role="presentation"><a href="https://www.tjrj.jus.br/web/precatorios/calculo" role="menuitem" title="Cálculo">Cálculo</a></li>
+                    <li role="presentation"><a href="https://www.tjrj.jus.br/web/precatorios/perguntas-frequentes" target="_blank" role="menuitem" title="Perguntas Frequentes">Perguntas Frequentes</a></li>
+                </ul>
+            </div>
+
+            <div id="container">
+
+                <div id="section2">
+                    <div id="content" name="content">
+                        <ng-view></ng-view>
+                    </div>
+                </div>
+                <div class="clear" />
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
+```
+
+## 2.3  click on "Proxima" 
+
+![alt text](image.png)
+
+link: https://www3.tjrj.jus.br/PortalConhecimento/
+
+And it goes to the next page as follows:
+source code: 
+
+```html
+
+<!DOCTYPE html>
+<html ng-app="app" class="no-js" lang="pt-br" ng-controller="MenuControllerPrecatorio as vm">
+<head>
+    <base href="/PortalConhecimento/">
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta content="IE=edge" http-equiv="X-UA-Compatible">
+
+
+    <meta name="description" content="GED - Controle de arquivos">
+    <meta name="author" content="MPS Informática">
+    <meta name="keywords" content="Hólos, MPS, MPS Informática, Governo Digital, Processo Eletrônico, Processo Virtual, Documentos Eletrônicos">
+
+    <title>{{vm.TituloHeaderPrecatorio}}</title>
+    <script src="libs.js"></script>
+    <script src="angular.js"></script>
+    <script src="appPrecatorio.js"></script>
+    <script async src="//www.google-analytics.com/analytics.js"></script>
+    <link href="https://www.tjrj.jus.br/o/theme-tjrj/images/favicon.ico" rel="Shortcut Icon" />
+    <script language="javascript" type="text/javascript" src="https://www.tjrj.jus.br/consultas/redirecionador/js/integracaoPortal.js"></script>
+    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+    <!-- import para funcionamento integrado com o portal -->
+    <script language="javascript" type="text/javascript" src="https://www.tjrj.jus.br/js_funcoes/max_min_font_size2.js"></script>
+    <style type="text/css">
+        .tipoMovimento {
+            font-weight: bold;
+            background-color: #EEE6DA;
+        }
+
+        .info {
+            font-weight: bold;
+        }
+
+        #logomarca-tjrj-header {
+            width: 214px;
+            height: 59px;
+            margin-left: 40px;
+            margin-top: 8px;
+            margin-bottom: 5px;
+            background-repeat: no-repeat;
+
+        }
+
+        .banner-overwrite {
+            background-color: #f5f5f5 !important;
+            border-bottom: 5px solid #475b6f !important;
+        }
+
+        .centralizar-menu {
+            justify-content: center;
+            display: flex;
+        }
+
+    </style>
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="cache-control" content="no-cache" />
+    <meta http-equiv="Expires" content="-1" />
+</head>
+
+<body>
+    <span ng-bind-html="vm.Head.CompsJs"></span>
+    <span ng-bind-html="vm.Head.CompsCss"></span>
+    <link rel="stylesheet" href="style/StyleSheetPrecatorio.min.css" />
+    <link rel="stylesheet" href="style/loading-bar.min.css" />
+    <link rel="stylesheet" href="style/ui-bootstrap-csp.css" />
+    <link rel="stylesheet" href="style/angular-ui-tree.min.css" />
+    <link rel="stylesheet" href="style/angular-block-ui.min.css" />
+    <div>
+        <!-- CABEÇALHO -->
+        <nav class="banner-overwrite navbar navbar-default navbar-static-top">
+            <div class="navbar-header">
+                <a href="https://www.tjrj.jus.br/web/precatorios/home">
+                    <img id="logomarca-tjrj-header" src="/PortalConhecimento/Img/cliente/logo-tj-small.cf83d26df9560863.png" />
+                </a>
+            </div>
+        </nav>
+        <div block-ui="myBlockUI">
+            <!-- MENU HORIZONTAL -->
+            <div class="centralizar-menu">
+                <ul class="nav navbar-nav" aria-label="Páginas do site">
+                    <li role="presentation"><a href="https://www.tjrj.jus.br/web/precatorios/home" role="menuitem" title="Home">Home</a></li>
+                    <li role="presentation"><a href="https://www.tjrj.jus.br/web/precatorios/entenda-o-precatorio" role="menuitem" title="Entenda o precatório">Entenda o precatório</a></li>
+                    <li role="presentation"><a href="https://www.tjrj.jus.br/web/precatorios/legislacao" role="menuitem" title="Legislação">Legislação</a></li>
+                    <li role="presentation"><a href="https://www.tjrj.jus.br/web/precatorios/calculo" role="menuitem" title="Cálculo">Cálculo</a></li>
+                    <li role="presentation"><a href="https://www.tjrj.jus.br/web/precatorios/perguntas-frequentes" target="_blank" role="menuitem" title="Perguntas Frequentes">Perguntas Frequentes</a></li>
+                </ul>
+            </div>
+
+            <div id="container">
+
+                <div id="section2">
+                    <div id="content" name="content">
+                        <ng-view></ng-view>
+                    </div>
+                </div>
+                <div class="clear" />
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
+```
+
+# Remaining pages should follow the same logic. 
