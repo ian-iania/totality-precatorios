@@ -33,9 +33,8 @@ class Precatorio(BaseModel):
     """
     Individual precatório record
 
-    CORRECTED to match ACTUAL website columns:
-    - 8 visible columns
-    - 5 non-visible columns (hidden in UI but in HTML)
+    CORRECTED to match ACTUAL visible website columns:
+    - 8 visible columns only
     - TWO entity levels (grupo + devedora)
     """
 
@@ -45,6 +44,7 @@ class Precatorio(BaseModel):
     entidade_devedora: str = Field(..., description="Specific entity responsible (from table Cell 6)")
     regime: str = Field(..., pattern=r'^(geral|especial)$', description="Regime type")
 
+    # === VISIBLE COLUMNS ===
     ordem: str = Field(..., description="Order position (e.g., '2º', '4º') - Cell 2")
     numero_precatorio: str = Field(..., min_length=1, description="Precatório number - Cell 7")
     situacao: str = Field(..., description="Status/Situation - Cell 8")
@@ -52,13 +52,6 @@ class Precatorio(BaseModel):
     orcamento: str = Field(..., description="Budget year - Cell 10")
     valor_historico: Decimal = Field(ge=0, decimal_places=2, description="Historical value - Cell 12")
     saldo_atualizado: Decimal = Field(ge=0, decimal_places=2, description="Updated balance - Cell 14")
-
-    # === NON-VISIBLE COLUMNS (hidden in UI but available in HTML) ===
-    prioridade: Optional[str] = Field(None, description="Priority - Cell 11 (hidden)")
-    valor_parcela: Optional[Decimal] = Field(None, ge=0, decimal_places=2, description="Installment value - Cell 13 (hidden)")
-    parcelas_pagas: Optional[str] = Field(None, description="Installments paid (e.g., '5/5') - Cell 15 (hidden)")
-    previsao_pagamento: Optional[str] = Field(None, description="Payment forecast - Cell 16 (hidden)")
-    quitado: Optional[str] = Field(None, description="Settled (Sim/Não) - Cell 17 (hidden)")
 
     # === METADATA ===
     timestamp_extracao: datetime = Field(default_factory=datetime.now, description="Extraction timestamp")

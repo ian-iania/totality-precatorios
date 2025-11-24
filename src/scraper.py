@@ -500,10 +500,9 @@ class TJRJPrecatoriosScraper:
         entidade: EntidadeDevedora
     ) -> Optional[Precatorio]:
         """
-        Parse precatório from table row with ALL columns (visible + non-visible)
+        Parse precatório from table row with VISIBLE columns only
 
-        CORRECTED table structure (18 cells total):
-        === VISIBLE (8) ===
+        CORRECTED table structure (visible columns):
         Cell 2:  Ordem (e.g., "2º", "4º")
         Cell 6:  Entidade Devedora - SPECIFIC entity (e.g., "IPERJ", "RIO-PREVIDÊNCIA")
         Cell 7:  Número Precatório (e.g., "1998.03464-7")
@@ -516,13 +515,6 @@ class TJRJPrecatoriosScraper:
         NOTE: entidade parameter contains the GROUP/PARENT entity clicked from the card
               Cell 6 contains the SPECIFIC entity responsible for this precatório
               These can be DIFFERENT! (e.g., "Estado do RJ e Afins" vs "IPERJ")
-
-        === NON-VISIBLE (5) ===
-        Cell 11: Prioridade (often empty)
-        Cell 13: Valor Parcela (often empty)
-        Cell 15: Parcelas Pagas (e.g., "5/5")
-        Cell 16: Previsão Pagamento (often empty)
-        Cell 17: Quitado (e.g., "Sim", "Não")
         """
 
         try:
@@ -567,28 +559,10 @@ class TJRJPrecatoriosScraper:
             saldo_atualizado_text = cell_texts[14] if len(cell_texts) > 14 else ""
             saldo_atualizado = self._parse_currency(saldo_atualizado_text) if saldo_atualizado_text else valor_historico
 
-            # === EXTRACT NON-VISIBLE COLUMNS ===
-
-            # Prioridade (Cell 11)
-            prioridade = cell_texts[11] if len(cell_texts) > 11 and cell_texts[11] else None
-
-            # Valor Parcela (Cell 13)
-            valor_parcela_text = cell_texts[13] if len(cell_texts) > 13 and cell_texts[13] else None
-            valor_parcela = self._parse_currency(valor_parcela_text) if valor_parcela_text else None
-
-            # Parcelas Pagas (Cell 15)
-            parcelas_pagas = cell_texts[15] if len(cell_texts) > 15 and cell_texts[15] else None
-
-            # Previsão Pagamento (Cell 16)
-            previsao_pagamento = cell_texts[16] if len(cell_texts) > 16 and cell_texts[16] else None
-
-            # Quitado (Cell 17)
-            quitado = cell_texts[17] if len(cell_texts) > 17 and cell_texts[17] else None
-
             # === CREATE PRECATORIO OBJECT ===
 
             precatorio = Precatorio(
-                # Entity info - TWO LEVELS (FIRST columns)
+                # Entity info - TWO LEVELS
                 entidade_grupo=entidade.nome_entidade,  # Parent/Group from card
                 id_entidade_grupo=entidade.id_entidade,  # Parent/Group ID
                 entidade_devedora=entidade_devedora_especifica,  # Specific from Cell 6
@@ -601,14 +575,7 @@ class TJRJPrecatoriosScraper:
                 natureza=natureza,
                 orcamento=orcamento,
                 valor_historico=valor_historico,
-                saldo_atualizado=saldo_atualizado,
-
-                # Non-visible columns
-                prioridade=prioridade,
-                valor_parcela=valor_parcela,
-                parcelas_pagas=parcelas_pagas,
-                previsao_pagamento=previsao_pagamento,
-                quitado=quitado
+                saldo_atualizado=saldo_atualizado
             )
 
             return precatorio
