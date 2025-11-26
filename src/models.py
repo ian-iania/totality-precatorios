@@ -34,7 +34,8 @@ class Precatorio(BaseModel):
     Individual precatório record
 
     CORRECTED to match ACTUAL visible website columns:
-    - 8 visible columns only
+    - 8 visible columns
+    - 7 expanded detail fields (from + button)
     - TWO entity levels (grupo + devedora)
     """
 
@@ -52,6 +53,15 @@ class Precatorio(BaseModel):
     orcamento: str = Field(..., description="Budget year - Cell 10")
     valor_historico: Decimal = Field(ge=0, decimal_places=2, description="Historical value - Cell 12")
     saldo_atualizado: Decimal = Field(ge=0, decimal_places=2, description="Updated balance - Cell 14")
+
+    # === EXPANDED DETAILS (from + button) ===
+    classe: Optional[str] = Field(None, description="Legal class (e.g., 'Mandado de Segurança')")
+    localizacao: Optional[str] = Field(None, description="Current location/department")
+    peticoes_a_juntar: Optional[str] = Field(None, description="Petitions to attach")
+    ultima_fase: Optional[str] = Field(None, description="Last phase with date")
+    possui_herdeiros: Optional[str] = Field(None, description="Has heirs (Sim/Não)")
+    possui_cessao: Optional[str] = Field(None, description="Has assignment (Sim/Não)")
+    possui_retificador: Optional[str] = Field(None, description="Has rectifier (Sim/Não)")
 
     # === METADATA ===
     timestamp_extracao: datetime = Field(default_factory=datetime.now, description="Extraction timestamp")

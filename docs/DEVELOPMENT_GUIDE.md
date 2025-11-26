@@ -1,3 +1,4 @@
+
 # Development Guide
 
 Guide for completing the scraper implementation and contributing to the project.
@@ -5,6 +6,7 @@ Guide for completing the scraper implementation and contributing to the project.
 ## Current Status
 
 The project provides a **production-ready framework** with:
+
 - ✅ Complete project structure
 - ✅ Data models and validation
 - ✅ Configuration management
@@ -21,16 +23,18 @@ The project provides a **production-ready framework** with:
 ### Step 1: Inspect the Site Structure
 
 1. Run with visible browser:
+
 ```bash
 python main.py --regime geral --no-headless --log-level DEBUG
 ```
 
 2. Open Chrome DevTools (F12 or Cmd+Option+I)
-
 3. Inspect these elements:
 
 #### Entity Cards (on regime page)
+
 Look for:
+
 - Container div with entity cards
 - Entity name element
 - Precatórios pagos/pendentes counts
@@ -38,12 +42,15 @@ Look for:
 - Links to precatório lists
 
 Example questions to answer:
+
 - What CSS class contains entity cards?
 - What attribute contains the entity ID?
 - How are the statistics displayed?
 
 #### Precatório Lists
+
 Look for:
+
 - Table structure
 - Column headers
 - Pagination buttons
@@ -212,6 +219,7 @@ python main.py --regime geral
 ### Formatting
 
 Use Black formatter:
+
 ```bash
 black src/ tests/
 ```
@@ -219,6 +227,7 @@ black src/ tests/
 ### Type Hints
 
 Always use type hints:
+
 ```python
 def extract_data(page: Page, selector: str) -> List[str]:
     """Extract text from elements"""
@@ -229,6 +238,7 @@ def extract_data(page: Page, selector: str) -> List[str]:
 ### Docstrings
 
 Use Google-style docstrings:
+
 ```python
 def process_entity(entity_id: int) -> EntidadeDevedora:
     """
@@ -249,6 +259,7 @@ def process_entity(entity_id: int) -> EntidadeDevedora:
 ### Logging
 
 Use appropriate log levels:
+
 ```python
 logger.debug("Detailed debug info")  # Development only
 logger.info("Progress updates")      # Normal operation
@@ -327,17 +338,20 @@ breakpoint()
 ### After Basic Implementation Works
 
 1. **Enable Headless Mode**:
+
 ```python
 config.headless = True  # Faster without GUI
 ```
 
 2. **Add Caching**:
+
 ```python
 # Cache entity lists
 # Implement in scraper.py if not already present
 ```
 
 3. **Parallel Processing** (Advanced):
+
 ```python
 # Use asyncio for concurrent entity processing
 # Requires rewriting with Playwright async API
