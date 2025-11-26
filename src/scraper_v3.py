@@ -232,22 +232,13 @@ class TJRJPrecatoriosScraperV3:
 
         proc_label = f"[P{process_id}]" if process_id is not None else ""
         logger.info(f"{proc_label} Starting range extraction: pages {start_page}-{end_page}")
+        logger.info(f"{proc_label} 🔧 Using OPTION A: Full direct navigation (most reliable)")
 
         all_precatorios = []
 
         try:
-            # Step 1: Navigate directly to start page (if not page 1)
-            if start_page > 1:
-                logger.info(f"{proc_label} Jumping directly to page {start_page}...")
-                success = self.goto_page_direct(page, start_page)
-
-                if not success:
-                    logger.error(f"{proc_label} Failed to navigate to start page {start_page}")
-                    logger.error(f"{proc_label} Falling back to sequential navigation from page 1")
-                    # TODO: Implement fallback - sequential clicks from page 1
-                    return all_precatorios
-
-            # Step 2: Extract pages sequentially within range
+            # OPTION A: Navigate directly to EACH page (most reliable for large ranges)
+            # This avoids sequential click issues with overlay timeouts
             current_page = start_page
 
             while current_page <= end_page:
@@ -255,39 +246,27 @@ class TJRJPrecatoriosScraperV3:
                           f"({(current_page - start_page + 1)}/{end_page - start_page + 1} in range)...")
 
                 try:
+                    # Navigate directly to current page (except page 1 which is default)
+                    if current_page > 1:
+                        success = self.goto_page_direct(page, current_page)
+
+                        if not success:
+                            logger.error(f"{proc_label} ❌ Failed to navigate to page {current_page}")
+                            logger.warning(f"{proc_label} Stopping extraction at page {current_page - 1}")
+                            break
+
                     # Extract from current page
                     precatorios_page = self._extract_precatorios_from_page(page, entidade)
                     all_precatorios.extend(precatorios_page)
 
-                    logger.info(f"{proc_label}   Extracted {len(precatorios_page)} precatórios "
+                    logger.info(f"{proc_label}   ✅ Extracted {len(precatorios_page)} precatórios "
                               f"(total: {len(all_precatorios)})")
-
-                    # If not last page in range, navigate to next
-                    if current_page < end_page:
-                        # Use "Próxima" button for sequential navigation within range
-                        next_button = page.query_selector("text=Próxima")
-
-                        if not next_button:
-                            logger.warning(f"{proc_label} Next button not found at page {current_page}")
-                            break
-
-                        # Check if disabled
-                        is_disabled = next_button.get_attribute('disabled')
-                        class_attr = next_button.get_attribute('class') or ''
-
-                        if is_disabled or 'disabled' in class_attr:
-                            logger.info(f"{proc_label} Reached end of data at page {current_page}")
-                            break
-
-                        # Click next
-                        next_button.click()
-                        page.wait_for_timeout(2000)
-                        page.wait_for_load_state('networkidle')
 
                     current_page += 1
 
                 except Exception as e:
-                    logger.error(f"{proc_label} Error extracting page {current_page}: {e}")
+                    logger.error(f"{proc_label} ❌ Error extracting page {current_page}: {e}")
+                    logger.warning(f"{proc_label} Stopping extraction at page {current_page - 1}")
                     break
 
             logger.info(f"{proc_label} ✅ Range extraction complete: {len(all_precatorios)} precatórios "
