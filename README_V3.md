@@ -100,21 +100,22 @@ while current_page <= end_page:
 |----------|------|-------------|--------|--------|
 | **V1 Baseline (Sequential)** | ~15h | - | Sequential navigation + complete extraction | Baseline |
 | **V2 Sequential + skip** | ~7h | -53% | Sequential + skip expanded fields | Tested |
-| **V3 Parallel (4 proc) + skip** | ~1.1h | **-93%** | 4 ranges, parallel, skip expanded, Option A ⭐ | **READY** |
+| **V3 Parallel (4 proc) + skip** | **~0.56h** | **-96%** | 4 ranges, parallel, skip expanded, Option A ⭐ | **READY** |
 
-### Performance Breakdown (Based on Phase 2 Test Results)
+### Performance Breakdown (Based on Phase 2 & 3 Test Results)
 
-**Tested**: 100 pages in 8.8 min = 5.3s per page
+**Phase 2 Test**: 100 pages in 8.8 min = 5.3s per page (single process)
+**Phase 3 Test**: 200 pages in 9.0 min = 2.7s per page (2 parallel processes)
 
 **Production Estimate (2,984 pages, 4 processes)**:
 ```
-Process 1: Pages 1-746     → 746 × 5.3s = 66 min (~1.1h)
-Process 2: Pages 747-1,492  → 746 × 5.3s = 66 min (~1.1h) [parallel]
-Process 3: Pages 1,493-2,238 → 746 × 5.3s = 66 min (~1.1h) [parallel]
-Process 4: Pages 2,239-2,984 → 746 × 5.3s = 66 min (~1.1h) [parallel]
+Process 1: Pages 1-746     → 746 × 2.7s = 34 min (~0.56h)
+Process 2: Pages 747-1,492  → 746 × 2.7s = 34 min (~0.56h) [parallel]
+Process 3: Pages 1,493-2,238 → 746 × 2.7s = 34 min (~0.56h) [parallel]
+Process 4: Pages 2,239-2,984 → 746 × 2.7s = 34 min (~0.56h) [parallel]
 
-Total wall-clock time: ~1.1h (all processes run simultaneously)
-Total speedup vs V1: 15h → 1.1h = 93% reduction ⭐
+Total wall-clock time: ~34 min (all processes run simultaneously)
+Total speedup vs V1: 15h → 0.56h = 96% reduction ⭐⭐⭐
 ```
 
 ---
@@ -582,19 +583,21 @@ V3 is **backward compatible** with V2. You can:
    - Result: 1,000 records in 8.8 min
    - Status: 100% success with Option A
 
+4. **~~Test Parallel (Phase 3)~~** ✅ DONE (2025-11-26 20:45-20:54)
+   - Pages 1-200 (2 processes × 100 pages)
+   - Result: 2,000 records in 9.0 min
+   - CSV merge: ✅ Success (zero duplicates)
+   - Coverage: 100%
+   - Parallel execution: ✅ No conflicts
+   - Status: 100% success, production ready
+
 ### Pending Tests ⏸️
 
-4. **Test Parallel (Phase 3)** - NEXT
-   - Run Phase 3 test (2 processes, 200 pages)
-   - Check no conflicts
-   - Verify merge works
-   - **Estimated time**: ~20 min
-
-5. **Production Run (Phase 4)**
+5. **Production Run (Phase 4)** - NEXT
    - Run Phase 4 (full Estado RJ, 4 processes, 2,984 pages)
    - Compare with V2 output
-   - Celebrate 93% time reduction! 🎉
-   - **Estimated time**: ~1.1h
+   - Celebrate 96% time reduction! 🎉
+   - **Estimated time**: ~34 min (updated based on Phase 3 results)
 
 ---
 
@@ -614,15 +617,16 @@ python main_v3_parallel.py \
 ```
 
 **Expected result**:
-- ⏱️ Time: ~1.1h (vs V1's 15h)
+- ⏱️ Time: ~34 min (vs V1's 15h)
 - 📊 Records: ~29,840
-- 💾 Size: ~40 MB
-- ⚡ Speed: ~7.5 rec/s (vs V1's 0.6 rec/s)
-- 🎯 Reduction: **93%** 🔥
+- 💾 Size: ~4-5 MB
+- ⚡ Speed: ~14.6 rec/s (vs V1's 0.6 rec/s)
+- 🎯 Reduction: **96%** 🔥🔥🔥
 
 ---
 
-**Last Updated**: 2025-11-26 20:17 BRT
-**Status**: ✅ **TESTED AND PRODUCTION READY** (Phases 1 & 2 complete)
+**Last Updated**: 2025-11-26 20:54 BRT
+**Status**: ✅ **TESTED AND PRODUCTION READY** (Phases 1, 2 & 3 complete)
 **Implementation**: Option A (Full Direct Navigation)
-**Next**: Phase 3 (Parallel test with 2 processes)
+**Test Results**: All phases 100% successful, parallelization validated
+**Next**: Phase 4 (Production run - 4 processes, 2,984 pages)
