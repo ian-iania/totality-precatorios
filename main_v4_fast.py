@@ -246,22 +246,50 @@ def run_parallel_extraction(
             'timeout_minutes': timeout_minutes
         })
     
-    # Run with imap_unordered for better responsiveness
+    # Run with apply_async for timeout control per worker
     all_records = []
     results = []
     
-    logger.info(f"\n🔄 Starting extraction...")
+    # Timeout per worker: 5 minutes or timeout_minutes, whichever is smaller
+    worker_timeout = min(timeout_minutes * 60, 300)  # Max 5 minutes per entity
+    
+    logger.info(f"\n🔄 Starting extraction (worker timeout: {worker_timeout}s)...")
     
     with mp.Pool(processes=num_processes) as pool:
-        # Use imap_unordered - results come as they complete
-        for result in pool.imap_unordered(extract_worker, worker_args):
-            results.append(result)
-            
-            if result['success']:
-                all_records.extend(result['records'])
-                logger.info(f"✅ P{result['process_id']} done: {result['records_count']} records")
-            else:
-                logger.error(f"❌ P{result['process_id']} failed: {result['error']}")
+        # Submit all workers
+        async_results = []
+        for args in worker_args:
+            async_results.append((args['process_id'], pool.apply_async(extract_worker, (args,))))
+        
+        # Collect results with timeout
+        for process_id, async_result in async_results:
+            try:
+                result = async_result.get(timeout=worker_timeout)
+                results.append(result)
+                
+                if result['success']:
+                    all_records.extend(result['records'])
+                    logger.info(f"✅ P{result['process_id']} done: {result['records_count']} records")
+                else:
+                    logger.error(f"❌ P{result['process_id']} failed: {result['error']}")
+            except mp.TimeoutError:
+                logger.error(f"❌ P{process_id} TIMEOUT after {worker_timeout}s - skipping")
+                results.append({
+                    'process_id': process_id,
+                    'records': [],
+                    'records_count': 0,
+                    'success': False,
+                    'error': f'Timeout after {worker_timeout}s'
+                })
+            except Exception as e:
+                logger.error(f"❌ P{process_id} ERROR: {e}")
+                results.append({
+                    'process_id': process_id,
+                    'records': [],
+                    'records_count': 0,
+                    'success': False,
+                    'error': str(e)
+                })
     
     # Create DataFrame
     logger.info(f"\n📦 Consolidating {len(all_records)} records...")
