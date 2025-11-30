@@ -4,14 +4,16 @@
 
 ## 🎯 Features
 
-- ✅ **Simplified Playwright Approach**: Browser automation handles all complexity
+- ✅ **V4 Fast Extraction**: Optimized parallel processing with timeout protection
+- ✅ **Streamlit UI**: User-friendly web interface for extraction management
+- ✅ **Parallel Processing**: 4 concurrent workers for ~4x faster extraction
+- ✅ **Memory-First Storage**: Data consolidated in memory, no intermediate files
 - ✅ **Comprehensive Coverage**: Both regime geral and especial
 - ✅ **Automatic Pagination**: Handles multi-page results automatically
-- ✅ **Robust Error Handling**: Retries and graceful degradation
+- ✅ **Robust Error Handling**: Per-worker timeouts and graceful degradation
 - ✅ **Data Validation**: Pydantic models ensure data integrity
 - ✅ **CSV Export**: Excel-compatible format with Brazilian standards
-- ✅ **Comprehensive Logging**: Detailed logs for monitoring and debugging
-- ✅ **Production Ready**: Type hints, tests, configurable settings
+- ✅ **Real-time Progress**: Entity tracking with ETA calculation
 
 ## 📊 Extracted Data
 
@@ -65,69 +67,75 @@ cp .env.example .env
 # Edit .env with your preferences
 ```
 
-### Basic Usage
+### Option 1: Streamlit Web Interface (Recommended)
 
 ```bash
-# Scrape regime geral
-python main.py --regime geral
+# Start the Streamlit app
+streamlit run app/app.py
 
-# Scrape regime especial
-python main.py --regime especial
-
-# Run with visible browser for debugging
-python main.py --regime geral --no-headless
-
-# Custom output filename
-python main.py --regime geral --output meus_precatorios.csv
-
-# Enable debug logging
-python main.py --regime geral --log-level DEBUG
+# Open http://localhost:8501 in your browser
 ```
 
-## ⚠️ Important: Site Structure Inspection Required
+The Streamlit UI provides:
+- Regime selection (Especial/Geral)
+- One-click extraction of all entities
+- Real-time progress tracking with entity status
+- ETA calculation and completion time
+- Success animation and download management
 
-**The scraper currently contains placeholder code** that needs to be completed with actual HTML selectors from the TJRJ portal.
+### Option 2: Command Line (V4 Fast Extraction)
 
-### Why This Approach?
-
-The TJRJ portal is an AngularJS Single Page Application (SPA) with dynamically loaded content. The actual HTML structure (CSS classes, element IDs, table structures) can only be determined by inspecting the live site.
-
-### Next Steps to Complete Implementation
-
-1. **Run with visible browser**:
 ```bash
-python main.py --regime geral --no-headless --log-level DEBUG
+# Extract single entity with parallel processing
+python main_v4_fast.py \
+  --entity-id 1 \
+  --entity-name "Estado do Rio de Janeiro" \
+  --regime especial \
+  --total-pages 2984 \
+  --num-processes 4 \
+  --timeout 20
+
+# Extract with visible browser for debugging
+python main_v4_fast.py \
+  --entity-id 1 \
+  --entity-name "Estado do Rio de Janeiro" \
+  --regime especial \
+  --total-pages 100 \
+  --num-processes 2 \
+  --no-headless
 ```
 
-2. **Inspect the HTML structure**:
-   - While the browser is open, use DevTools (F12) to inspect:
-     - Entity card structure on regime pages
-     - Link patterns to precatório lists
-     - Table structure for precatório data
-     - Pagination button selectors
+### Option 3: Legacy V3 (Deprecated)
 
-3. **Update `src/scraper.py`**:
-   - In `get_entidades()`: Update selectors to extract entity information
-   - In `get_precatorios_entidade()`: Implement navigation and data extraction
-   - Add pagination logic based on actual site structure
-
-4. **Test incrementally**:
 ```bash
-# Test with one entity first
-python main.py --regime geral --no-headless --log-level DEBUG
+# V3 parallel extraction (may hang on large extractions)
+python main_v3_parallel.py \
+  --entity-id 1 \
+  --total-pages 2984 \
+  --num-processes 4 \
+  --skip-expanded
 ```
 
-### Code Sections Requiring Completion
+## ⚡ Performance
 
-Look for these markers in `src/scraper.py`:
+### V4 Fast Extraction Benchmarks
 
-```python
-# ⚠️ NEEDS INSPECTION: Entity card extraction
-# Around line 110 in get_entidades()
+| Metric | Value |
+|--------|-------|
+| Speed per page | ~2 seconds |
+| Effective speed (4 workers) | ~0.5 seconds/page |
+| Estado do RJ (2,984 pages) | ~25 minutes |
+| Timeout protection | 20 min per worker |
 
-# ⚠️ NEEDS INSPECTION: Precatório extraction
-# Around line 160 in get_precatorios_entidade()
-```
+### V4 vs V3 Comparison
+
+| Aspect | V3 | V4 |
+|--------|----|----|
+| Pool method | `pool.map()` (blocking) | `pool.imap_unordered()` (non-blocking) |
+| Timeout | None | 20 min per worker |
+| Storage | Intermediate CSV files | Memory consolidation |
+| Error handling | All-or-nothing | Per-worker graceful |
+| Hang risk | High | Low |
 
 ## 📖 Advanced Usage
 
@@ -187,28 +195,23 @@ pytest tests/test_scraper.py::TestDataModels -v
 
 ```
 Charles/
+├── app/                    # Streamlit Web Interface
+│   ├── app.py              # Main Streamlit application
+│   ├── integration.py      # Backend integration layer
+│   ├── utils.py            # UI utility functions
+│   └── requirements.txt    # App-specific dependencies
 ├── src/
 │   ├── __init__.py
-│   ├── scraper.py          # Main scraper (Playwright)
+│   ├── scraper_v3.py       # V3 Scraper with expanded fields
 │   ├── models.py           # Data models (Pydantic)
 │   ├── config.py           # Configuration management
-│   └── utils.py            # Helper functions (future)
-├── tests/
-│   ├── __init__.py
-│   └── test_scraper.py     # Unit tests
-├── data/
-│   ├── raw/                # Raw data cache
-│   ├── processed/          # CSV outputs
-│   └── cache/              # Response cache
-├── logs/
-│   └── scraper.log         # Application logs
-├── docs/                   # Additional documentation
-├── .env.example            # Configuration template
-├── .gitignore
-├── requirements.txt
-├── CLAUDE.MD              # Original specification
-├── README.md
-└── main.py                # CLI entry point
+│   └── utils.py            # Helper functions
+├── output/                 # CSV output files
+├── logs/                   # Application logs
+├── main_v4_fast.py         # V4 Fast Extraction (recommended)
+├── main_v3_parallel.py     # V3 Parallel (deprecated)
+├── requirements.txt        # Python dependencies
+└── README.md
 ```
 
 ## 🔧 Configuration Options
@@ -312,6 +315,6 @@ For issues or questions:
 
 ---
 
-**Version**: 1.0.0
-**Last Updated**: 2025-01-18
-**Status**: Framework Ready - Requires Site Inspection
+**Version**: 4.0.0
+**Last Updated**: 2025-11-30
+**Status**: Production Ready - V4 Fast Extraction with Streamlit UI
