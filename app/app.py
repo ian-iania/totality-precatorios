@@ -165,14 +165,14 @@ def create_zip_download(files: List[Dict]) -> bytes:
 def render_extraction_tab():
     """Render the extraction tab"""
     
-    # Check if extraction is running
-    if st.session_state.extraction_running and st.session_state.extraction_runner:
-        render_progress_view()
+    # Check if showing success (check this FIRST)
+    if st.session_state.show_success:
+        render_success_view()
         return
     
-    # Check if showing success
-    if st.session_state.show_success and st.session_state.extraction_result:
-        render_success_view()
+    # Check if extraction is running
+    if st.session_state.extraction_running:
+        render_progress_view()
         return
     
     # Normal extraction setup view
@@ -211,9 +211,8 @@ def start_all_entities_extraction(regime: str):
         st.error("Nenhuma entidade encontrada.")
         return
     
-    # Filter entities with pending > 0 and sort by pending (descending)
+    # Filter entities with pending > 0 (keep original order from site)
     entities = [e for e in entities if e['precatorios_pendentes'] > 0]
-    entities = sorted(entities, key=lambda x: x['precatorios_pendentes'], reverse=True)
     
     if not entities:
         st.warning("Nenhuma entidade com precatórios pendentes encontrada.")
@@ -390,6 +389,9 @@ def render_progress_view():
     
     # Check if current entity finished
     if not progress.get('is_running', False):
+        from loguru import logger
+        logger.info(f"Entity {current_idx} finished. Moving to next...")
+        
         # Mark current entity as complete
         if current_idx < len(entities):
             completed.add(entities[current_idx]['id'])
@@ -399,17 +401,24 @@ def render_progress_view():
         st.session_state.extraction_runner = None
         
         # Move to next entity
-        st.session_state.current_entity_index += 1
+        next_idx = current_idx + 1
+        st.session_state.current_entity_index = next_idx
+        logger.info(f"Next entity index: {next_idx} / {len(entities)}")
         
-        if st.session_state.current_entity_index >= len(entities):
+        if next_idx >= len(entities):
             # All entities done!
+            logger.info("All entities completed!")
             st.session_state.extraction_running = False
             st.session_state.show_success = True
             st.session_state.extraction_result = {
                 "success": True,
                 "total_entities": len(entities),
-                "completed_entities": len(completed) + 1
+                "completed_entities": len(completed)
             }
+        else:
+            # Start next entity immediately
+            logger.info(f"Starting next entity: {entities[next_idx]['nome']}")
+            start_next_entity()
         
         st.rerun()
         return
@@ -496,34 +505,55 @@ def render_progress_view():
 def render_success_view():
     """Render the success view after extraction of all entities"""
     
-    result = st.session_state.extraction_result
-    entities = st.session_state.entities_to_process
-    completed = st.session_state.completed_entities
-    total_stats = st.session_state.total_stats
-    regime = st.session_state.processing_regime
+    result = st.session_state.get('extraction_result', {})
+    entities = st.session_state.get('entities_to_process', [])
+    completed = st.session_state.get('completed_entities', set())
+    total_stats = st.session_state.get('total_stats', {})
+    regime = st.session_state.get('processing_regime', 'geral')
+    output_file = st.session_state.get('output_file', '')
+    start_time = st.session_state.get('extraction_start_time')
+    
+    # Calculate duration
+    if start_time:
+        duration = datetime.now() - start_time
+        duration_str = f"{int(duration.total_seconds() // 60)}min {int(duration.total_seconds() % 60)}s"
+    else:
+        duration_str = "N/A"
     
     # Show confetti animation
     show_confetti()
     
-    # Success message with timestamp
-    finish_time = datetime.now().strftime("%d/%m/%Y %H:%M")
-    total_records = total_stats.get('pendentes', 0)
+    # Success header
+    st.success("✅ Extração Concluída!")
     
-    st.success(f"✅ Extração concluída às {finish_time}")
-    st.caption(f"{len(completed)} entidades processadas — {format_number(total_records)} registros extraídos")
+    # Summary metrics
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        st.metric("Entidades", f"{len(completed)}/{len(entities)}")
+    with col2:
+        st.metric("Registros", format_number(total_stats.get('pendentes', 0)))
+    with col3:
+        st.metric("Duração", duration_str)
+    
+    # Details
+    regime_label = "Especial" if regime == "especial" else "Geral"
+    st.caption(f"Regime: {regime_label} — Arquivo: {output_file}")
     
     st.markdown("---")
     
-    # Show all entities with checkmarks
-    st.markdown("**Entidades Concluídas:**")
-    for entity in entities:
-        if entity['id'] in completed:
-            st.markdown(f"✅ {entity['nome']} ({format_number(entity['precatorios_pendentes'])})")
+    # Show completed entities in expander
+    with st.expander(f"Ver entidades processadas ({len(completed)})", expanded=False):
+        for entity in entities:
+            if entity['id'] in completed:
+                st.caption(f"✓ {entity['nome']} ({format_number(entity['precatorios_pendentes'])})")
     
     st.markdown("---")
     
-    # New extraction button
-    if st.button("🔄 Nova Extração", type="primary", use_container_width=True):
+    # File available message
+    st.info("📁 O arquivo gerado está disponível na aba **Downloads**.")
+    
+    # OK button to reset
+    if st.button("OK", type="primary"):
         # Reset all state
         st.session_state.show_success = False
         st.session_state.extraction_result = None
