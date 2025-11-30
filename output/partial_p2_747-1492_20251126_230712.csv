@@ -1,0 +1,701 @@
+﻿entidade_grupo;id_entidade_grupo;entidade_devedora;regime;ordem;numero_precatorio;situacao;natureza;orcamento;valor_historico;saldo_atualizado;classe;localizacao;peticoes_a_juntar;ultima_fase;possui_herdeiros;possui_cessao;possui_retificador;timestamp_extracao
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7463º;2021.10004-3;Ativo;Alimentícia;2023;51386.93;344780.93;;;;;;;;2025-11-26 22:59:56.483585
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7464º;2021.10001-9;Ativo;Alimentícia;2023;162741.28;128413.84;;;;;;;;2025-11-26 22:59:56.550552
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7465º;2021.10003-5;Ativo;Alimentícia;2023;219564.99;211201.97;;;;;;;;2025-11-26 22:59:56.603537
+Estado do Rio de Janeiro;1;FUNDERJ-FUNDAÇÃO DEPARTAMENTO DE ESTRADAS DE RODAGEM-DER RJ;especial;7466º;2021.09932-0;Ativo;Alimentícia;2023;51315.46;75361.66;;;;;;;;2025-11-26 22:59:56.667090
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7467º;2021.09956-8;Ativo;Alimentícia;2023;500548.23;1577051.09;;;;;;;;2025-11-26 22:59:56.719392
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7468º;2021.09947-9;Ativo;Alimentícia;2023;198763.44;146038.62;;;;;;;;2025-11-26 22:59:56.771399
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7469º;2021.09946-0;Ativo;Alimentícia;2023;198763.44;146038.62;;;;;;;;2025-11-26 22:59:56.819316
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7470º;2021.09933-9;Ativo;Alimentícia;2023;277294.96;291375.49;;;;;;;;2025-11-26 22:59:56.869738
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7471º;2021.09934-7;Ativo;Alimentícia;2023;11945.12;18924.62;;;;;;;;2025-11-26 22:59:56.917366
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7472º;2021.09942-8;Ativo;Alimentícia;2023;159753.19;253096.46;;;;;;;;2025-11-26 22:59:56.966709
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7473º;2021.09978-9;Ativo;Alimentícia;2023;42838.74;86606.95;;;;;;;;2025-11-26 23:00:01.566826
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7474º;2021.09969-0;Ativo;Alimentícia;2023;85677.38;10358.87;;;;;;;;2025-11-26 23:00:01.621113
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7475º;2021.10037-0;Ativo;Alimentícia;2023;189234.21;133397.11;;;;;;;;2025-11-26 23:00:01.679769
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7476º;2021.10261-5;Suspensão Administrativa;Alimentícia;2023;145296.45;233276.56;;;;;;;;2025-11-26 23:00:01.755082
+Estado do Rio de Janeiro;1;IPERJ;especial;7477º;2021.09988-6;Ativo;Alimentícia;2023;23070.28;58287.26;;;;;;;;2025-11-26 23:00:01.860648
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7478º;2021.10094-9;Ativo;Alimentícia;2023;7074.76;11881.17;;;;;;;;2025-11-26 23:00:01.936816
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7479º;2021.10095-7;Ativo;Alimentícia;2023;51386.93;344780.93;;;;;;;;2025-11-26 23:00:01.990344
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7480º;2021.10030-2;Ativo;Alimentícia;2023;111542.45;41305.41;;;;;;;;2025-11-26 23:00:02.049508
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7481º;2021.09977-0;Ativo;Alimentícia;2023;1066078.94;1361760.35;;;;;;;;2025-11-26 23:00:02.105195
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7482º;2021.09962-2;Ativo;Alimentícia;2023;618845.86;772588.82;;;;;;;;2025-11-26 23:00:02.159154
+Estado do Rio de Janeiro;1;IPERJ;especial;7483º;2021.10036-1;Ativo;Alimentícia;2023;152778.10;237623.67;;;;;;;;2025-11-26 23:00:06.787891
+Estado do Rio de Janeiro;1;IPERJ;especial;7484º;2021.09987-8;Ativo;Alimentícia;2023;118827.41;22010.82;;;;;;;;2025-11-26 23:00:06.841609
+Estado do Rio de Janeiro;1;IPERJ;especial;7485º;2021.09983-5;Ativo;Alimentícia;2023;118827.41;22010.82;;;;;;;;2025-11-26 23:00:06.900602
+Estado do Rio de Janeiro;1;IPERJ;especial;7486º;2021.09965-7;Ativo;Alimentícia;2023;118827.41;22010.82;;;;;;;;2025-11-26 23:00:06.967703
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7487º;2021.10093-0;Ativo;Alimentícia;2023;111542.45;41305.41;;;;;;;;2025-11-26 23:00:07.030090
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7488º;2021.10033-7;Ativo;Alimentícia;2023;111542.45;204044.82;;;;;;;;2025-11-26 23:00:07.089240
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7489º;2021.09997-5;Ativo;Alimentícia;2023;111542.45;41305.41;;;;;;;;2025-11-26 23:00:07.146872
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7490º;2021.10034-5;Ativo;Alimentícia;2023;111542.45;41305.41;;;;;;;;2025-11-26 23:00:07.195025
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7491º;2021.09998-3;Ativo;Alimentícia;2023;111542.45;41305.41;;;;;;;;2025-11-26 23:00:07.246578
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7492º;2021.10029-9;Ativo;Alimentícia;2023;55771.23;102022.42;;;;;;;;2025-11-26 23:00:07.296717
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7493º;2021.10031-0;Ativo;Alimentícia;2023;111542.45;41305.41;;;;;;;;2025-11-26 23:00:11.910064
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7494º;2021.10032-9;Ativo;Alimentícia;2023;55771.23;102022.42;;;;;;;;2025-11-26 23:00:11.960392
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7495º;2021.10009-4;Ativo;Alimentícia;2023;300658.27;324971.92;;;;;;;;2025-11-26 23:00:12.008076
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7496º;2021.10045-0;Ativo;Alimentícia;2023;112471.72;11966.05;;;;;;;;2025-11-26 23:00:12.061490
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7497º;2021.10077-9;Ativo;Alimentícia;2023;28744.84;3423.06;;;;;;;;2025-11-26 23:00:12.112753
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7498º;2021.10072-8;Ativo;Alimentícia;2023;28744.84;3423.06;;;;;;;;2025-11-26 23:00:12.161889
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7499º;2021.10011-6;Suspensão Administrativa;Alimentícia;2023;28744.84;87425.60;;;;;;;;2025-11-26 23:00:12.214801
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7500º;2021.10078-7;Ativo;Alimentícia;2023;14372.42;43712.80;;;;;;;;2025-11-26 23:00:12.264300
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7501º;2021.10080-9;Ativo;Alimentícia;2023;11401.53;34677.03;;;;;;;;2025-11-26 23:00:12.313324
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7502º;2021.09984-3;Ativo;Alimentícia;2023;1351713.46;1892540.12;;;;;;;;2025-11-26 23:00:12.361208
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7503º;2021.10053-1;Ativo;Alimentícia;2023;165640.38;113618.12;;;;;;;;2025-11-26 23:00:16.984117
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7504º;2021.09989-4;Ativo;Alimentícia;2023;47400.30;77138.12;;;;;;;;2025-11-26 23:00:17.044516
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7505º;2021.10051-5;Suspensão Administrativa;Alimentícia;2023;774762.91;1270399.66;;;;;;;;2025-11-26 23:00:17.105556
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7506º;2021.10074-4;Ativo;Alimentícia;2023;132240.82;86921.74;;;;;;;;2025-11-26 23:00:17.169105
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7507º;2021.10221-6;Ativo;Alimentícia;2023;127410.85;1083318.93;;;;;;;;2025-11-26 23:00:17.230215
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7508º;2021.09990-8;Suspensão Administrativa;Alimentícia;2023;63705.43;620508.03;;;;;;;;2025-11-26 23:00:17.297057
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7509º;2021.10272-0;Ativo;Alimentícia;2023;63705.43;228028.28;;;;;;;;2025-11-26 23:00:17.355474
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7510º;2021.10056-6;Ativo;Alimentícia;2023;128502.81;127632.38;;;;;;;;2025-11-26 23:00:17.410496
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7511º;2021.10061-2;Suspensão Administrativa;Alimentícia;2023;139248.71;217380.07;;;;;;;;2025-11-26 23:00:17.466264
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7512º;2021.10085-0;Ativo;Alimentícia;2023;320860.37;429588.30;;;;;;;;2025-11-26 23:00:17.524287
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7513º;2021.10102-3;Ativo;Alimentícia;2023;41735.32;65015.78;;;;;;;;2025-11-26 23:00:22.150389
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7514º;2021.10086-8;Ativo;Alimentícia;2023;162833.09;92286.74;;;;;;;;2025-11-26 23:00:22.200512
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7515º;2021.10103-1;Ativo;Alimentícia;2023;82501.47;8864.74;;;;;;;;2025-11-26 23:00:22.278151
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7516º;2021.10057-4;Ativo;Alimentícia;2023;117439.75;181741.50;;;;;;;;2025-11-26 23:00:22.329475
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7517º;2021.10027-2;Ativo;Alimentícia;2023;134882.66;34378.87;;;;;;;;2025-11-26 23:00:22.382567
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7518º;2021.10084-1;Ativo;Alimentícia;2023;134882.66;197211.75;;;;;;;;2025-11-26 23:00:22.435048
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7519º;2021.10040-0;Ativo;Alimentícia;2023;134882.66;197211.76;;;;;;;;2025-11-26 23:00:22.485063
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7520º;2021.10079-5;Ativo;Alimentícia;2023;130865.49;204563.00;;;;;;;;2025-11-26 23:00:22.535305
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7521º;2021.10105-8;Suspensão Administrativa;Alimentícia;2023;828713.42;1349838.85;;;;;;;;2025-11-26 23:00:22.585620
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7522º;2021.10028-0;Ativo;Alimentícia;2023;24687.97;47235.19;;;;;;;;2025-11-26 23:00:22.634643
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7523º;2021.10083-3;Ativo;Alimentícia;2023;24687.97;47235.19;;;;;;;;2025-11-26 23:00:27.251487
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7524º;2021.10042-6;Ativo;Alimentícia;2023;24687.97;47235.19;;;;;;;;2025-11-26 23:00:27.324603
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7525º;2021.10054-0;Ativo;Alimentícia;2023;201111.53;153294.69;;;;;;;;2025-11-26 23:00:27.376282
+Estado do Rio de Janeiro;1;PRODERJ;especial;7526º;2021.10069-8;Suspensão Administrativa;Alimentícia;2023;304923.40;313783.82;;;;;;;;2025-11-26 23:00:27.427972
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7527º;2021.10012-4;Ativo;Alimentícia;2023;551579.59;914256.67;;;;;;;;2025-11-26 23:00:27.478561
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7528º;2021.10014-0;Ativo;Alimentícia;2023;55157.95;91425.65;;;;;;;;2025-11-26 23:00:27.528871
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7529º;2021.09996-7;Ativo;Alimentícia;2023;177765.21;115243.05;;;;;;;;2025-11-26 23:00:27.581209
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7530º;2021.10016-7;Suspensão Administrativa;Alimentícia;2023;24304.48;37831.42;;;;;;;;2025-11-26 23:00:27.629682
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7531º;2021.10052-3;Suspensão Administrativa;Alimentícia;2023;60504.24;93986.85;;;;;;;;2025-11-26 23:00:27.683441
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7532º;2021.10019-1;Ativo;Alimentícia;2023;142392.36;67901.63;;;;;;;;2025-11-26 23:00:27.732203
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7533º;2021.10062-0;Ativo;Alimentícia;2023;108750.43;29470.56;;;;;;;;2025-11-26 23:00:32.406562
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7534º;2021.10123-6;Ativo;Alimentícia;2023;116767.31;55985.86;;;;;;;;2025-11-26 23:00:32.790460
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7535º;2021.10132-5;Ativo;Alimentícia;2023;63989.10;14164.42;;;;;;;;2025-11-26 23:00:32.993941
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7536º;2021.10098-1;Ativo;Alimentícia;2023;247783.39;238516.03;;;;;;;;2025-11-26 23:00:33.060112
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7537º;2021.10133-3;Ativo;Alimentícia;2023;16029.42;25395.35;;;;;;;;2025-11-26 23:00:33.118558
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7538º;2021.10063-9;Ativo;Alimentícia;2023;209555.96;168426.89;;;;;;;;2025-11-26 23:00:33.179577
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7539º;2021.10110-4;Ativo;Alimentícia;2023;3738.79;5900.71;;;;;;;;2025-11-26 23:00:33.240057
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7540º;2021.10126-0;Suspensão Administrativa;Alimentícia;2023;88418.97;172142.90;;;;;;;;2025-11-26 23:00:33.301460
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7541º;2021.10352-2;Ativo;Alimentícia;2023;88418.97;172142.90;;;;;;;;2025-11-26 23:00:33.367291
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7542º;2021.10131-7;Ativo;Alimentícia;2023;79183.86;61344.09;;;;;;;;2025-11-26 23:00:33.420355
+Estado do Rio de Janeiro;1;PRODERJ;especial;7543º;2021.10271-2;Suspensão Administrativa;Alimentícia;2023;3039955.95;4793779.94;;;;;;;;2025-11-26 23:00:38.027136
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7544º;2021.10135-0;Suspensão Administrativa;Alimentícia;2023;108510.18;170928.63;;;;;;;;2025-11-26 23:00:38.081404
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7545º;2021.10301-8;Ativo;Alimentícia;2023;33629.97;108176.86;;;;;;;;2025-11-26 23:00:38.134030
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7546º;2021.10417-0;Ativo;Alimentícia;2023;84881.72;232251.24;;;;;;;;2025-11-26 23:00:38.186730
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7547º;2021.10416-2;Ativo;Alimentícia;2023;84881.72;69636.77;;;;;;;;2025-11-26 23:00:38.244748
+Estado do Rio de Janeiro;1;FUNDERJ-FUNDAÇÃO DEPARTAMENTO DE ESTRADAS DE RODAGEM-DER RJ;especial;7548º;2021.10146-5;Ativo;Alimentícia;2023;61058.69;125689.43;;;;;;;;2025-11-26 23:00:38.302862
+Estado do Rio de Janeiro;1;FUNDERJ-FUNDAÇÃO DEPARTAMENTO DE ESTRADAS DE RODAGEM-DER RJ;especial;7549º;2021.10147-3;Ativo;Alimentícia;2023;61058.69;262.68;;;;;;;;2025-11-26 23:00:38.358625
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7550º;2021.10156-2;Ativo;Alimentícia;2023;11421.79;18576.73;;;;;;;;2025-11-26 23:00:38.410991
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7551º;2021.10119-8;Ativo;Alimentícia;2023;55363.47;89112.71;;;;;;;;2025-11-26 23:00:38.468332
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7552º;2021.10139-2;Ativo;Alimentícia;2023;24984.60;38699.68;;;;;;;;2025-11-26 23:00:38.525753
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7553º;2021.10143-0;Ativo;Alimentícia;2023;499691.95;773993.54;;;;;;;;2025-11-26 23:00:43.150555
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7554º;2021.10148-1;Ativo;Alimentícia;2023;65110.41;100499.46;;;;;;;;2025-11-26 23:00:43.205010
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7555º;2021.10130-9;Ativo;Alimentícia;2023;26720.50;42863.88;;;;;;;;2025-11-26 23:00:43.274810
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7556º;2021.10333-6;Ativo;Alimentícia;2023;284705.57;260731.40;;;;;;;;2025-11-26 23:00:43.344955
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7557º;2021.10206-2;Ativo;Alimentícia;2023;38828.42;55453.29;;;;;;;;2025-11-26 23:00:43.410358
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7558º;2021.10181-3;Ativo;Alimentícia;2023;171824.27;128899.23;;;;;;;;2025-11-26 23:00:43.469037
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7559º;2021.10163-5;Ativo;Alimentícia;2023;59974.81;86578.86;;;;;;;;2025-11-26 23:00:43.534357
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7560º;2021.10165-1;Ativo;Alimentícia;2023;933757.72;1190807.76;;;;;;;;2025-11-26 23:00:43.591810
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7561º;2021.10164-3;Ativo;Alimentícia;2023;59974.81;86578.86;;;;;;;;2025-11-26 23:00:43.646612
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7562º;2021.10297-6;Suspensão Administrativa;Alimentícia;2023;22906.22;32440.73;;;;;;;;2025-11-26 23:00:43.701243
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7563º;2021.10172-4;Ativo;Alimentícia;2023;179619.12;293767.89;;;;;;;;2025-11-26 23:00:48.310134
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7564º;2021.10166-0;Ativo;Alimentícia;2023;52802.62;92978.24;;;;;;;;2025-11-26 23:00:48.366736
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7565º;2021.10329-8;Ativo;Alimentícia;2023;517158.19;672670.62;;;;;;;;2025-11-26 23:00:48.421605
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7566º;2021.10182-1;Suspensão Administrativa;Alimentícia;2023;51715.82;83231.01;;;;;;;;2025-11-26 23:00:48.480431
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7567º;2021.10174-0;Suspensão Administrativa;Alimentícia;2023;136098.80;212561.75;;;;;;;;2025-11-26 23:00:48.540097
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7568º;2021.10288-7;Ativo;Alimentícia;2023;60735.60;161608.17;;;;;;;;2025-11-26 23:00:48.601200
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7569º;2021.10287-9;Ativo;Alimentícia;2023;57189.41;7662.74;;;;;;;;2025-11-26 23:00:48.658567
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7570º;2021.10173-2;Ativo;Alimentícia;2023;274908.89;282594.00;;;;;;;;2025-11-26 23:00:48.710352
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7571º;2021.10203-8;Ativo;Alimentícia;2023;29796.83;48344.04;;;;;;;;2025-11-26 23:00:48.765621
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7572º;2021.10190-2;Ativo;Alimentícia;2023;46882.65;17987.61;;;;;;;;2025-11-26 23:00:48.820391
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7573º;2021.10307-7;Suspensão Administrativa;Alimentícia;2023;26345.29;42604.89;;;;;;;;2025-11-26 23:00:53.414486
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7574º;2021.10197-0;Suspensão Administrativa;Alimentícia;2023;1012946.56;2026768.27;;;;;;;;2025-11-26 23:00:53.469424
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7575º;2021.10312-3;Suspensão Administrativa;Alimentícia;2023;133048.00;41834.33;;;;;;;;2025-11-26 23:00:53.524540
+Estado do Rio de Janeiro;1;FAETEC;especial;7576º;2021.10331-0;Ativo;Alimentícia;2023;128813.93;242174.04;;;;;;;;2025-11-26 23:00:53.584016
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7577º;2021.10413-8;Ativo;Alimentícia;2023;155014.15;250751.28;;;;;;;;2025-11-26 23:00:53.638239
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7578º;2021.10337-9;Ativo;Alimentícia;2023;77510.06;125380.46;;;;;;;;2025-11-26 23:00:53.696260
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7579º;2021.10334-4;Suspensão Administrativa;Alimentícia;2023;74510.96;120718.90;;;;;;;;2025-11-26 23:00:53.749686
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7580º;2021.10237-2;Ativo;Alimentícia;2023;30291.24;80018.99;;;;;;;;2025-11-26 23:00:53.800430
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7581º;2021.10230-5;Ativo;Alimentícia;2023;304335.94;451900.42;;;;;;;;2025-11-26 23:00:53.854433
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7582º;2021.10238-0;Ativo;Alimentícia;2023;493337.56;620670.91;;;;;;;;2025-11-26 23:00:53.907680
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7583º;2021.10229-1;Ativo;Alimentícia;2023;38687.07;106828.22;;;;;;;;2025-11-26 23:00:58.501002
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7584º;2021.10218-6;Ativo;Alimentícia;2023;57831.83;160241.19;;;;;;;;2025-11-26 23:00:58.544710
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7585º;2021.10231-3;Ativo;Alimentícia;2023;892539.77;1647764.05;;;;;;;;2025-11-26 23:00:58.600026
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7586º;2021.10201-1;Suspensão Administrativa;Alimentícia;2023;279239.85;449179.82;;;;;;;;2025-11-26 23:00:58.662555
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7587º;2021.10234-8;Suspensão Administrativa;Alimentícia;2023;896163.61;1442805.58;;;;;;;;2025-11-26 23:00:58.718718
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7588º;2021.10225-9;Ativo;Alimentícia;2023;118592.32;141417.42;;;;;;;;2025-11-26 23:00:58.772325
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7589º;2021.10216-0;Ativo;Alimentícia;2023;118592.30;141417.37;;;;;;;;2025-11-26 23:00:58.841936
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7590º;2021.10227-5;Ativo;Alimentícia;2023;118592.32;141417.42;;;;;;;;2025-11-26 23:00:58.896183
+Estado do Rio de Janeiro;1;IPERJ;especial;7591º;2021.10270-4;Ativo;Alimentícia;2023;1016730.85;4340180.35;;;;;;;;2025-11-26 23:00:58.949806
+Estado do Rio de Janeiro;1;COMPANHIA FLUMINENSE DE TRENS URBANOS - FLUMITRENS;especial;7592º;2021.10561-4;Suspensão Administrativa;Alimentícia;2023;50217.78;98725.09;;;;;;;;2025-11-26 23:00:59.003459
+Estado do Rio de Janeiro;1;PRODERJ;especial;7593º;2021.10233-0;Ativo;Alimentícia;2023;2092759.92;3121435.73;;;;;;;;2025-11-26 23:01:03.613581
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7594º;2021.10217-8;Ativo;Alimentícia;2023;31115.95;50898.68;;;;;;;;2025-11-26 23:01:03.659469
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7595º;2021.10494-4;Ativo;Alimentícia;2023;208229.60;165005.52;;;;;;;;2025-11-26 23:01:03.714246
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7596º;2021.10493-6;Ativo;Alimentícia;2023;89241.25;140047.89;;;;;;;;2025-11-26 23:01:03.776100
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7597º;2021.10223-2;Ativo;Alimentícia;2023;29747.08;46912.84;;;;;;;;2025-11-26 23:01:03.829182
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7598º;2021.10303-4;Suspensão Administrativa;Alimentícia;2023;212300.23;330555.78;;;;;;;;2025-11-26 23:01:03.887484
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7599º;2021.10205-4;Ativo;Alimentícia;2023;388390.95;474538.83;;;;;;;;2025-11-26 23:01:03.947375
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7600º;2021.10250-0;Ativo;Alimentícia;2023;796465.22;1052816.60;;;;;;;;2025-11-26 23:01:04.006137
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7601º;2021.10276-3;Suspensão Administrativa;Alimentícia;2023;25804.32;40780.66;;;;;;;;2025-11-26 23:01:04.065681
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7602º;2021.10242-9;Suspensão Administrativa;Alimentícia;2023;25788.31;40336.01;;;;;;;;2025-11-26 23:01:04.129825
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7603º;2021.10532-0;Ativo;Alimentícia;2023;25788.31;40336.01;;;;;;;;2025-11-26 23:01:08.727651
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7604º;2021.10531-2;Ativo;Alimentícia;2023;25788.31;40336.01;;;;;;;;2025-11-26 23:01:08.771621
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7605º;2021.10241-0;Ativo;Alimentícia;2023;25788.31;40336.01;;;;;;;;2025-11-26 23:01:08.838322
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7606º;2021.10310-7;Ativo;Alimentícia;2023;92711.75;349293.61;;;;;;;;2025-11-26 23:01:08.902669
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7607º;2021.10281-0;Ativo;Alimentícia;2023;86130.15;10987.81;;;;;;;;2025-11-26 23:01:08.965676
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7608º;2021.10239-9;Suspensão Administrativa;Alimentícia;2023;89102.18;138042.92;;;;;;;;2025-11-26 23:01:09.029388
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7609º;2021.10236-4;Suspensão Administrativa;Alimentícia;2023;220435.49;341513.08;;;;;;;;2025-11-26 23:01:09.086383
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7610º;2021.10279-8;Suspensão Administrativa;Alimentícia;2023;38633.06;58096.18;;;;;;;;2025-11-26 23:01:09.144198
+Estado do Rio de Janeiro;1;FUNDERJ-FUNDAÇÃO DEPARTAMENTO DE ESTRADAS DE RODAGEM-DER RJ;especial;7611º;2021.10306-9;Ativo;Alimentícia;2023;16162.65;18577.83;;;;;;;;2025-11-26 23:01:09.200044
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7612º;2021.10248-8;Ativo;Alimentícia;2023;280648.38;334148.71;;;;;;;;2025-11-26 23:01:09.258037
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7613º;2021.10249-6;Ativo;Alimentícia;2023;280648.38;334148.71;;;;;;;;2025-11-26 23:01:13.861419
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7614º;2021.10262-3;Ativo;Alimentícia;2023;159494.91;251450.10;;;;;;;;2025-11-26 23:01:13.902268
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7615º;2021.10274-7;Ativo;Alimentícia;2023;239034.65;372617.15;;;;;;;;2025-11-26 23:01:13.956010
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7616º;2021.10265-8;Ativo;Alimentícia;2023;909391.16;1426813.00;;;;;;;;2025-11-26 23:01:14.012326
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7617º;2021.10243-7;Ativo;Alimentícia;2023;36912.92;74307.95;;;;;;;;2025-11-26 23:01:14.068854
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7618º;2021.10309-3;Ativo;Alimentícia;2023;119214.08;73238.66;;;;;;;;2025-11-26 23:01:14.125352
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7619º;2022.04525-9;Ativo;Alimentícia;2023;86772.04;136276.42;;;;;;;;2025-11-26 23:01:14.186819
+Estado do Rio de Janeiro;1;PRODERJ;especial;7620º;2021.10266-6;Ativo;Alimentícia;2023;447006.41;472443.71;;;;;;;;2025-11-26 23:01:14.242498
+Estado do Rio de Janeiro;1;FUNDERJ-FUNDAÇÃO DEPARTAMENTO DE ESTRADAS DE RODAGEM-DER RJ;especial;7621º;2021.10295-0;Ativo;Alimentícia;2023;6644.61;1405.07;;;;;;;;2025-11-26 23:01:14.294294
+Estado do Rio de Janeiro;1;FUNDERJ-FUNDAÇÃO DEPARTAMENTO DE ESTRADAS DE RODAGEM-DER RJ;especial;7622º;2021.10518-5;Ativo;Alimentícia;2023;6644.61;1405.07;;;;;;;;2025-11-26 23:01:14.347355
+Estado do Rio de Janeiro;1;FUNDERJ-FUNDAÇÃO DEPARTAMENTO DE ESTRADAS DE RODAGEM-DER RJ;especial;7623º;2021.10539-8;Ativo;Alimentícia;2023;6644.61;1405.07;;;;;;;;2025-11-26 23:01:18.937157
+Estado do Rio de Janeiro;1;FUNDERJ-FUNDAÇÃO DEPARTAMENTO DE ESTRADAS DE RODAGEM-DER RJ;especial;7624º;2021.10542-8;Ativo;Alimentícia;2023;6644.61;1405.07;;;;;;;;2025-11-26 23:01:18.970535
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7625º;2021.10283-6;Ativo;Alimentícia;2023;180730.46;160975.45;;;;;;;;2025-11-26 23:01:19.002154
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7626º;2021.10253-4;Suspensão Administrativa;Alimentícia;2023;407820.71;608865.53;;;;;;;;2025-11-26 23:01:19.049842
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7627º;2021.10544-4;Suspensão Administrativa;Alimentícia;2023;130873.58;206292.80;;;;;;;;2025-11-26 23:01:19.106988
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7628º;2021.10256-9;Ativo;Alimentícia;2023;44139.95;69482.09;;;;;;;;2025-11-26 23:01:19.164563
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7629º;2021.10434-0;Ativo;Alimentícia;2023;37632.61;59185.54;;;;;;;;2025-11-26 23:01:19.218195
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7630º;2021.10292-5;Ativo;Alimentícia;2023;145813.53;242901.78;;;;;;;;2025-11-26 23:01:19.267969
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7631º;2021.10258-5;Suspensão Administrativa;Alimentícia;2023;71784.94;116511.61;;;;;;;;2025-11-26 23:01:19.322326
+Estado do Rio de Janeiro;1;IPERJ;especial;7632º;2021.10269-0;Ativo;Alimentícia;2023;279013.20;472257.68;;;;;;;;2025-11-26 23:01:19.381958
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7633º;2022.03336-6;Ativo;Alimentícia;2023;89577.06;142246.07;;;;;;;;2025-11-26 23:01:23.984472
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7634º;2021.10259-3;Ativo;Alimentícia;2023;165190.44;89212.67;;;;;;;;2025-11-26 23:01:24.017843
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7635º;2021.10369-7;Ativo;Alimentícia;2023;31719.00;48841.11;;;;;;;;2025-11-26 23:01:24.052152
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7636º;2021.10372-7;Ativo;Alimentícia;2023;55050.03;78875.54;;;;;;;;2025-11-26 23:01:24.087191
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7637º;2021.10540-1;Suspensão Administrativa;Alimentícia;2023;19111.84;209212.31;;;;;;;;2025-11-26 23:01:24.132153
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7638º;2021.10315-8;Suspensão Administrativa;Alimentícia;2023;229837.61;243105.33;;;;;;;;2025-11-26 23:01:24.189792
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7639º;2021.10314-0;Ativo;Alimentícia;2023;11624.93;21601.78;;;;;;;;2025-11-26 23:01:24.244306
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7640º;2021.10548-7;Suspensão Administrativa;Alimentícia;2023;1136937.19;1818029.57;;;;;;;;2025-11-26 23:01:24.308535
+Estado do Rio de Janeiro;1;IPERJ;especial;7641º;2021.10359-0;Ativo;Alimentícia;2023;40399.67;68731.51;;;;;;;;2025-11-26 23:01:24.372966
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7642º;2021.10418-9;Ativo;Alimentícia;2023;117340.84;20287.96;;;;;;;;2025-11-26 23:01:24.440952
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7643º;2021.10363-8;Ativo;Alimentícia;2023;114716.30;163433.08;;;;;;;;2025-11-26 23:01:29.052282
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7644º;2021.10366-2;Ativo;Alimentícia;2023;106642.75;151931.10;;;;;;;;2025-11-26 23:01:29.084285
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7645º;2021.10551-7;Ativo;Alimentícia;2023;23700.33;60494.90;;;;;;;;2025-11-26 23:01:29.117375
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7646º;2021.10323-9;Ativo;Alimentícia;2023;141081.19;47352.49;;;;;;;;2025-11-26 23:01:29.151950
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7647º;2021.10491-0;Ativo;Alimentícia;2023;338255.18;450334.09;;;;;;;;2025-11-26 23:01:29.188469
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7648º;2021.10357-3;Ativo;Alimentícia;2023;150574.81;72765.27;;;;;;;;2025-11-26 23:01:29.229925
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7649º;2021.10385-9;Ativo;Alimentícia;2023;201340.44;318062.55;;;;;;;;2025-11-26 23:01:29.287241
+Estado do Rio de Janeiro;1;PRODERJ;especial;7650º;2021.10403-0;Ativo;Alimentícia;2023;748577.72;1015250.15;;;;;;;;2025-11-26 23:01:29.346029
+Estado do Rio de Janeiro;1;PRODERJ;especial;7651º;2021.10390-5;Ativo;Alimentícia;2023;74857.77;117399.06;;;;;;;;2025-11-26 23:01:29.399528
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7652º;2021.10395-6;Ativo;Alimentícia;2023;43495.90;120250.33;;;;;;;;2025-11-26 23:01:29.454778
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7653º;2021.10410-3;Ativo;Alimentícia;2023;44536.72;119719.44;;;;;;;;2025-11-26 23:01:34.057867
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7654º;2021.10341-7;Ativo;Alimentícia;2023;251240.10;381495.33;;;;;;;;2025-11-26 23:01:34.117629
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7655º;2021.10383-2;Ativo;Alimentícia;2023;297611.30;477304.37;;;;;;;;2025-11-26 23:01:34.156099
+Estado do Rio de Janeiro;1;FUNDERJ-FUNDAÇÃO DEPARTAMENTO DE ESTRADAS DE RODAGEM-DER RJ;especial;7656º;2021.10484-7;Ativo;Alimentícia;2023;95333.10;148600.62;;;;;;;;2025-11-26 23:01:34.192334
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7657º;2021.10436-7;Ativo;Alimentícia;2023;30043.06;64363.35;;;;;;;;2025-11-26 23:01:34.224873
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7658º;2021.10375-1;Ativo;Alimentícia;2023;111200.57;39552.82;;;;;;;;2025-11-26 23:01:34.255480
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7659º;2021.10374-3;Ativo;Alimentícia;2023;595858.52;1135105.22;;;;;;;;2025-11-26 23:01:34.291046
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7660º;2022.00178-2;Ativo;Alimentícia;2023;138757.67;302105.79;;;;;;;;2025-11-26 23:01:34.344626
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7661º;2021.10407-3;Ativo;Alimentícia;2023;565273.11;1227247.93;;;;;;;;2025-11-26 23:01:34.408413
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7662º;2021.10364-6;Ativo;Alimentícia;2023;872820.63;1780175.81;;;;;;;;2025-11-26 23:01:34.468253
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7663º;2021.10376-0;Ativo;Alimentícia;2023;630000.74;1217293.11;;;;;;;;2025-11-26 23:01:39.053455
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7664º;2021.10429-4;Suspensão Administrativa;Alimentícia;2023;106464.29;152794.21;;;;;;;;2025-11-26 23:01:39.084244
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7665º;2022.00006-9;Ativo;Alimentícia;2023;71676.72;122279.65;;;;;;;;2025-11-26 23:01:39.116420
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7666º;2022.00003-4;Suspensão Administrativa;Alimentícia;2023;1254173.18;1824036.67;;;;;;;;2025-11-26 23:01:39.148998
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7667º;2021.10381-6;Ativo;Alimentícia;2023;127329.28;212583.33;;;;;;;;2025-11-26 23:01:39.180025
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7668º;2021.10447-2;Ativo;Alimentícia;2023;160465.44;160866.54;;;;;;;;2025-11-26 23:01:39.210572
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7669º;2022.00047-6;Ativo;Alimentícia;2023;50167.16;15392.12;;;;;;;;2025-11-26 23:01:39.243858
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7670º;2021.10466-9;Suspensão Administrativa;Alimentícia;2023;50167.16;135891.92;;;;;;;;2025-11-26 23:01:39.274943
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7671º;2021.10362-0;Suspensão Administrativa;Alimentícia;2023;28254.86;77762.32;;;;;;;;2025-11-26 23:01:39.309143
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7672º;2021.10448-0;Ativo;Alimentícia;2023;45168.72;73809.27;;;;;;;;2025-11-26 23:01:39.341000
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7673º;2022.00010-7;Ativo;Alimentícia;2023;40364.79;65945.24;;;;;;;;2025-11-26 23:01:43.929903
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7674º;2021.10444-8;Ativo;Alimentícia;2023;54376.40;79888.80;;;;;;;;2025-11-26 23:01:43.960944
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7675º;2022.00525-7;Ativo;Alimentícia;2023;17369.93;27152.79;;;;;;;;2025-11-26 23:01:43.993047
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7676º;2021.10452-9;Ativo;Alimentícia;2023;98736.36;141532.02;;;;;;;;2025-11-26 23:01:44.024005
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7677º;2021.10439-1;Ativo;Alimentícia;2023;851081.47;1106021.82;;;;;;;;2025-11-26 23:01:44.053615
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7678º;2022.01257-1;Ativo;Alimentícia;2023;28744.84;3661.47;;;;;;;;2025-11-26 23:01:44.086239
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7679º;2022.01079-0;Ativo;Alimentícia;2023;81723.08;14068.96;;;;;;;;2025-11-26 23:01:44.116509
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7680º;2021.10453-7;Ativo;Alimentícia;2023;86166.77;762.75;;;;;;;;2025-11-26 23:01:44.148275
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7681º;2021.10388-3;Ativo;Alimentícia;2023;162127.38;128075.06;;;;;;;;2025-11-26 23:01:44.180143
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7682º;2021.10441-3;Ativo;Alimentícia;2023;22466.51;36491.18;;;;;;;;2025-11-26 23:01:44.209858
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7683º;2021.10401-4;Suspensão Administrativa;Alimentícia;2023;408481.99;663475.83;;;;;;;;2025-11-26 23:01:48.799166
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7684º;2021.10400-6;Ativo;Alimentícia;2023;270874.82;426725.37;;;;;;;;2025-11-26 23:01:48.829445
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7685º;2021.10472-3;Ativo;Alimentícia;2023;25753.51;69839.55;;;;;;;;2025-11-26 23:01:48.860791
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7686º;2021.10387-5;Ativo;Alimentícia;2023;18317.23;29019.93;;;;;;;;2025-11-26 23:01:48.890456
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7687º;2021.10446-4;Ativo;Alimentícia;2023;284330.94;450464.61;;;;;;;;2025-11-26 23:01:48.920768
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7688º;2021.10451-0;Ativo;Alimentícia;2023;28702.57;77243.18;;;;;;;;2025-11-26 23:01:48.951532
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7689º;2021.10386-7;Ativo;Alimentícia;2023;54539.97;146609.24;;;;;;;;2025-11-26 23:01:48.983135
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7690º;2022.00057-3;Ativo;Alimentícia;2023;206510.37;302387.03;;;;;;;;2025-11-26 23:01:49.015212
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7691º;2021.10457-0;Ativo;Alimentícia;2023;41683.57;32520.38;;;;;;;;2025-11-26 23:01:49.047629
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7692º;2022.00255-0;Ativo;Alimentícia;2023;43403.01;63779.06;;;;;;;;2025-11-26 23:01:49.079092
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7693º;2022.00058-1;Ativo;Alimentícia;2023;152593.55;87013.31;;;;;;;;2025-11-26 23:01:53.660714
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7694º;2022.00063-8;Ativo;Alimentícia;2023;152593.55;247215.07;;;;;;;;2025-11-26 23:01:53.692567
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7695º;2021.10415-4;Ativo;Alimentícia;2023;82937.18;141483.43;;;;;;;;2025-11-26 23:01:53.723842
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7696º;2021.10464-2;Ativo;Alimentícia;2023;571063.00;724791.90;;;;;;;;2025-11-26 23:01:53.755442
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7697º;2021.10458-8;Ativo;Alimentícia;2023;70505.87;196947.71;;;;;;;;2025-11-26 23:01:53.787604
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7698º;2022.00195-2;Ativo;Alimentícia;2023;43681.98;26533.52;;;;;;;;2025-11-26 23:01:53.819669
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7699º;2021.10427-8;Ativo;Alimentícia;2023;252396.23;238540.48;;;;;;;;2025-11-26 23:01:53.852185
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7700º;2021.10424-3;Ativo;Alimentícia;2023;39952.83;61549.79;;;;;;;;2025-11-26 23:01:53.882884
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7701º;2022.00258-4;Ativo;Alimentícia;2023;36025.40;56220.49;;;;;;;;2025-11-26 23:01:53.914077
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7702º;2022.00260-6;Ativo;Alimentícia;2023;66255.78;102857.09;;;;;;;;2025-11-26 23:01:53.946626
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7703º;2021.10465-0;Ativo;Alimentícia;2023;170280.87;112592.64;;;;;;;;2025-11-26 23:01:58.534267
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7704º;2021.10473-1;Ativo;Alimentícia;2023;105157.83;165706.31;;;;;;;;2025-11-26 23:01:58.565222
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7705º;2021.10425-1;Ativo;Alimentícia;2023;179967.88;118707.05;;;;;;;;2025-11-26 23:01:58.596176
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7706º;2021.10488-0;Ativo;Alimentícia;2023;192555.80;291265.33;;;;;;;;2025-11-26 23:01:58.628995
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7707º;2022.00261-4;Ativo;Alimentícia;2023;822350.02;1021951.18;;;;;;;;2025-11-26 23:01:58.659216
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7708º;2021.10486-3;Ativo;Alimentícia;2023;354754.48;376724.23;;;;;;;;2025-11-26 23:01:58.692876
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7709º;2022.00262-2;Ativo;Alimentícia;2023;36432.76;55466.88;;;;;;;;2025-11-26 23:01:58.724807
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7710º;2021.10503-7;Ativo;Alimentícia;2023;125831.85;35767.86;;;;;;;;2025-11-26 23:01:58.756806
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7711º;2021.10500-2;Ativo;Alimentícia;2023;243010.60;360340.08;;;;;;;;2025-11-26 23:01:58.791599
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7712º;2021.10513-4;Ativo;Alimentícia;2023;145453.04;122073.62;;;;;;;;2025-11-26 23:01:58.827353
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7713º;2021.10501-0;Ativo;Alimentícia;2023;210181.47;173506.84;;;;;;;;2025-11-26 23:02:03.415510
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7714º;2021.10497-9;Ativo;Alimentícia;2023;91912.10;210206.38;;;;;;;;2025-11-26 23:02:03.453518
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7715º;2021.10504-5;Ativo;Alimentícia;2023;85630.50;196386.51;;;;;;;;2025-11-26 23:02:03.487233
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7716º;2021.10499-5;Ativo;Alimentícia;2023;128830.75;132186.92;;;;;;;;2025-11-26 23:02:03.519192
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7717º;2021.10506-1;Ativo;Alimentícia;2023;14022.52;19977.32;;;;;;;;2025-11-26 23:02:03.550058
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7718º;2021.10516-9;Ativo;Alimentícia;2023;197842.91;119181.35;;;;;;;;2025-11-26 23:02:03.581046
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7719º;2021.10525-8;Ativo;Alimentícia;2023;78729.89;401761.66;;;;;;;;2025-11-26 23:02:03.611569
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7720º;2021.10528-2;Ativo;Alimentícia;2023;7061.75;37216.55;;;;;;;;2025-11-26 23:02:03.644524
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7721º;2021.10530-4;Ativo;Alimentícia;2023;8238.71;57728.14;;;;;;;;2025-11-26 23:02:03.676053
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7722º;2021.10522-3;Suspensão Administrativa;Alimentícia;2023;78729.89;562574.57;;;;;;;;2025-11-26 23:02:03.710054
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7723º;2022.00423-4;Suspensão Administrativa;Alimentícia;2023;78729.89;562574.57;;;;;;;;2025-11-26 23:02:08.307160
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7724º;2021.10526-6;Ativo;Alimentícia;2023;78729.89;248386.14;;;;;;;;2025-11-26 23:02:08.346461
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7725º;2022.00700-4;Ativo;Alimentícia;2023;86545.06;14451.72;;;;;;;;2025-11-26 23:02:08.381874
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7726º;2021.10519-3;Suspensão Administrativa;Alimentícia;2023;26536.88;53059.76;;;;;;;;2025-11-26 23:02:08.419211
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7727º;2021.10566-5;Ativo;Alimentícia;2023;350609.46;553779.64;;;;;;;;2025-11-26 23:02:08.460222
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7728º;2022.00318-1;Ativo;Alimentícia;2023;24616.99;37327.31;;;;;;;;2025-11-26 23:02:08.491793
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7729º;2021.10520-7;Ativo;Alimentícia;2023;24806.48;45566.87;;;;;;;;2025-11-26 23:02:08.522946
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7730º;2022.00314-9;Ativo;Alimentícia;2023;496129.61;911337.36;;;;;;;;2025-11-26 23:02:08.553937
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7731º;2022.00317-3;Ativo;Alimentícia;2023;413114.43;644950.05;;;;;;;;2025-11-26 23:02:08.587285
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7732º;2022.00315-7;Ativo;Alimentícia;2023;44193.30;119066.08;;;;;;;;2025-11-26 23:02:08.620409
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7733º;2021.10510-0;Ativo;Alimentícia;2023;45955.38;123701.27;;;;;;;;2025-11-26 23:02:13.194293
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7734º;2021.10527-4;Ativo;Alimentícia;2023;53809.40;144722.04;;;;;;;;2025-11-26 23:02:13.228226
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7735º;2022.00319-0;Suspensão Administrativa;Alimentícia;2023;31653.41;60221.28;;;;;;;;2025-11-26 23:02:13.260964
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7736º;2021.10529-0;Ativo;Alimentícia;2023;357344.25;392372.90;;;;;;;;2025-11-26 23:02:13.292080
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7737º;2021.10489-8;Ativo;Alimentícia;2023;673368.80;1042661.72;;;;;;;;2025-11-26 23:02:13.323175
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7738º;2022.00168-5;Ativo;Alimentícia;2023;717792.36;952870.06;;;;;;;;2025-11-26 23:02:13.354602
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7739º;2021.10524-0;Ativo;Alimentícia;2023;654198.86;854011.47;;;;;;;;2025-11-26 23:02:13.385675
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7740º;2022.00167-7;Ativo;Alimentícia;2023;717786.53;1111439.36;;;;;;;;2025-11-26 23:02:13.419918
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7741º;2021.10523-1;Ativo;Alimentícia;2023;77401.15;121396.91;;;;;;;;2025-11-26 23:02:13.452920
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7742º;2022.00060-3;Ativo;Alimentícia;2023;544108.29;759101.67;;;;;;;;2025-11-26 23:02:13.485342
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7743º;2021.10512-6;Ativo;Alimentícia;2023;36318.96;57029.91;;;;;;;;2025-11-26 23:02:18.060907
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7744º;2021.10537-1;Suspensão Administrativa;Alimentícia;2023;188812.96;306830.66;;;;;;;;2025-11-26 23:02:18.096725
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7745º;2021.10490-1;Ativo;Alimentícia;2023;37762.59;61366.13;;;;;;;;2025-11-26 23:02:18.135093
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7746º;2021.10509-6;Ativo;Alimentícia;2023;32491.35;46144.41;;;;;;;;2025-11-26 23:02:18.165830
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7747º;2022.00309-2;Suspensão Administrativa;Alimentícia;2023;65276.53;92725.49;;;;;;;;2025-11-26 23:02:18.196964
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7748º;2022.00077-8;Ativo;Alimentícia;2023;136027.08;229619.78;;;;;;;;2025-11-26 23:02:18.229029
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7749º;2021.10541-0;Ativo;Alimentícia;2023;36525.96;57554.12;;;;;;;;2025-11-26 23:02:18.260615
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7750º;2022.00074-3;Ativo;Alimentícia;2023;251589.56;122693.15;;;;;;;;2025-11-26 23:02:18.291786
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7751º;2021.10556-8;Ativo;Alimentícia;2023;65895.70;103055.31;;;;;;;;2025-11-26 23:02:18.325139
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7752º;2021.10558-4;Ativo;Alimentícia;2023;65028.05;101698.40;;;;;;;;2025-11-26 23:02:18.357266
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7753º;2021.10555-0;Ativo;Alimentícia;2023;131361.53;43171.45;;;;;;;;2025-11-26 23:02:22.946706
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7754º;2022.00295-9;Ativo;Alimentícia;2023;83071.68;127811.13;;;;;;;;2025-11-26 23:02:22.976291
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7755º;2021.10533-9;Ativo;Alimentícia;2023;53080.65;86315.94;;;;;;;;2025-11-26 23:02:23.006509
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7756º;2021.10546-0;Ativo;Alimentícia;2023;62615.66;21654.49;;;;;;;;2025-11-26 23:02:23.038297
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7757º;2021.10545-2;Ativo;Alimentícia;2023;62615.66;21654.49;;;;;;;;2025-11-26 23:02:23.067891
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7758º;2021.10547-9;Suspensão Administrativa;Alimentícia;2023;62615.66;184008.66;;;;;;;;2025-11-26 23:02:23.099949
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7759º;2022.00078-6;Ativo;Alimentícia;2023;46973.03;73448.17;;;;;;;;2025-11-26 23:02:23.131672
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7760º;2022.00323-8;Suspensão Administrativa;Alimentícia;2023;850722.15;1384044.39;;;;;;;;2025-11-26 23:02:23.161825
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7761º;2022.00081-6;Ativo;Alimentícia;2023;409946.59;643414.82;;;;;;;;2025-11-26 23:02:23.195311
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7762º;2021.10534-7;Ativo;Alimentícia;2023;59967.53;86856.01;;;;;;;;2025-11-26 23:02:23.228187
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7763º;2022.00079-4;Ativo;Alimentícia;2023;181618.53;142701.22;;;;;;;;2025-11-26 23:02:27.809497
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7764º;2022.00305-0;Suspensão Administrativa;Alimentícia;2023;96240.19;137145.04;;;;;;;;2025-11-26 23:02:27.840808
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7765º;2022.00092-1;Suspensão Administrativa;Alimentícia;2023;27130.30;40153.18;;;;;;;;2025-11-26 23:02:27.873446
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7766º;2022.00333-5;Ativo;Alimentícia;2023;290361.95;429851.54;;;;;;;;2025-11-26 23:02:27.905721
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7767º;2022.00304-1;Ativo;Alimentícia;2023;42679.27;61773.03;;;;;;;;2025-11-26 23:02:27.938484
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7768º;2022.00399-8;Ativo;Alimentícia;2023;226032.09;170135.69;;;;;;;;2025-11-26 23:02:27.972296
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7769º;2022.00095-6;Ativo;Alimentícia;2023;114989.23;167266.28;;;;;;;;2025-11-26 23:02:28.004717
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7770º;2021.10552-5;Ativo;Alimentícia;2023;337444.64;499932.26;;;;;;;;2025-11-26 23:02:28.035748
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7771º;2022.00350-5;Ativo;Alimentícia;2023;1908834.51;2645765.58;;;;;;;;2025-11-26 23:02:28.067277
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7772º;2022.00076-0;Ativo;Alimentícia;2023;1911864.94;2650201.20;;;;;;;;2025-11-26 23:02:28.099642
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7773º;2022.00073-5;Suspensão Administrativa;Alimentícia;2023;75708.28;104637.27;;;;;;;;2025-11-26 23:02:32.670095
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7774º;2022.00363-7;Ativo;Alimentícia;2023;542692.02;650690.55;;;;;;;;2025-11-26 23:02:32.704530
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7775º;2022.00116-2;Ativo;Alimentícia;2023;55097.27;85221.63;;;;;;;;2025-11-26 23:02:32.752901
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7776º;2022.00127-8;Ativo;Alimentícia;2023;229030.11;207717.93;;;;;;;;2025-11-26 23:02:32.785258
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7777º;2022.00099-9;Ativo;Alimentícia;2023;97077.39;164981.95;;;;;;;;2025-11-26 23:02:32.817442
+Estado do Rio de Janeiro;1;FUNDERJ-FUNDAÇÃO DEPARTAMENTO DE ESTRADAS DE RODAGEM-DER RJ;especial;7778º;2022.00377-7;Ativo;Alimentícia;2023;39973.10;70439.52;;;;;;;;2025-11-26 23:02:32.849170
+Estado do Rio de Janeiro;1;IPERJ;especial;7779º;2022.00408-0;Ativo;Alimentícia;2023;76063.35;125603.20;;;;;;;;2025-11-26 23:02:32.881315
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7780º;2022.00171-5;Ativo;Alimentícia;2023;204011.30;198660.45;;;;;;;;2025-11-26 23:02:32.913070
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7781º;2022.00169-3;Ativo;Alimentícia;2023;230108.73;191548.73;;;;;;;;2025-11-26 23:02:32.943959
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7782º;2022.00172-3;Ativo;Alimentícia;2023;351813.56;361176.78;;;;;;;;2025-11-26 23:02:32.976452
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7783º;2022.00164-2;Ativo;Alimentícia;2023;25126.80;40253.91;;;;;;;;2025-11-26 23:02:37.594621
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7784º;2022.00162-6;Ativo;Alimentícia;2023;25086.32;40188.99;;;;;;;;2025-11-26 23:02:37.635373
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7785º;2022.00108-1;Suspensão Administrativa;Alimentícia;2023;28748.95;46697.94;;;;;;;;2025-11-26 23:02:37.731627
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7786º;2022.00098-0;Suspensão Administrativa;Alimentícia;2023;28733.47;46672.76;;;;;;;;2025-11-26 23:02:37.765528
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7787º;2022.00166-9;Suspensão Administrativa;Alimentícia;2023;37699.31;57795.25;;;;;;;;2025-11-26 23:02:37.799568
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7788º;2022.00174-0;Ativo;Alimentícia;2023;5783.98;15783.55;;;;;;;;2025-11-26 23:02:37.833960
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7789º;2022.00376-9;Ativo;Alimentícia;2023;5783.98;15783.55;;;;;;;;2025-11-26 23:02:37.867947
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7790º;2021.10563-0;Ativo;Alimentícia;2023;94375.46;163991.73;;;;;;;;2025-11-26 23:02:37.900669
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7791º;2022.00175-8;Suspensão Administrativa;Alimentícia;2023;121916.71;220535.65;;;;;;;;2025-11-26 23:02:37.935071
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7792º;2022.00407-2;Ativo;Alimentícia;2023;46883.04;129556.62;;;;;;;;2025-11-26 23:02:37.972736
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7793º;2022.00173-1;Ativo;Alimentícia;2023;24102.85;66556.20;;;;;;;;2025-11-26 23:02:42.565671
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7794º;2022.00097-2;Ativo;Alimentícia;2023;422901.64;644897.71;;;;;;;;2025-11-26 23:02:42.600796
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7795º;2022.00161-8;Ativo;Alimentícia;2023;68419.56;39289.69;;;;;;;;2025-11-26 23:02:42.632627
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7796º;2022.00370-0;Ativo;Alimentícia;2023;68419.56;39289.69;;;;;;;;2025-11-26 23:02:42.665955
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7797º;2021.10559-2;Ativo;Alimentícia;2023;131355.28;225445.02;;;;;;;;2025-11-26 23:02:42.698980
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7798º;2022.00411-0;Ativo;Alimentícia;2023;255812.96;236694.30;;;;;;;;2025-11-26 23:02:42.730975
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7799º;2022.00416-1;Ativo;Alimentícia;2023;37887.35;56068.36;;;;;;;;2025-11-26 23:02:42.763750
+Estado do Rio de Janeiro;1;PRODERJ;especial;7800º;2022.00200-2;Suspensão Administrativa;Alimentícia;2023;547512.33;694276.66;;;;;;;;2025-11-26 23:02:42.800487
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7801º;2022.00185-5;Ativo;Alimentícia;2023;187661.76;295635.03;;;;;;;;2025-11-26 23:02:42.834778
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7802º;2022.00349-1;Ativo;Alimentícia;2023;17346.11;27169.37;;;;;;;;2025-11-26 23:02:42.871539
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7803º;2022.00344-0;Ativo;Alimentícia;2023;17346.11;27169.37;;;;;;;;2025-11-26 23:02:47.458581
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7804º;2022.00180-4;Ativo;Alimentícia;2023;22006.61;40644.45;;;;;;;;2025-11-26 23:02:47.502038
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7805º;2022.00352-1;Ativo;Alimentícia;2023;97280.98;168487.24;;;;;;;;2025-11-26 23:02:47.537676
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7806º;2022.00356-4;Ativo;Alimentícia;2023;395185.51;459859.09;;;;;;;;2025-11-26 23:02:47.573230
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7807º;2022.00191-0;Ativo;Alimentícia;2023;878667.46;1133331.67;;;;;;;;2025-11-26 23:02:47.610399
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7808º;2022.00348-3;Suspensão Administrativa;Alimentícia;2023;75210.28;116978.85;;;;;;;;2025-11-26 23:02:47.645313
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7809º;2022.00186-3;Ativo;Alimentícia;2023;79952.19;126395.52;;;;;;;;2025-11-26 23:02:47.682476
+Estado do Rio de Janeiro;1;PRODERJ;especial;7810º;2022.00190-1;Suspensão Administrativa;Alimentícia;2023;539852.04;840160.83;;;;;;;;2025-11-26 23:02:47.718045
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7811º;2022.00181-2;Ativo;Alimentícia;2023;220871.60;988122.20;;;;;;;;2025-11-26 23:02:47.752461
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7812º;2022.00346-7;Ativo;Alimentícia;2023;237037.70;362423.09;;;;;;;;2025-11-26 23:02:47.787375
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7813º;2022.00354-8;Ativo;Alimentícia;2023;171195.79;107473.75;;;;;;;;2025-11-26 23:02:52.396786
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7814º;2022.00026-3;Ativo;Alimentícia;2023;405489.79;423704.38;;;;;;;;2025-11-26 23:02:52.430469
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7815º;2022.00328-9;Ativo;Alimentícia;2023;436934.86;612428.59;;;;;;;;2025-11-26 23:02:52.462629
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7816º;2022.00311-4;Suspensão Administrativa;Alimentícia;2023;36487.15;57211.83;;;;;;;;2025-11-26 23:02:52.493228
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7817º;2022.00017-4;Ativo;Alimentícia;2023;84524.92;18354.84;;;;;;;;2025-11-26 23:02:52.524354
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7818º;2022.00431-5;Ativo;Alimentícia;2023;16034.63;29671.70;;;;;;;;2025-11-26 23:02:52.555230
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7819º;2022.00401-3;Ativo;Alimentícia;2023;208893.05;280952.61;;;;;;;;2025-11-26 23:02:52.586468
+Estado do Rio de Janeiro;1;IPERJ;especial;7820º;2022.00012-3;Suspensão Administrativa;Alimentícia;2023;1008829.79;1825938.38;;;;;;;;2025-11-26 23:02:52.617973
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7821º;2022.00322-0;Ativo;Alimentícia;2023;129790.80;208939.72;;;;;;;;2025-11-26 23:02:52.650418
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7822º;2022.00366-1;Ativo;Alimentícia;2023;1092161.98;1394658.17;;;;;;;;2025-11-26 23:02:52.683956
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7823º;2022.00036-0;Ativo;Alimentícia;2023;165600.40;94581.04;;;;;;;;2025-11-26 23:02:57.266823
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7824º;2022.00065-4;Ativo;Alimentícia;2023;68796.09;106332.25;;;;;;;;2025-11-26 23:02:57.297958
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7825º;2022.00043-3;Ativo;Alimentícia;2023;417828.74;654297.72;;;;;;;;2025-11-26 23:02:57.329955
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7826º;2022.00037-9;Ativo;Alimentícia;2023;760375.69;980242.88;;;;;;;;2025-11-26 23:02:57.372437
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7827º;2022.00023-9;Ativo;Alimentícia;2023;38018.78;57174.34;;;;;;;;2025-11-26 23:02:57.408144
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7828º;2022.00042-5;Ativo;Alimentícia;2023;489216.76;708139.27;;;;;;;;2025-11-26 23:02:57.447282
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7829º;2022.00064-6;Suspensão Administrativa;Alimentícia;2023;663419.63;1033272.91;;;;;;;;2025-11-26 23:02:57.484552
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7830º;2022.00372-6;Ativo;Alimentícia;2023;137641.12;55046.39;;;;;;;;2025-11-26 23:02:57.522158
+Estado do Rio de Janeiro;1;IPERJ;especial;7831º;2022.00041-7;Ativo;Alimentícia;2023;70306.30;71935.44;;;;;;;;2025-11-26 23:02:57.559940
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7832º;2022.00039-5;Ativo;Alimentícia;2023;22212.63;3566.22;;;;;;;;2025-11-26 23:02:57.596979
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7833º;2022.00066-2;Ativo;Alimentícia;2023;153942.58;58671.42;;;;;;;;2025-11-26 23:03:02.180456
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7834º;2022.00054-9;Ativo;Alimentícia;2023;42696.93;112910.27;;;;;;;;2025-11-26 23:03:02.213090
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7835º;2022.00044-1;Ativo;Alimentícia;2023;85393.87;65258.63;;;;;;;;2025-11-26 23:03:02.244938
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7836º;2022.00022-0;Ativo;Alimentícia;2023;13166.00;21418.91;;;;;;;;2025-11-26 23:03:02.276391
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7837º;2022.00020-4;Ativo;Alimentícia;2023;13166.00;21418.91;;;;;;;;2025-11-26 23:03:02.311457
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7838º;2022.00014-0;Ativo;Alimentícia;2023;13166.00;21418.91;;;;;;;;2025-11-26 23:03:02.347715
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7839º;2022.00040-9;Ativo;Alimentícia;2023;160173.68;82939.10;;;;;;;;2025-11-26 23:03:02.382885
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7840º;2022.00070-0;Ativo;Alimentícia;2023;656361.87;842454.15;;;;;;;;2025-11-26 23:03:02.422211
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7841º;2022.00068-9;Ativo;Alimentícia;2023;251834.52;386811.20;;;;;;;;2025-11-26 23:03:02.459649
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7842º;2022.00114-6;Suspensão Administrativa;Alimentícia;2023;39345.27;56896.08;;;;;;;;2025-11-26 23:03:02.494244
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7843º;2022.00130-8;Suspensão Administrativa;Alimentícia;2023;195209.77;375115.16;;;;;;;;2025-11-26 23:03:07.088236
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7844º;2022.00193-6;Ativo;Alimentícia;2023;241820.98;364788.10;;;;;;;;2025-11-26 23:03:07.128973
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7845º;2022.00194-4;Ativo;Alimentícia;2023;158238.81;184130.98;;;;;;;;2025-11-26 23:03:07.167071
+Estado do Rio de Janeiro;1;FUNDAÇÃO LEÃO XIII;especial;7846º;2022.00101-4;Suspensão Administrativa;Alimentícia;2023;62731.01;101757.96;;;;;;;;2025-11-26 23:03:07.203073
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7847º;2022.00104-9;Suspensão Administrativa;Alimentícia;2023;42696.93;112910.27;;;;;;;;2025-11-26 23:03:07.238166
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7848º;2022.00085-9;Ativo;Alimentícia;2023;263885.70;976722.00;;;;;;;;2025-11-26 23:03:07.274155
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7849º;2022.00132-4;Ativo;Alimentícia;2023;454716.11;1091360.18;;;;;;;;2025-11-26 23:03:07.311131
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7850º;2022.00111-1;Ativo;Alimentícia;2023;110763.48;4004.57;;;;;;;;2025-11-26 23:03:07.345586
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7851º;2022.00577-0;Ativo;Alimentícia;2023;36568.50;69239.94;;;;;;;;2025-11-26 23:03:07.381952
+Estado do Rio de Janeiro;1;IPERJ;especial;7852º;2022.00154-5;Ativo;Alimentícia;2023;175011.49;184087.20;;;;;;;;2025-11-26 23:03:07.414064
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7853º;2022.00151-0;Ativo;Alimentícia;2023;37341.17;95835.16;;;;;;;;2025-11-26 23:03:11.999056
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7854º;2022.00146-4;Ativo;Alimentícia;2023;35607.02;99462.94;;;;;;;;2025-11-26 23:03:12.032444
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7855º;2022.00144-8;Ativo;Alimentícia;2023;50351.99;139194.56;;;;;;;;2025-11-26 23:03:12.064911
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7856º;2022.00141-3;Ativo;Alimentícia;2023;31946.99;85876.90;;;;;;;;2025-11-26 23:03:12.098711
+Estado do Rio de Janeiro;1;PRODERJ;especial;7857º;2022.00152-9;Ativo;Alimentícia;2023;117251.11;189397.46;;;;;;;;2025-11-26 23:03:12.134118
+Estado do Rio de Janeiro;1;PRODERJ;especial;7858º;2022.00148-0;Suspensão Administrativa;Alimentícia;2023;469004.45;597570.91;;;;;;;;2025-11-26 23:03:12.170640
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7859º;2022.00142-1;Suspensão Administrativa;Alimentícia;2023;206638.73;339121.14;;;;;;;;2025-11-26 23:03:12.206546
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7860º;2022.00160-0;Ativo;Alimentícia;2023;52073.36;5294.31;;;;;;;;2025-11-26 23:03:12.247581
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7861º;2022.00217-7;Ativo;Alimentícia;2023;24761.73;38082.60;;;;;;;;2025-11-26 23:03:12.283968
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7862º;2022.00210-0;Ativo;Alimentícia;2023;393815.27;613225.49;;;;;;;;2025-11-26 23:03:12.317462
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7863º;2022.00208-8;Ativo;Alimentícia;2023;24761.73;38082.60;;;;;;;;2025-11-26 23:03:16.905296
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7864º;2022.00219-3;Ativo;Alimentícia;2023;61192.13;168547.25;;;;;;;;2025-11-26 23:03:16.942000
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7865º;2022.00184-7;Ativo;Alimentícia;2023;41878.66;116072.43;;;;;;;;2025-11-26 23:03:16.981771
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7866º;2022.00159-6;Ativo;Alimentícia;2023;29339.11;81184.45;;;;;;;;2025-11-26 23:03:17.019662
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7867º;2022.01148-6;Ativo;Alimentícia;2023;50482.69;72240.26;;;;;;;;2025-11-26 23:03:17.056089
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7868º;2022.00202-9;Ativo;Alimentícia;2023;250773.74;633424.18;;;;;;;;2025-11-26 23:03:17.095329
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7869º;2022.00228-2;Ativo;Alimentícia;2023;5449.05;8590.08;;;;;;;;2025-11-26 23:03:17.131866
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7870º;2022.00230-4;Ativo;Alimentícia;2023;25428.90;40104.33;;;;;;;;2025-11-26 23:03:17.165275
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7871º;2022.00231-2;Ativo;Alimentícia;2023;5449.04;8590.07;;;;;;;;2025-11-26 23:03:17.197796
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7872º;2022.00218-5;Ativo;Alimentícia;2023;93653.25;149333.67;;;;;;;;2025-11-26 23:03:17.233615
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7873º;2022.00235-5;Ativo;Alimentícia;2023;217507.77;336650.63;;;;;;;;2025-11-26 23:03:21.821517
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7874º;2022.00220-7;Ativo;Alimentícia;2023;21269.88;32712.27;;;;;;;;2025-11-26 23:03:21.863375
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7875º;2022.00226-6;Ativo;Alimentícia;2023;423031.93;650594.81;;;;;;;;2025-11-26 23:03:21.902482
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7876º;2022.00225-8;Ativo;Alimentícia;2023;41574.31;63939.70;;;;;;;;2025-11-26 23:03:21.945062
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7877º;2022.00224-0;Ativo;Alimentícia;2023;41574.31;63939.70;;;;;;;;2025-11-26 23:03:21.986223
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7878º;2022.00214-2;Ativo;Alimentícia;2023;72952.50;201687.11;;;;;;;;2025-11-26 23:03:22.027653
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7879º;2022.00227-4;Ativo;Alimentícia;2023;48205.01;129992.18;;;;;;;;2025-11-26 23:03:22.068133
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7880º;2022.00221-5;Ativo;Alimentícia;2023;37974.80;102219.40;;;;;;;;2025-11-26 23:03:22.109093
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7881º;2022.00215-0;Ativo;Alimentícia;2023;198885.97;160184.61;;;;;;;;2025-11-26 23:03:22.147544
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7882º;2022.00216-9;Ativo;Alimentícia;2023;14822.85;23483.80;;;;;;;;2025-11-26 23:03:22.186906
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7883º;2022.00241-0;Ativo;Alimentícia;2023;462654.03;717106.13;;;;;;;;2025-11-26 23:03:26.783827
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7884º;2022.00237-1;Ativo;Alimentícia;2023;23132.70;35855.31;;;;;;;;2025-11-26 23:03:26.831004
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7885º;2022.00229-0;Ativo;Alimentícia;2023;378696.56;599967.77;;;;;;;;2025-11-26 23:03:26.882972
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7886º;2022.00239-8;Ativo;Alimentícia;2023;24303.99;38504.73;;;;;;;;2025-11-26 23:03:26.920646
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7887º;2022.00232-0;Ativo;Alimentícia;2023;24303.99;38504.73;;;;;;;;2025-11-26 23:03:26.961642
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7888º;2022.00238-0;Ativo;Alimentícia;2023;13898.10;22018.72;;;;;;;;2025-11-26 23:03:26.999100
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7889º;2022.00223-1;Ativo;Alimentícia;2023;184473.03;292260.05;;;;;;;;2025-11-26 23:03:27.035332
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7890º;2022.00269-0;Ativo;Alimentícia;2023;419078.09;759096.09;;;;;;;;2025-11-26 23:03:27.081237
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7891º;2022.00234-7;Ativo;Alimentícia;2023;62500.52;174366.14;;;;;;;;2025-11-26 23:03:27.122118
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7892º;2022.00281-9;Suspensão Administrativa;Alimentícia;2023;585809.60;947611.29;;;;;;;;2025-11-26 23:03:27.159194
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7893º;2022.00249-5;Ativo;Alimentícia;2023;29338.47;42470.42;;;;;;;;2025-11-26 23:03:31.741627
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7894º;2022.00264-9;Suspensão Administrativa;Alimentícia;2023;293384.82;424704.37;;;;;;;;2025-11-26 23:03:31.778777
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7895º;2022.01004-8;Suspensão Administrativa;Alimentícia;2023;53354.94;150702.98;;;;;;;;2025-11-26 23:03:31.816878
+Estado do Rio de Janeiro;1;FUNDERJ-FUNDAÇÃO DEPARTAMENTO DE ESTRADAS DE RODAGEM-DER RJ;especial;7896º;2022.00278-9;Suspensão Administrativa;Alimentícia;2023;33566.49;62891.96;;;;;;;;2025-11-26 23:03:31.856088
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7897º;2022.00272-0;Ativo;Alimentícia;2023;9697.55;15734.61;;;;;;;;2025-11-26 23:03:31.898684
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7898º;2022.00530-3;Suspensão Administrativa;Alimentícia;2023;442539.45;684524.38;;;;;;;;2025-11-26 23:03:31.938367
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7899º;2022.01149-4;Suspensão Administrativa;Alimentícia;2023;202173.48;40124.19;;;;;;;;2025-11-26 23:03:31.976844
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7900º;2022.00273-8;Ativo;Alimentícia;2023;83558.41;134387.91;;;;;;;;2025-11-26 23:03:32.014642
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7901º;2022.03182-7;Ativo;Alimentícia;2023;14674.73;22569.18;;;;;;;;2025-11-26 23:03:32.052245
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7902º;2022.00266-5;Ativo;Alimentícia;2023;154349.79;237363.00;;;;;;;;2025-11-26 23:03:32.088392
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7903º;2022.00267-3;Ativo;Alimentícia;2023;337770.12;373963.82;;;;;;;;2025-11-26 23:03:36.692771
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7904º;2022.00288-6;Ativo;Alimentícia;2023;21770.56;34491.03;;;;;;;;2025-11-26 23:03:36.729017
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7905º;2022.00464-1;Ativo;Alimentícia;2023;21770.56;34491.03;;;;;;;;2025-11-26 23:03:36.763109
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7906º;2022.00290-8;Ativo;Alimentícia;2023;67514.52;180730.75;;;;;;;;2025-11-26 23:03:36.795336
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7907º;2022.00283-5;Ativo;Alimentícia;2023;225041.20;228153.82;;;;;;;;2025-11-26 23:03:36.832376
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7908º;2022.00292-4;Ativo;Alimentícia;2023;165176.92;261704.10;;;;;;;;2025-11-26 23:03:36.872169
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7909º;2022.00287-8;Ativo;Alimentícia;2023;88338.14;128893.16;;;;;;;;2025-11-26 23:03:36.910780
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7910º;2022.00247-9;Ativo;Alimentícia;2023;401453.27;469421.84;;;;;;;;2025-11-26 23:03:36.949871
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7911º;2022.00280-0;Ativo;Alimentícia;2023;262570.90;403522.33;;;;;;;;2025-11-26 23:03:36.989155
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7912º;2022.00268-1;Ativo;Alimentícia;2023;329840.27;515287.50;;;;;;;;2025-11-26 23:03:37.024883
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7913º;2022.00244-4;Ativo;Alimentícia;2023;44326.26;69862.37;;;;;;;;2025-11-26 23:03:41.616778
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7914º;2022.00245-2;Ativo;Alimentícia;2023;453394.96;554418.40;;;;;;;;2025-11-26 23:03:41.649286
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7915º;2022.00243-6;Ativo;Alimentícia;2023;276691.40;301371.20;;;;;;;;2025-11-26 23:03:41.747950
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7916º;2022.00298-3;Ativo;Alimentícia;2023;118580.28;25575.05;;;;;;;;2025-11-26 23:03:41.794953
+Estado do Rio de Janeiro;1;PRODERJ;especial;7917º;2022.00391-2;Ativo;Alimentícia;2023;1032034.20;1268087.63;;;;;;;;2025-11-26 23:03:41.838274
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7918º;2022.00395-5;Suspensão Administrativa;Alimentícia;2023;113696.82;163152.28;;;;;;;;2025-11-26 23:03:41.894002
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7919º;2022.00392-0;Ativo;Alimentícia;2023;191689.50;277351.07;;;;;;;;2025-11-26 23:03:41.986233
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7920º;2022.00335-1;Ativo;Alimentícia;2023;44971.08;141088.70;;;;;;;;2025-11-26 23:03:42.022069
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7921º;2022.00394-7;Ativo;Alimentícia;2023;849652.65;1386549.83;;;;;;;;2025-11-26 23:03:42.060957
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7922º;2022.00374-2;Ativo;Alimentícia;2023;111157.40;11455.42;;;;;;;;2025-11-26 23:03:42.097795
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7923º;2022.00388-2;Ativo;Alimentícia;2023;159896.62;88753.49;;;;;;;;2025-11-26 23:03:46.684579
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7924º;2022.00338-6;Ativo;Alimentícia;2023;86172.22;135825.02;;;;;;;;2025-11-26 23:03:46.720891
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7925º;2022.00364-5;Ativo;Alimentícia;2023;132003.13;198852.78;;;;;;;;2025-11-26 23:03:46.757689
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7926º;2022.00418-8;Ativo;Alimentícia;2023;288107.31;451086.81;;;;;;;;2025-11-26 23:03:46.794163
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7927º;2022.00417-0;Ativo;Alimentícia;2023;182292.68;125517.90;;;;;;;;2025-11-26 23:03:46.829702
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7928º;2022.00380-7;Ativo;Alimentícia;2023;488070.26;604456.83;;;;;;;;2025-11-26 23:03:46.862741
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7929º;2022.00339-4;Ativo;Alimentícia;2023;117062.29;11555.95;;;;;;;;2025-11-26 23:03:46.895340
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7930º;2022.00383-1;Ativo;Alimentícia;2023;50031.01;78085.24;;;;;;;;2025-11-26 23:03:46.928051
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7931º;2022.00365-3;Ativo;Alimentícia;2023;261571.00;248340.01;;;;;;;;2025-11-26 23:03:46.969263
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7932º;2022.00296-7;Ativo;Alimentícia;2023;204677.38;315611.33;;;;;;;;2025-11-26 23:03:47.002771
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7933º;2022.00321-1;Ativo;Alimentícia;2023;204677.38;315611.33;;;;;;;;2025-11-26 23:03:51.594116
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7934º;2022.00336-0;Ativo;Alimentícia;2023;112486.04;162851.38;;;;;;;;2025-11-26 23:03:51.629056
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7935º;2022.00384-0;Ativo;Alimentícia;2023;40976.10;63971.30;;;;;;;;2025-11-26 23:03:51.664301
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7936º;2022.00443-9;Ativo;Alimentícia;2023;141486.25;59676.19;;;;;;;;2025-11-26 23:03:51.701188
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7937º;2022.00993-7;Ativo;Alimentícia;2023;508188.72;626028.82;;;;;;;;2025-11-26 23:03:51.735319
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7938º;2022.01092-7;Ativo;Alimentícia;2023;75932.72;44338.79;;;;;;;;2025-11-26 23:03:51.768176
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7939º;2022.01251-2;Ativo;Alimentícia;2023;18983.18;816.85;;;;;;;;2025-11-26 23:03:51.802313
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7940º;2022.00410-2;Ativo;Alimentícia;2023;343567.12;511549.71;;;;;;;;2025-11-26 23:03:51.835277
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7941º;2022.00461-7;Ativo;Alimentícia;2023;42099.37;67328.10;;;;;;;;2025-11-26 23:03:51.867910
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7942º;2022.01000-5;Ativo;Alimentícia;2023;18983.18;816.85;;;;;;;;2025-11-26 23:03:51.901351
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7943º;2022.01052-8;Ativo;Alimentícia;2023;18983.18;51653.55;;;;;;;;2025-11-26 23:03:56.498628
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7944º;2022.01131-1;Ativo;Alimentícia;2023;47362.94;128935.32;;;;;;;;2025-11-26 23:03:56.534842
+Estado do Rio de Janeiro;1;IPERJ;especial;7945º;2022.00444-7;Ativo;Alimentícia;2023;302987.31;484606.88;;;;;;;;2025-11-26 23:03:56.567358
+Estado do Rio de Janeiro;1;IPERJ;especial;7946º;2022.00446-3;Ativo;Alimentícia;2023;302987.31;484606.88;;;;;;;;2025-11-26 23:03:56.603608
+Estado do Rio de Janeiro;1;IPERJ;especial;7947º;2022.00445-5;Ativo;Alimentícia;2023;302987.31;484606.88;;;;;;;;2025-11-26 23:03:56.637732
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7948º;2022.00607-5;Ativo;Alimentícia;2023;4188167.99;6652847.52;;;;;;;;2025-11-26 23:03:56.671110
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7949º;2022.00462-5;Ativo;Alimentícia;2023;69211.17;171690.43;;;;;;;;2025-11-26 23:03:56.704429
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7950º;2022.00438-2;Ativo;Alimentícia;2023;292824.32;410384.87;;;;;;;;2025-11-26 23:03:56.737269
+Estado do Rio de Janeiro;1;JUCERJA-JUNTA COMERCIAL DO ESTADO DO RJ;especial;7951º;2022.00437-4;Ativo;Alimentícia;2023;155813.71;81497.33;;;;;;;;2025-11-26 23:03:56.770628
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7952º;2022.00460-9;Suspensão Administrativa;Alimentícia;2023;19526.23;53237.32;;;;;;;;2025-11-26 23:03:56.815118
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7953º;2022.00452-8;Ativo;Alimentícia;2023;134599.12;209482.11;;;;;;;;2025-11-26 23:04:01.390287
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7954º;2022.00469-2;Ativo;Alimentícia;2023;263336.33;421039.44;;;;;;;;2025-11-26 23:04:01.423609
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7955º;2022.04491-0;Ativo;Alimentícia;2023;68654.75;172336.40;;;;;;;;2025-11-26 23:04:01.455434
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7956º;2022.04490-2;Ativo;Alimentícia;2023;123639.78;147290.13;;;;;;;;2025-11-26 23:04:01.490684
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7957º;2022.00472-2;Ativo;Alimentícia;2023;342695.75;577856.89;;;;;;;;2025-11-26 23:04:01.523421
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7958º;2022.00500-1;Ativo;Alimentícia;2023;529309.17;583395.49;;;;;;;;2025-11-26 23:04:01.556779
+Estado do Rio de Janeiro;1;PRODERJ;especial;7959º;2022.00486-2;Suspensão Administrativa;Alimentícia;2023;222584.35;156860.30;;;;;;;;2025-11-26 23:04:01.589282
+Estado do Rio de Janeiro;1;IPERJ;especial;7960º;2022.00495-1;Ativo;Alimentícia;2023;103489.50;160394.96;;;;;;;;2025-11-26 23:04:01.621758
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7961º;2022.00497-8;Suspensão Administrativa;Alimentícia;2023;103489.50;160394.96;;;;;;;;2025-11-26 23:04:01.655162
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7962º;2022.00490-0;Ativo;Alimentícia;2023;322270.89;358309.75;;;;;;;;2025-11-26 23:04:01.690993
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7963º;2022.00480-3;Ativo;Alimentícia;2023;85130.89;134035.35;;;;;;;;2025-11-26 23:04:06.272401
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7964º;2022.00475-7;Suspensão Administrativa;Alimentícia;2023;126386.72;223692.67;;;;;;;;2025-11-26 23:04:06.309109
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7965º;2022.00474-9;Ativo;Alimentícia;2023;126386.72;223692.67;;;;;;;;2025-11-26 23:04:06.342445
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7966º;2022.00489-7;Ativo;Alimentícia;2023;32227.09;51929.89;;;;;;;;2025-11-26 23:04:06.375762
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7967º;2022.00487-0;Suspensão Administrativa;Alimentícia;2023;167377.56;113283.81;;;;;;;;2025-11-26 23:04:06.410312
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7968º;2022.00485-4;Ativo;Alimentícia;2023;71733.23;117971.33;;;;;;;;2025-11-26 23:04:06.444272
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7969º;2022.00499-4;Ativo;Alimentícia;2023;41025.87;58328.77;;;;;;;;2025-11-26 23:04:06.479341
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7970º;2022.00459-5;Ativo;Alimentícia;2023;8368.39;22816.01;;;;;;;;2025-11-26 23:04:06.513720
+Estado do Rio de Janeiro;1;PRODERJ;especial;7971º;2022.00538-9;Ativo;Alimentícia;2023;663081.97;908570.15;;;;;;;;2025-11-26 23:04:06.545652
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7972º;2022.00516-8;Ativo;Alimentícia;2023;226717.92;165485.06;;;;;;;;2025-11-26 23:04:06.578727
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7973º;2022.00534-6;Suspensão Administrativa;Alimentícia;2023;65670.48;561240.20;;;;;;;;2025-11-26 23:04:11.171690
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7974º;2022.00537-0;Ativo;Alimentícia;2023;99291.76;161495.18;;;;;;;;2025-11-26 23:04:11.215249
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7975º;2022.00522-2;Ativo;Alimentícia;2023;293883.35;443381.43;;;;;;;;2025-11-26 23:04:11.252869
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7976º;2022.00524-9;Ativo;Alimentícia;2023;29388.34;44338.14;;;;;;;;2025-11-26 23:04:11.286333
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7977º;2022.00523-0;Ativo;Alimentícia;2023;146941.68;221690.73;;;;;;;;2025-11-26 23:04:11.320215
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7978º;2022.00519-2;Ativo;Alimentícia;2023;146941.68;221690.73;;;;;;;;2025-11-26 23:04:11.354397
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7979º;2022.00551-6;Ativo;Alimentícia;2023;87639.84;9162.10;;;;;;;;2025-11-26 23:04:11.386477
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7980º;2022.00542-7;Ativo;Alimentícia;2023;61975.85;25738.11;;;;;;;;2025-11-26 23:04:11.419494
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7981º;2022.00553-2;Ativo;Alimentícia;2023;148617.00;67408.06;;;;;;;;2025-11-26 23:04:11.452896
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7982º;2022.00557-5;Suspensão Administrativa;Alimentícia;2023;460571.16;735347.14;;;;;;;;2025-11-26 23:04:11.489222
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7983º;2022.00563-0;Suspensão Administrativa;Alimentícia;2023;287959.99;483913.83;;;;;;;;2025-11-26 23:04:16.103619
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7984º;2022.00565-6;Ativo;Alimentícia;2023;287959.99;422815.26;;;;;;;;2025-11-26 23:04:16.150495
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7985º;2022.00564-8;Ativo;Alimentícia;2023;287959.99;483913.79;;;;;;;;2025-11-26 23:04:16.197653
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7986º;2022.00562-1;Ativo;Alimentícia;2023;278916.95;296699.73;;;;;;;;2025-11-26 23:04:16.236267
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7987º;2022.00579-6;Suspensão Administrativa;Alimentícia;2023;202586.01;367246.86;;;;;;;;2025-11-26 23:04:16.272423
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7988º;2022.00575-3;Suspensão Administrativa;Alimentícia;2023;109084.75;163602.46;;;;;;;;2025-11-26 23:04:16.315203
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7989º;2022.00580-0;Ativo;Alimentícia;2023;55679.58;83346.05;;;;;;;;2025-11-26 23:04:16.351676
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7990º;2022.00636-9;Ativo;Alimentícia;2023;113127.34;62536.33;;;;;;;;2025-11-26 23:04:16.387126
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7991º;2022.00638-5;Ativo;Alimentícia;2023;157525.92;150697.82;;;;;;;;2025-11-26 23:04:16.422691
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7992º;2022.00637-7;Ativo;Alimentícia;2023;180884.61;359328.99;;;;;;;;2025-11-26 23:04:16.455060
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7993º;2022.00709-8;Suspensão Administrativa;Alimentícia;2023;339626.74;602017.16;;;;;;;;2025-11-26 23:04:21.070677
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7994º;2022.00589-3;Suspensão Administrativa;Alimentícia;2023;339626.74;602017.16;;;;;;;;2025-11-26 23:04:21.120689
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;7995º;2022.00604-0;Suspensão Administrativa;Alimentícia;2023;339626.74;602017.16;;;;;;;;2025-11-26 23:04:21.172839
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7996º;2022.00603-2;Ativo;Alimentícia;2023;106708.76;18836.38;;;;;;;;2025-11-26 23:04:21.220466
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7997º;2022.00582-6;Ativo;Alimentícia;2023;37634.41;56969.55;;;;;;;;2025-11-26 23:04:21.256943
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7998º;2022.00583-4;Suspensão Administrativa;Alimentícia;2023;171065.54;258952.57;;;;;;;;2025-11-26 23:04:21.290754
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;7999º;2022.00586-9;Ativo;Alimentícia;2023;171065.54;258952.57;;;;;;;;2025-11-26 23:04:21.323779
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;8000º;2022.00592-3;Suspensão Administrativa;Alimentícia;2023;32576.31;45169.64;;;;;;;;2025-11-26 23:04:21.356561
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;8001º;2022.00591-5;Suspensão Administrativa;Alimentícia;2023;407804.09;565452.91;;;;;;;;2025-11-26 23:04:21.390790
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;8002º;2022.00598-2;Ativo;Alimentícia;2023;206870.10;361978.16;;;;;;;;2025-11-26 23:04:21.423212
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;8003º;2022.00640-7;Ativo;Alimentícia;2023;126631.01;186848.28;;;;;;;;2025-11-26 23:04:26.027412
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;8004º;2022.00623-7;Ativo;Alimentícia;2023;390824.55;693576.85;;;;;;;;2025-11-26 23:04:26.077367
+Estado do Rio de Janeiro;1;FUNDERJ-FUNDAÇÃO DEPARTAMENTO DE ESTRADAS DE RODAGEM-DER RJ;especial;8005º;2022.00602-4;Ativo;Alimentícia;2023;60391.14;94425.41;;;;;;;;2025-11-26 23:04:26.123807
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;8006º;2022.00648-2;Suspensão Administrativa;Alimentícia;2023;77876.46;120951.72;;;;;;;;2025-11-26 23:04:26.170817
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;8007º;2022.00597-4;Suspensão Administrativa;Alimentícia;2023;282788.60;436440.78;;;;;;;;2025-11-26 23:04:26.222284
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;8008º;2022.00609-1;Suspensão Administrativa;Alimentícia;2023;208979.73;510816.07;;;;;;;;2025-11-26 23:04:26.263926
+Estado do Rio de Janeiro;1;IPERJ;especial;8009º;2022.00631-8;Ativo;Alimentícia;2023;277733.25;286111.70;;;;;;;;2025-11-26 23:04:26.299942
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;8010º;2022.00629-6;Suspensão Administrativa;Alimentícia;2023;409416.92;595477.73;;;;;;;;2025-11-26 23:04:26.333981
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;8011º;2022.00651-2;Ativo;Alimentícia;2023;229141.07;171437.21;;;;;;;;2025-11-26 23:04:26.369345
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;8012º;2022.00653-9;Ativo;Alimentícia;2023;61641.52;97191.22;;;;;;;;2025-11-26 23:04:26.404662
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;8013º;2022.00617-2;Ativo;Alimentícia;2023;43046.07;66369.18;;;;;;;;2025-11-26 23:04:31.004361
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;8014º;2022.00619-9;Ativo;Alimentícia;2023;129171.00;36865.58;;;;;;;;2025-11-26 23:04:31.050385
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;8015º;2022.00618-0;Ativo;Alimentícia;2023;43046.07;66369.18;;;;;;;;2025-11-26 23:04:31.097220
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;8016º;2022.00628-8;Ativo;Alimentícia;2023;43046.07;66369.18;;;;;;;;2025-11-26 23:04:31.145550
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;8017º;2022.00639-3;Ativo;Alimentícia;2023;68261.43;104944.99;;;;;;;;2025-11-26 23:04:31.192603
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;8018º;2022.00649-0;Ativo;Alimentícia;2023;35403.80;56582.97;;;;;;;;2025-11-26 23:04:31.237274
+Estado do Rio de Janeiro;1;IPERJ;especial;8019º;2022.00633-4;Ativo;Alimentícia;2023;129495.61;31201.07;;;;;;;;2025-11-26 23:04:31.278132
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;8020º;2022.00599-0;Ativo;Alimentícia;2023;105792.13;170501.93;;;;;;;;2025-11-26 23:04:31.309763
+Estado do Rio de Janeiro;1;IPERJ;especial;8021º;2022.00642-3;Ativo;Alimentícia;2023;26884.06;86316.45;;;;;;;;2025-11-26 23:04:31.343490
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;8022º;2022.00611-3;Ativo;Alimentícia;2023;37816.28;67723.98;;;;;;;;2025-11-26 23:04:31.381091
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;8023º;2022.00626-1;Ativo;Alimentícia;2023;135748.90;201451.77;;;;;;;;2025-11-26 23:04:35.972718
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;8024º;2022.00612-1;Ativo;Alimentícia;2023;39510.80;63090.31;;;;;;;;2025-11-26 23:04:36.020647
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;8025º;2022.00646-6;Ativo;Alimentícia;2023;89574.83;40365.44;;;;;;;;2025-11-26 23:04:36.070931
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;8026º;2022.00645-8;Ativo;Alimentícia;2023;97213.32;219915.38;;;;;;;;2025-11-26 23:04:36.122490
+Estado do Rio de Janeiro;1;PRODERJ;especial;8027º;2022.00601-6;Ativo;Alimentícia;2023;544085.02;626463.31;;;;;;;;2025-11-26 23:04:36.181784
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;8028º;2022.00614-8;Ativo;Alimentícia;2023;192421.79;106757.92;;;;;;;;2025-11-26 23:04:36.233814
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;8029º;2022.00654-7;Ativo;Alimentícia;2023;171431.27;104283.48;;;;;;;;2025-11-26 23:04:36.283320
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;8030º;2022.00665-2;Suspensão Determinação Judicial;Alimentícia;2023;277946.89;474000.47;;;;;;;;2025-11-26 23:04:36.327300
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;8031º;2022.00668-7;Suspensão Administrativa;Alimentícia;2023;45444.03;66135.40;;;;;;;;2025-11-26 23:04:36.359904
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;8032º;2022.00669-5;Ativo;Alimentícia;2023;45388.59;66055.25;;;;;;;;2025-11-26 23:04:36.397483
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;8033º;2022.00655-5;Ativo;Alimentícia;2023;35181.36;52207.00;;;;;;;;2025-11-26 23:04:41.003705
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;8034º;2022.00687-3;Ativo;Alimentícia;2023;28921.69;44477.30;;;;;;;;2025-11-26 23:04:41.054158
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;8035º;2022.00662-8;Suspensão Administrativa;Alimentícia;2023;202808.29;173405.10;;;;;;;;2025-11-26 23:04:41.107826
+Estado do Rio de Janeiro;1;FUNDERJ-FUNDAÇÃO DEPARTAMENTO DE ESTRADAS DE RODAGEM-DER RJ;especial;8036º;2022.00704-7;Ativo;Alimentícia;2023;109593.91;17880.11;;;;;;;;2025-11-26 23:04:41.162424
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;8037º;2022.00657-1;Ativo;Alimentícia;2023;229727.64;208363.33;;;;;;;;2025-11-26 23:04:41.211999
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;8038º;2022.00685-7;Ativo;Alimentícia;2023;70593.86;110879.17;;;;;;;;2025-11-26 23:04:41.261594
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;8039º;2022.00666-0;Ativo;Alimentícia;2023;214160.01;231020.57;;;;;;;;2025-11-26 23:04:41.317695
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;8040º;2022.00667-9;Ativo;Alimentícia;2023;89584.05;4843.23;;;;;;;;2025-11-26 23:04:41.365227
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;8041º;2022.00664-4;Ativo;Alimentícia;2023;119399.35;86605.39;;;;;;;;2025-11-26 23:04:41.406832
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;8042º;2022.00656-3;Ativo;Alimentícia;2023;212969.72;307451.76;;;;;;;;2025-11-26 23:04:41.442668
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;8043º;2022.00696-2;Suspensão Administrativa;Alimentícia;2023;64389.88;145491.20;;;;;;;;2025-11-26 23:04:46.031621
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;8044º;2022.00699-7;Ativo;Alimentícia;2023;276576.02;239074.34;;;;;;;;2025-11-26 23:04:46.085901
+Estado do Rio de Janeiro;1;DETRAN;especial;8045º;2022.02679-3;Ativo;Alimentícia;2023;396951.53;420370.59;;;;;;;;2025-11-26 23:04:46.143609
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;8046º;2022.00726-8;Ativo;Alimentícia;2023;38972.36;60533.97;;;;;;;;2025-11-26 23:04:46.197045
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;8047º;2022.00681-4;Ativo;Alimentícia;2023;249710.45;618996.76;;;;;;;;2025-11-26 23:04:46.247564
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;8048º;2022.00690-3;Ativo;Alimentícia;2023;34887.14;2804.17;;;;;;;;2025-11-26 23:04:46.299521
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;8049º;2022.00773-0;Ativo;Alimentícia;2023;111762.14;4579.15;;;;;;;;2025-11-26 23:04:46.347752
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;8050º;2022.00701-2;Ativo;Alimentícia;2023;372903.31;547191.76;;;;;;;;2025-11-26 23:04:46.392766
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;8051º;2022.00695-4;Ativo;Alimentícia;2023;49531.36;77580.21;;;;;;;;2025-11-26 23:04:46.436954
+Estado do Rio de Janeiro;1;FUNDERJ-FUNDAÇÃO DEPARTAMENTO DE ESTRADAS DE RODAGEM-DER RJ;especial;8052º;2022.00697-0;Ativo;Alimentícia;2023;972756.70;1305960.94;;;;;;;;2025-11-26 23:04:46.469461
+Estado do Rio de Janeiro;1;IPERJ;especial;8053º;2022.00712-8;Ativo;Alimentícia;2023;336.11;690.27;;;;;;;;2025-11-26 23:04:51.075183
+Estado do Rio de Janeiro;1;IPERJ;especial;8054º;2022.00711-0;Suspensão Administrativa;Alimentícia;2023;1344.43;2761.03;;;;;;;;2025-11-26 23:04:51.125436
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;8055º;2022.00743-8;Suspensão Administrativa;Alimentícia;2023;16462.98;22808.64;;;;;;;;2025-11-26 23:04:51.178346
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;8056º;2022.00706-3;Suspensão Administrativa;Alimentícia;2023;123462.04;203289.02;;;;;;;;2025-11-26 23:04:51.229105
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;8057º;2022.00932-5;Ativo;Alimentícia;2023;57240.00;88539.39;;;;;;;;2025-11-26 23:04:51.281436
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;8058º;2022.00742-0;Ativo;Alimentícia;2023;8949.96;12595.43;;;;;;;;2025-11-26 23:04:51.331384
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;8059º;2022.04540-2;Ativo;Alimentícia;2023;329895.53;753416.98;;;;;;;;2025-11-26 23:04:51.377848
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;8060º;2022.04538-0;Ativo;Alimentícia;2023;156514.08;270512.96;;;;;;;;2025-11-26 23:04:51.427163
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;8061º;2022.04535-6;Ativo;Alimentícia;2023;330494.14;753697.12;;;;;;;;2025-11-26 23:04:51.470262
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;8062º;2022.04542-9;Ativo;Alimentícia;2023;309505.24;697491.58;;;;;;;;2025-11-26 23:04:51.504361
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;8063º;2022.04537-2;Suspensão Administrativa;Alimentícia;2023;162410.47;287526.79;;;;;;;;2025-11-26 23:04:56.106911
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;8064º;2022.04541-0;Ativo;Alimentícia;2023;142594.96;232463.08;;;;;;;;2025-11-26 23:04:56.154343
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;8065º;2022.00705-5;Suspensão Administrativa;Alimentícia;2023;158253.87;437505.30;;;;;;;;2025-11-26 23:04:56.202556
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;8066º;2022.04536-4;Ativo;Alimentícia;2023;309943.09;696817.75;;;;;;;;2025-11-26 23:04:56.256705
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;8067º;2022.00751-9;Suspensão Administrativa;Alimentícia;2023;144835.39;380817.69;;;;;;;;2025-11-26 23:04:56.310321
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;8068º;2022.00716-0;Ativo;Alimentícia;2023;182296.95;298987.74;;;;;;;;2025-11-26 23:04:56.362534
+Estado do Rio de Janeiro;1;IPERJ;especial;8069º;2022.00710-1;Ativo;Alimentícia;2023;1034076.62;3349462.76;;;;;;;;2025-11-26 23:04:56.410607
+Estado do Rio de Janeiro;1;IPERJ;especial;8070º;2022.00714-4;Ativo;Alimentícia;2023;206709.41;699297.78;;;;;;;;2025-11-26 23:04:56.511630
+Estado do Rio de Janeiro;1;IPERJ;especial;8071º;2022.00719-5;Ativo;Alimentícia;2023;1033451.32;3347295.81;;;;;;;;2025-11-26 23:04:56.549208
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;8072º;2022.00708-0;Ativo;Alimentícia;2023;37694.69;73849.22;;;;;;;;2025-11-26 23:04:56.584302
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;8073º;2022.00736-5;Ativo;Alimentícia;2023;230833.72;197045.79;;;;;;;;2025-11-26 23:05:01.182763
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;8074º;2022.00721-7;Ativo;Alimentícia;2023;288092.46;288306.92;;;;;;;;2025-11-26 23:05:01.236128
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;8075º;2022.00720-9;Ativo;Alimentícia;2023;80323.25;124870.09;;;;;;;;2025-11-26 23:05:01.286712
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;8076º;2022.00722-5;Ativo;Alimentícia;2023;127786.79;198760.76;;;;;;;;2025-11-26 23:05:01.336113
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;8077º;2022.00733-0;Suspensão Administrativa;Alimentícia;2023;86549.30;281567.17;;;;;;;;2025-11-26 23:05:01.381749
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;8078º;2022.00732-2;Ativo;Alimentícia;2023;73456.27;239027.20;;;;;;;;2025-11-26 23:05:01.427537
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;8079º;2022.00725-0;Ativo;Alimentícia;2023;214673.94;175049.49;;;;;;;;2025-11-26 23:05:01.478078
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;8080º;2022.00731-4;Ativo;Alimentícia;2023;151517.18;76496.92;;;;;;;;2025-11-26 23:05:01.534690
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;8081º;2022.00781-0;Ativo;Alimentícia;2023;132187.27;52400.24;;;;;;;;2025-11-26 23:05:01.581406
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;8082º;2022.00754-3;Ativo;Alimentícia;2023;21788.97;38293.95;;;;;;;;2025-11-26 23:05:01.622848
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;8083º;2022.01293-8;Ativo;Alimentícia;2023;508188.72;786283.08;;;;;;;;2025-11-26 23:05:06.218825
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;8084º;2022.01095-1;Ativo;Alimentícia;2023;508200.09;626398.63;;;;;;;;2025-11-26 23:05:06.271497
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;8085º;2022.00738-1;Ativo;Alimentícia;2023;20213.19;53207.72;;;;;;;;2025-11-26 23:05:06.322554
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;8086º;2022.00748-9;Suspensão Administrativa;Alimentícia;2023;124925.32;54290.27;;;;;;;;2025-11-26 23:05:06.374810
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;8087º;2022.00745-4;Ativo;Alimentícia;2023;124925.32;54290.24;;;;;;;;2025-11-26 23:05:06.430954
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;8088º;2022.00747-0;Ativo;Alimentícia;2023;124925.32;216512.11;;;;;;;;2025-11-26 23:05:06.481780
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;8089º;2022.00749-7;Suspensão Administrativa;Alimentícia;2023;124925.32;216512.11;;;;;;;;2025-11-26 23:05:06.529454
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;8090º;2022.00758-6;Ativo;Alimentícia;2023;67796.08;105404.40;;;;;;;;2025-11-26 23:05:06.578059
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;8091º;2022.00779-9;Ativo;Alimentícia;2023;22598.69;35134.79;;;;;;;;2025-11-26 23:05:06.628660
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;8092º;2022.00723-3;Ativo;Alimentícia;2023;100077.76;15172.83;;;;;;;;2025-11-26 23:05:06.674375
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;8093º;2022.00755-1;Ativo;Alimentícia;2023;388823.01;441040.37;;;;;;;;2025-11-26 23:05:11.270108
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;8094º;2022.00778-0;Ativo;Alimentícia;2023;388048.41;439836.83;;;;;;;;2025-11-26 23:05:11.321711
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;8095º;2022.00756-0;Suspensão Administrativa;Alimentícia;2023;388823.01;601857.44;;;;;;;;2025-11-26 23:05:11.371570
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;8096º;2022.00772-1;Suspensão Administrativa;Alimentícia;2023;3212351.86;5050437.83;;;;;;;;2025-11-26 23:05:11.420609
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;8097º;2022.00760-8;Ativo;Alimentícia;2023;58842.82;5482.19;;;;;;;;2025-11-26 23:05:11.469845
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;8098º;2022.00811-6;Ativo;Alimentícia;2023;90625.24;139231.06;;;;;;;;2025-11-26 23:05:11.516180
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;8099º;2022.00762-4;Ativo;Alimentícia;2023;25740.52;36937.65;;;;;;;;2025-11-26 23:05:11.564599
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;8100º;2022.00782-9;Ativo;Alimentícia;2023;53810.68;81328.09;;;;;;;;2025-11-26 23:05:11.613904
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;8101º;2022.00817-5;Ativo;Alimentícia;2023;118396.08;24966.51;;;;;;;;2025-11-26 23:05:11.662170
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;8102º;2022.00776-4;Ativo;Alimentícia;2023;11658.62;24877.14;;;;;;;;2025-11-26 23:05:11.708104
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;8103º;2022.00786-1;Ativo;Alimentícia;2023;60255.09;128886.51;;;;;;;;2025-11-26 23:05:16.300090
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;8104º;2022.00774-8;Ativo;Alimentícia;2023;11658.62;24877.14;;;;;;;;2025-11-26 23:05:16.361315
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;8105º;2022.00825-6;Suspensão Administrativa;Alimentícia;2023;89317.93;36102.38;;;;;;;;2025-11-26 23:05:16.409180
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;8106º;2022.00826-4;Ativo;Alimentícia;2023;107597.03;161201.42;;;;;;;;2025-11-26 23:05:16.461855
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;8107º;2022.00824-8;Ativo;Alimentícia;2023;126322.31;27019.28;;;;;;;;2025-11-26 23:05:16.511132
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;8108º;2022.00843-4;Ativo;Alimentícia;2023;161839.43;86773.45;;;;;;;;2025-11-26 23:05:16.560917
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;8109º;2022.00831-0;Ativo;Alimentícia;2023;128099.58;39335.47;;;;;;;;2025-11-26 23:05:16.607062
+Estado do Rio de Janeiro;1;SUDERJ;especial;8110º;2022.00780-2;Ativo;Alimentícia;2023;302350.90;574345.03;;;;;;;;2025-11-26 23:05:16.652143
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;8111º;2022.01083-8;Ativo;Alimentícia;2023;165810.48;104529.62;;;;;;;;2025-11-26 23:05:16.697741
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;8112º;2022.01298-9;Ativo;Alimentícia;2023;165809.88;266546.76;;;;;;;;2025-11-26 23:05:16.738881
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;8113º;2022.01295-4;Ativo;Alimentícia;2023;165809.88;104528.62;;;;;;;;2025-11-26 23:05:21.342662
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;8114º;2022.00842-6;Ativo;Alimentícia;2023;418186.83;445398.63;;;;;;;;2025-11-26 23:05:21.388606
+Estado do Rio de Janeiro;1;IPERJ;especial;8115º;2022.00793-4;Suspensão Administrativa;Alimentícia;2023;92347.62;202187.31;;;;;;;;2025-11-26 23:05:21.434827
+Estado do Rio de Janeiro;1;IPERJ;especial;8116º;2022.00792-6;Ativo;Alimentícia;2023;23086.85;50546.71;;;;;;;;2025-11-26 23:05:21.483127
+Estado do Rio de Janeiro;1;IPERJ;especial;8117º;2022.00791-8;Ativo;Alimentícia;2023;23086.85;50546.71;;;;;;;;2025-11-26 23:05:21.532054
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;8118º;2022.00815-9;Ativo;Alimentícia;2023;58750.81;95889.22;;;;;;;;2025-11-26 23:05:21.582436
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;8119º;2022.00810-8;Ativo;Alimentícia;2023;16201.09;24417.79;;;;;;;;2025-11-26 23:05:21.633809
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;8120º;2022.01138-9;Suspensão Administrativa;Alimentícia;2023;676283.32;1083128.88;;;;;;;;2025-11-26 23:05:21.682095
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;8121º;2022.00788-8;Ativo;Alimentícia;2023;18810.00;26343.98;;;;;;;;2025-11-26 23:05:21.732737
+Estado do Rio de Janeiro;1;FUNDERJ-FUNDAÇÃO DEPARTAMENTO DE ESTRADAS DE RODAGEM-DER RJ;especial;8122º;2022.00790-0;Ativo;Alimentícia;2023;525272.95;621236.42;;;;;;;;2025-11-26 23:05:21.784669
+Estado do Rio de Janeiro;1;FUNDERJ-FUNDAÇÃO DEPARTAMENTO DE ESTRADAS DE RODAGEM-DER RJ;especial;8123º;2022.00818-3;Suspensão Administrativa;Alimentícia;2023;539369.94;802287.88;;;;;;;;2025-11-26 23:05:26.403863
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;8124º;2022.00974-0;Suspensão Administrativa;Alimentícia;2023;676283.32;924223.85;;;;;;;;2025-11-26 23:05:26.455073
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;8125º;2022.00807-8;Ativo;Alimentícia;2023;23700.33;60494.90;;;;;;;;2025-11-26 23:05:26.507566
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;8126º;2022.00803-5;Ativo;Alimentícia;2023;13508.29;34784.90;;;;;;;;2025-11-26 23:05:26.570359
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;8127º;2022.00809-4;Ativo;Alimentícia;2023;23700.33;60494.90;;;;;;;;2025-11-26 23:05:26.621544
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;8128º;2022.00802-7;Ativo;Alimentícia;2023;23700.33;60494.90;;;;;;;;2025-11-26 23:05:26.672033
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;8129º;2022.00804-3;Ativo;Alimentícia;2023;13508.29;34784.90;;;;;;;;2025-11-26 23:05:26.721359
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;8130º;2022.00813-2;Ativo;Alimentícia;2023;81049.78;208709.51;;;;;;;;2025-11-26 23:05:26.767272
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;8131º;2022.00805-1;Ativo;Alimentícia;2023;13508.28;34784.87;;;;;;;;2025-11-26 23:05:26.819106
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;8132º;2022.00806-0;Ativo;Alimentícia;2023;13508.29;34784.90;;;;;;;;2025-11-26 23:05:26.874722
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;8133º;2022.00814-0;Ativo;Alimentícia;2023;13508.29;34784.90;;;;;;;;2025-11-26 23:05:31.485701
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;8134º;2022.00808-6;Ativo;Alimentícia;2023;23700.33;60494.90;;;;;;;;2025-11-26 23:05:31.538264
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;8135º;2022.00830-2;Ativo;Alimentícia;2023;672959.56;942348.10;;;;;;;;2025-11-26 23:05:31.590527
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;8136º;2022.00775-6;Ativo;Alimentícia;2023;1154030.71;1596975.56;;;;;;;;2025-11-26 23:05:31.642779
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;8137º;2022.01415-9;Ativo;Alimentícia;2023;896577.43;1414364.59;;;;;;;;2025-11-26 23:05:31.693247
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;8138º;2022.00857-4;Ativo;Alimentícia;2023;227339.69;210818.64;;;;;;;;2025-11-26 23:05:31.746188
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;8139º;2022.00891-4;Ativo;Alimentícia;2023;198411.57;306567.54;;;;;;;;2025-11-26 23:05:31.803317
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;8140º;2022.01077-3;Ativo;Alimentícia;2023;84838.07;43399.19;;;;;;;;2025-11-26 23:05:31.858088
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;8141º;2022.01222-9;Ativo;Alimentícia;2023;84838.07;17196.13;;;;;;;;2025-11-26 23:05:31.908575
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;8142º;2022.01159-1;Ativo;Alimentícia;2023;84838.07;43402.91;;;;;;;;2025-11-26 23:05:31.959246
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;8143º;2022.01078-1;Ativo;Alimentícia;2023;13194.88;32444.43;;;;;;;;2025-11-26 23:05:36.576526
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;8144º;2022.01099-4;Ativo;Alimentícia;2023;13194.88;32446.09;;;;;;;;2025-11-26 23:05:36.622349
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;8145º;2022.00846-9;Ativo;Alimentícia;2023;70863.69;116417.56;;;;;;;;2025-11-26 23:05:36.664143
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;8146º;2022.00881-7;Ativo;Alimentícia;2023;194713.50;316421.91;;;;;;;;2025-11-26 23:05:36.717332
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;8147º;2022.00848-5;Ativo;Alimentícia;2023;250065.42;408212.30;;;;;;;;2025-11-26 23:05:36.759813
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;8148º;2022.00839-6;Ativo;Alimentícia;2023;80378.17;131211.10;;;;;;;;2025-11-26 23:05:36.802345
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;8149º;2022.00840-0;Ativo;Alimentícia;2023;26792.72;43737.03;;;;;;;;2025-11-26 23:05:36.846430
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;8150º;2022.00837-0;Suspensão Administrativa;Alimentícia;2023;27068.13;49184.07;;;;;;;;2025-11-26 23:05:36.903226
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;8151º;2022.00909-0;Ativo;Alimentícia;2023;220085.56;213345.26;;;;;;;;2025-11-26 23:05:36.949559
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;8152º;2022.00911-2;Ativo;Alimentícia;2023;102071.69;165211.55;;;;;;;;2025-11-26 23:05:36.996726
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;8143º;2022.01078-1;Ativo;Alimentícia;2023;13194.88;32444.43;;;;;;;;2025-11-26 23:06:40.260808
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;8144º;2022.01099-4;Ativo;Alimentícia;2023;13194.88;32446.09;;;;;;;;2025-11-26 23:06:40.304671
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;8145º;2022.00846-9;Ativo;Alimentícia;2023;70863.69;116417.56;;;;;;;;2025-11-26 23:06:40.357740
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;8146º;2022.00881-7;Ativo;Alimentícia;2023;194713.50;316421.91;;;;;;;;2025-11-26 23:06:40.428522
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;8147º;2022.00848-5;Ativo;Alimentícia;2023;250065.42;408212.30;;;;;;;;2025-11-26 23:06:40.478000
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;8148º;2022.00839-6;Ativo;Alimentícia;2023;80378.17;131211.10;;;;;;;;2025-11-26 23:06:40.525630
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;8149º;2022.00840-0;Ativo;Alimentícia;2023;26792.72;43737.03;;;;;;;;2025-11-26 23:06:40.582447
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;8150º;2022.00837-0;Suspensão Administrativa;Alimentícia;2023;27068.13;49184.07;;;;;;;;2025-11-26 23:06:40.625510
+Estado do Rio de Janeiro;1;RIO-PREVIDÊNCIA (03.066.219/0001-81);especial;8151º;2022.00909-0;Ativo;Alimentícia;2023;220085.56;213345.26;;;;;;;;2025-11-26 23:06:40.670132
+Estado do Rio de Janeiro;1;Estado do Rio de Janeiro;especial;8152º;2022.00911-2;Ativo;Alimentícia;2023;102071.69;165211.55;;;;;;;;2025-11-26 23:06:40.717430

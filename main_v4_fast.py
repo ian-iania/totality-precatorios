@@ -250,10 +250,12 @@ def run_parallel_extraction(
     all_records = []
     results = []
     
-    # Timeout per worker: 5 minutes or timeout_minutes, whichever is smaller
-    worker_timeout = min(timeout_minutes * 60, 300)  # Max 5 minutes per entity
+    # Dynamic timeout based on pages per worker
+    # ~3 seconds per page + 60s margin, minimum 5 minutes
+    pages_per_worker = total_pages // num_processes
+    worker_timeout = max(300, pages_per_worker * 3 + 60)
     
-    logger.info(f"\n🔄 Starting extraction (worker timeout: {worker_timeout}s)...")
+    logger.info(f"\n🔄 Starting extraction (worker timeout: {worker_timeout}s = {worker_timeout//60}min)...")
     
     with mp.Pool(processes=num_processes) as pool:
         # Submit all workers
