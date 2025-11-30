@@ -298,9 +298,9 @@ class ExtractionRunner:
                 "is_running": self.is_running()
             }
         
-        # Parse log file to get current progress - ONLY lines after start_time
-        # Track pages done per process to get accurate count
-        process_pages = {}  # {process_id: max_page_done}
+        # Parse log file to get current progress
+        # Track max page seen per process (pages are sequential within each process)
+        process_max_page = {}  # {process_id: max_page_seen}
         process_records = {}  # {process_id: total_records}
         
         start_str = self.start_time.strftime('%Y-%m-%d %H:%M:%S')
@@ -309,10 +309,11 @@ class ExtractionRunner:
         if log_file.exists():
             try:
                 with open(log_file, 'r') as f:
-                    lines = f.readlines()
+                    # Read entire file to not miss any progress
+                    content = f.read()
                 
-                # Only check last 200 lines for performance
-                for line in lines[-200:]:
+                # Only process lines after start time
+                for line in content.split('\n'):
                     # Extract timestamp from line
                     ts_match = re.match(r'(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})', line)
                     if ts_match:
@@ -321,11 +322,12 @@ class ExtractionRunner:
                             continue
                     
                     # Match: [P1] Page 42/63 (42/63)
-                    page_match = re.search(r'\[P(\d)\] Page (\d+)/(\d+)', line)
+                    # The second number in parentheses is pages done by this process
+                    page_match = re.search(r'\[P(\d)\] Page \d+/\d+ \((\d+)/\d+\)', line)
                     if page_match:
                         proc_id = page_match.group(1)
-                        page_num = int(page_match.group(2))
-                        process_pages[proc_id] = max(process_pages.get(proc_id, 0), page_num)
+                        pages_by_proc = int(page_match.group(2))
+                        process_max_page[proc_id] = max(process_max_page.get(proc_id, 0), pages_by_proc)
                     
                     # Match: [P1] ✅ ... (total: 620)
                     rec_match = re.search(r'\[P(\d)\].*total: (\d+)\)', line)
@@ -337,7 +339,7 @@ class ExtractionRunner:
                 pass
         
         # Sum pages done across all processes
-        pages_done = sum(process_pages.values())
+        pages_done = sum(process_max_page.values())
         
         # Sum records across all processes
         total_records = sum(process_records.values())

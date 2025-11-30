@@ -457,29 +457,8 @@ def render_progress_view():
     overall_progress = total_pages_done / total_pages_all if total_pages_all > 0 else 0
     overall_progress = min(0.99, overall_progress)  # Cap at 99%
     
-    # === TIME ESTIMATION ===
-    # Get global elapsed time (from start of all extractions)
-    global_start = st.session_state.get('extraction_start_time')
-    if global_start:
-        global_elapsed = (datetime.now() - global_start).total_seconds()
-    else:
-        global_elapsed = progress.get('elapsed_seconds', 0)
-    
-    # Calculate estimated remaining time
-    time_info = ""
-    if total_pages_done > 5 and global_elapsed > 10:
-        # We have enough data to estimate
-        seconds_per_page = global_elapsed / total_pages_done
-        remaining_pages = total_pages_all - total_pages_done
-        estimated_remaining = seconds_per_page * remaining_pages
-        
-        time_info = f"Tempo restante: ~{format_duration(estimated_remaining)}"
-    elif global_elapsed > 0:
-        time_info = f"Tempo decorrido: {format_duration(global_elapsed)}"
-    else:
-        time_info = "Calculando..."
-    
-    st.caption(f"Progresso geral: {overall_progress * 100:.1f}% ({total_pages_done}/{total_pages_all} páginas) — {time_info}")
+    # Display overall progress
+    st.caption(f"Progresso geral: {overall_progress * 100:.1f}% ({total_pages_done}/{total_pages_all} páginas)")
     
     st.markdown("---")
     
