@@ -271,12 +271,12 @@ class ExtractionRunner:
         Get current extraction progress by parsing log file
         
         Returns:
-            Dict with: records, percent, elapsed_seconds
+            Dict with: records, percent, elapsed_seconds, pages_done, total_pages
         """
         import re
         
         if not self.entity_info:
-            return {"records": 0, "percent": 0, "elapsed_seconds": 0, "is_running": False}
+            return {"records": 0, "percent": 0, "elapsed_seconds": 0, "pages_done": 0, "total_pages": 0, "is_running": False}
         
         expected = self.entity_info.get("expected_records", 1)
         total_pages = self.entity_info.get("total_pages", 0)
@@ -287,20 +287,22 @@ class ExtractionRunner:
         if self.start_time:
             elapsed_seconds = (datetime.now() - self.start_time).total_seconds()
         
-        # Parse log file to get current progress - ONLY lines after start_time
-        total_records = 0
-        pages_done = 0
-        
         if not self.start_time:
             return {
                 "records": 0,
                 "expected_records": expected,
                 "percent": 0,
                 "elapsed_seconds": elapsed_seconds,
+                "pages_done": 0,
+                "total_pages": total_pages,
                 "is_running": self.is_running()
             }
         
-        # Format start time for comparison
+        # Parse log file to get current progress - ONLY lines after start_time
+        # Track pages done per process to get accurate count
+        process_pages = {}  # {process_id: max_page_done}
+        process_records = {}  # {process_id: total_records}
+        
         start_str = self.start_time.strftime('%Y-%m-%d %H:%M:%S')
         
         log_file = self.project_root / "logs" / "scraper_v3.log"
@@ -309,44 +311,47 @@ class ExtractionRunner:
                 with open(log_file, 'r') as f:
                     lines = f.readlines()
                 
-                # Only check lines AFTER our start time
-                for line in lines:
-                    # Extract timestamp from line (format: 2025-11-30 15:14:34 | INFO |)
-                    match = re.match(r'(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})', line)
-                    if match:
-                        line_time = match.group(1)
+                # Only check last 200 lines for performance
+                for line in lines[-200:]:
+                    # Extract timestamp from line
+                    ts_match = re.match(r'(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})', line)
+                    if ts_match:
+                        line_time = ts_match.group(1)
                         if line_time < start_str:
-                            continue  # Skip old lines
-                    
-                    # Match: [P1]   ✅ 10 records (total: 620)
-                    match = re.search(r'\[P\d\].*total: (\d+)\)', line)
-                    if match:
-                        records = int(match.group(1))
-                        if records > total_records:
-                            total_records = records
+                            continue
                     
                     # Match: [P1] Page 42/63 (42/63)
-                    match = re.search(r'\[P\d\] Page (\d+)/(\d+)', line)
-                    if match:
-                        page = int(match.group(1))
-                        if page > pages_done:
-                            pages_done = page
+                    page_match = re.search(r'\[P(\d)\] Page (\d+)/(\d+)', line)
+                    if page_match:
+                        proc_id = page_match.group(1)
+                        page_num = int(page_match.group(2))
+                        process_pages[proc_id] = max(process_pages.get(proc_id, 0), page_num)
+                    
+                    # Match: [P1] ✅ ... (total: 620)
+                    rec_match = re.search(r'\[P(\d)\].*total: (\d+)\)', line)
+                    if rec_match:
+                        proc_id = rec_match.group(1)
+                        records = int(rec_match.group(2))
+                        process_records[proc_id] = max(process_records.get(proc_id, 0), records)
             except Exception:
                 pass
         
-        # Estimate: each process reports its own total
-        # Multiply by num_processes and divide by 2 (rough average)
-        estimated_total = total_records * num_processes // 2
+        # Sum pages done across all processes
+        pages_done = sum(process_pages.values())
         
-        # Calculate percent based on records
-        percent = min(99, (estimated_total / expected * 100)) if expected > 0 else 0
+        # Sum records across all processes
+        total_records = sum(process_records.values())
+        
+        # Calculate percent based on pages (more accurate)
+        percent = min(99, (pages_done / total_pages * 100)) if total_pages > 0 else 0
         
         return {
-            "records": estimated_total,
+            "records": total_records,
             "expected_records": expected,
             "percent": percent,
             "elapsed_seconds": elapsed_seconds,
             "pages_done": pages_done,
+            "total_pages": total_pages,
             "is_running": self.is_running()
         }
     

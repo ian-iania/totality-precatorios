@@ -439,25 +439,47 @@ def render_progress_view():
         # Compact stats line
         st.caption(f"Registros: {format_number(records_extracted)} / {format_number(expected_records)} ({current_progress * 100:.0f}%)")
     
-    # === OVERALL PROGRESS ===
-    completed_pendentes = sum(
-        e['precatorios_pendentes'] for e in entities 
+    # === OVERALL PROGRESS (based on pages) ===
+    # Calculate pages done from completed entities
+    completed_pages = sum(
+        (e['precatorios_pendentes'] + 9) // 10 for e in entities 
         if e['id'] in completed
     )
     
-    if current_entity:
-        current_contribution = current_entity['precatorios_pendentes'] * current_progress
-    else:
-        current_contribution = 0
+    # Add pages done from current entity
+    current_pages_done = progress.get('pages_done', 0)
+    total_pages_done = completed_pages + current_pages_done
     
-    overall_progress = (completed_pendentes + current_contribution) / total_stats['pendentes'] if total_stats['pendentes'] > 0 else 0
+    # Total pages for all entities
+    total_pages_all = total_stats.get('paginas', 1)
+    
+    # Calculate overall progress
+    overall_progress = total_pages_done / total_pages_all if total_pages_all > 0 else 0
     overall_progress = min(0.99, overall_progress)  # Cap at 99%
     
-    # === TIME INFO ===
-    elapsed_seconds = progress.get('elapsed_seconds', 0)
+    # === TIME ESTIMATION ===
+    # Get global elapsed time (from start of all extractions)
+    global_start = st.session_state.get('extraction_start_time')
+    if global_start:
+        global_elapsed = (datetime.now() - global_start).total_seconds()
+    else:
+        global_elapsed = progress.get('elapsed_seconds', 0)
     
-    # Show elapsed time (crescente)
-    st.caption(f"Progresso geral: {overall_progress * 100:.1f}% — Tempo decorrido: {format_duration(elapsed_seconds)}")
+    # Calculate estimated remaining time
+    time_info = ""
+    if total_pages_done > 5 and global_elapsed > 10:
+        # We have enough data to estimate
+        seconds_per_page = global_elapsed / total_pages_done
+        remaining_pages = total_pages_all - total_pages_done
+        estimated_remaining = seconds_per_page * remaining_pages
+        
+        time_info = f"Tempo restante: ~{format_duration(estimated_remaining)}"
+    elif global_elapsed > 0:
+        time_info = f"Tempo decorrido: {format_duration(global_elapsed)}"
+    else:
+        time_info = "Calculando..."
+    
+    st.caption(f"Progresso geral: {overall_progress * 100:.1f}% ({total_pages_done}/{total_pages_all} páginas) — {time_info}")
     
     st.markdown("---")
     
