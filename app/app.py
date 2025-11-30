@@ -45,7 +45,7 @@ except ImportError:
 # =============================================================================
 
 st.set_page_config(
-    page_title="TJRJ Precatórios Extractor",
+    page_title="Totality Precatórios Extração TJRJ",
     page_icon="🏛️",
     layout="wide",
     initial_sidebar_state="collapsed"
@@ -54,12 +54,11 @@ st.set_page_config(
 # Custom CSS
 st.markdown("""
 <style>
-    .main-header {
-        font-size: 2.5rem;
-        font-weight: bold;
-        color: #1f4e79;
-        margin-bottom: 1rem;
-    }
+    /* Hide Streamlit menu and footer */
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+    header {visibility: hidden;}
+    
     .stat-card {
         background-color: #f0f2f6;
         border-radius: 10px;
@@ -70,15 +69,8 @@ st.markdown("""
         background-color: #d4edda;
         border: 1px solid #c3e6cb;
         border-radius: 10px;
-        padding: 2rem;
+        padding: 1rem;
         text-align: center;
-        margin: 1rem 0;
-    }
-    .progress-box {
-        background-color: #e7f3ff;
-        border: 1px solid #b8daff;
-        border-radius: 10px;
-        padding: 1.5rem;
         margin: 1rem 0;
     }
     .stProgress > div > div > div > div {
@@ -190,22 +182,17 @@ def render_extraction_tab():
 def render_setup_view():
     """Render the simplified extraction setup view"""
     
-    st.markdown("### 📋 Selecione o Regime")
-    
     # Regime selection
     regime = st.radio(
-        "Escolha o regime para processar todas as entidades:",
+        "Regime",
         options=["especial", "geral"],
-        format_func=lambda x: f"{'🔵 Especial' if x == 'especial' else '🟢 Geral'}",
+        format_func=lambda x: x.capitalize(),
         horizontal=True,
-        key="regime_selector",
-        label_visibility="collapsed"
+        key="regime_selector"
     )
     
-    st.markdown("---")
-    
-    # Process button
-    if st.button("🚀 PROCESSAR TODAS AS ENTIDADES", type="primary", use_container_width=True):
+    # Process button below
+    if st.button("Processar", type="primary"):
         start_all_entities_extraction(regime)
 
 
@@ -224,8 +211,13 @@ def start_all_entities_extraction(regime: str):
         st.error("Nenhuma entidade encontrada.")
         return
     
-    # Sort by pending (descending) - process largest first
+    # Filter entities with pending > 0 and sort by pending (descending)
+    entities = [e for e in entities if e['precatorios_pendentes'] > 0]
     entities = sorted(entities, key=lambda x: x['precatorios_pendentes'], reverse=True)
+    
+    if not entities:
+        st.warning("Nenhuma entidade com precatórios pendentes encontrada.")
+        return
     
     # Calculate totals
     total_pendentes = sum(e['precatorios_pendentes'] for e in entities)
@@ -243,6 +235,11 @@ def start_all_entities_extraction(regime: str):
     st.session_state.extraction_running = True
     st.session_state.show_success = False
     
+    # Create consolidated output file name for this regime
+    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+    st.session_state.output_file = f"output/precatorios_regime_{regime}_{timestamp}.csv"
+    st.session_state.extraction_start_time = datetime.now()
+    
     # Start first entity
     start_next_entity()
     
@@ -251,12 +248,16 @@ def start_all_entities_extraction(regime: str):
 
 def start_next_entity():
     """Start extraction of the next entity in queue"""
+    from loguru import logger
     
     entities = st.session_state.entities_to_process
     current_idx = st.session_state.current_entity_index
     
+    logger.info(f"start_next_entity: idx={current_idx}, total={len(entities)}")
+    
     if current_idx >= len(entities):
         # All done!
+        logger.info("All entities processed!")
         return False
     
     entity = entities[current_idx]
@@ -265,8 +266,11 @@ def start_next_entity():
     pendentes = entity.get('precatorios_pendentes', 0)
     total_pages = (pendentes + 9) // 10
     
+    logger.info(f"Starting entity: {entity['nome']} (id={entity['id']}, pages={total_pages})")
+    
     if total_pages == 0:
         # Skip entities with no pending
+        logger.info(f"Skipping entity with 0 pages: {entity['nome']}")
         st.session_state.completed_entities.add(entity['id'])
         st.session_state.current_entity_index += 1
         return start_next_entity()
@@ -274,19 +278,27 @@ def start_next_entity():
     # Create runner and start extraction
     runner = ExtractionRunner()
     
+    # Get consolidated output file
+    output_file = st.session_state.get('output_file')
+    is_first_entity = (current_idx == 0)
+    
     try:
         runner.start_extraction(
             entity_id=entity['id'],
             entity_name=entity['nome'],
             regime=regime,
             total_pages=total_pages,
-            num_processes=4  # Fixed at 4 processes
+            num_processes=4,  # Fixed at 4 processes
+            output_file=output_file,
+            append_mode=not is_first_entity  # Append after first entity
         )
         
         st.session_state.extraction_runner = runner
+        logger.info(f"Successfully started extraction for {entity['nome']}")
         return True
     
     except Exception as e:
+        logger.error(f"Failed to start extraction for {entity['nome']}: {e}")
         st.error(f"Erro ao iniciar extração de {entity['nome']}: {e}")
         return False
 
@@ -336,18 +348,40 @@ def render_progress_view():
     completed = st.session_state.completed_entities
     total_stats = st.session_state.total_stats
     
+    # Safety check: if entities list is empty, reset to setup view
+    if not entities:
+        st.warning("Lista de entidades vazia. Reiniciando...")
+        st.session_state.extraction_running = False
+        st.session_state.show_success = False
+        time.sleep(2)
+        st.rerun()
+        return
+    
     # Check if runner exists
     if not runner and current_idx < len(entities):
         # Need to start next entity
+        st.info(f"Iniciando próxima entidade: {entities[current_idx]['nome']}...")
         if not start_next_entity():
-            # All done or error
-            st.session_state.extraction_running = False
-            st.session_state.show_success = True
+            # Error starting - but don't mark as success, try to continue
+            st.error(f"Erro ao iniciar entidade {current_idx + 1}. Tentando próxima...")
+            st.session_state.current_entity_index += 1
+            time.sleep(2)
             st.rerun()
             return
     
     if not runner:
-        st.session_state.extraction_running = False
+        # No runner and no more entities - check if we completed any
+        if len(completed) > 0:
+            st.session_state.extraction_running = False
+            st.session_state.show_success = True
+            st.session_state.extraction_result = {
+                "success": True,
+                "total_entities": len(entities),
+                "completed_entities": len(completed)
+            }
+        else:
+            st.session_state.extraction_running = False
+            st.session_state.show_success = False
         st.rerun()
         return
     
@@ -380,24 +414,27 @@ def render_progress_view():
         st.rerun()
         return
     
-    # === HEADER ===
-    st.markdown("### ⏳ Processando...")
+    # === CURRENT ENTITY INFO ===
+    current_entity = entities[current_idx] if current_idx < len(entities) else None
+    current_progress = progress.get('percent', 0) / 100
+    records_extracted = progress.get('records', 0)
+    expected_records = progress.get('expected_records', 0)
     
-    # Total stats
-    col1, col2 = st.columns(2)
-    with col1:
-        st.metric("📊 Total Precatórios Pendentes", format_number(total_stats['pendentes']))
-    with col2:
-        st.metric("📄 Total Páginas Estimadas", format_number(total_stats['paginas']))
+    if current_entity:
+        # Compact header
+        st.caption(f"Processando: **{current_entity['nome']}** — Entidade {current_idx + 1} de {len(entities)}")
+        
+        # Progress bar for current entity
+        st.progress(current_progress)
+        
+        # Compact stats line
+        st.caption(f"Registros: {format_number(records_extracted)} / {format_number(expected_records)} ({current_progress * 100:.0f}%)")
     
-    # === PROGRESS BAR ===
-    # Calculate overall progress based on completed entities
+    # === OVERALL PROGRESS ===
     completed_pendentes = sum(
         e['precatorios_pendentes'] for e in entities 
         if e['id'] in completed
     )
-    current_entity = entities[current_idx] if current_idx < len(entities) else None
-    current_progress = progress.get('percent', 0) / 100
     
     if current_entity:
         current_contribution = current_entity['precatorios_pendentes'] * current_progress
@@ -407,67 +444,35 @@ def render_progress_view():
     overall_progress = (completed_pendentes + current_contribution) / total_stats['pendentes'] if total_stats['pendentes'] > 0 else 0
     overall_progress = min(0.99, overall_progress)  # Cap at 99%
     
-    st.progress(overall_progress)
+    # === TIME INFO ===
+    elapsed_seconds = progress.get('elapsed_seconds', 0)
     
-    # === TIME ESTIMATES ===
-    eta_seconds = progress.get('eta_seconds', 0)
-    eta_time = progress.get('eta_time')
-    
-    # Estimate total remaining time
-    remaining_entities = len(entities) - current_idx - 1
-    remaining_pendentes = sum(
-        e['precatorios_pendentes'] for e in entities[current_idx + 1:]
-    )
-    
-    # Rough estimate: current ETA + remaining entities time
-    if eta_seconds > 0 and remaining_pendentes > 0 and current_entity:
-        # Estimate based on current speed
-        current_pendentes = current_entity['precatorios_pendentes']
-        if current_pendentes > 0:
-            time_per_pendente = eta_seconds / (current_pendentes * (1 - current_progress)) if current_progress < 1 else 0
-            total_eta_seconds = eta_seconds + (remaining_pendentes * time_per_pendente / 4)  # 4 processes
-        else:
-            total_eta_seconds = eta_seconds
-    else:
-        total_eta_seconds = eta_seconds
-    
-    col1, col2 = st.columns(2)
-    with col1:
-        if total_eta_seconds > 0:
-            st.metric("⏱️ Tempo Restante Estimado", format_duration(total_eta_seconds))
-        else:
-            st.metric("⏱️ Tempo Restante Estimado", "Calculando...")
-    
-    with col2:
-        if total_eta_seconds > 0:
-            finish_time = datetime.now().timestamp() + total_eta_seconds
-            st.metric("🏁 Conclusão às", format_time(datetime.fromtimestamp(finish_time)))
-        else:
-            st.metric("🏁 Conclusão às", "Calculando...")
+    # Show elapsed time (crescente)
+    st.caption(f"Progresso geral: {overall_progress * 100:.1f}% — Tempo decorrido: {format_duration(elapsed_seconds)}")
     
     st.markdown("---")
     
     # === ENTITY TRACKING LIST ===
-    st.markdown("**Entidades:**")
+    st.caption("Entidades:")
     
-    # Create scrollable container for entities
-    entity_container = st.container()
+    # Compact entity list
+    entity_lines = []
+    for idx, entity in enumerate(entities):
+        entity_id = entity['id']
+        nome = entity['nome']
+        pendentes = entity['precatorios_pendentes']
+        
+        if entity_id in completed:
+            entity_lines.append(f"✓ {nome} ({format_number(pendentes)})")
+        elif idx == current_idx:
+            entity_lines.append(f"→ **{nome}** ({format_number(pendentes)})")
+        else:
+            entity_lines.append(f"· {nome} ({format_number(pendentes)})")
     
-    with entity_container:
-        for idx, entity in enumerate(entities):
-            entity_id = entity['id']
-            nome = entity['nome']
-            pendentes = entity['precatorios_pendentes']
-            
-            if entity_id in completed:
-                # Completed
-                st.markdown(f"✅ {nome} ({format_number(pendentes)})")
-            elif idx == current_idx:
-                # Currently processing
-                st.markdown(f"⏳ **{nome} ({format_number(pendentes)})** ← processando")
-            else:
-                # Pending
-                st.markdown(f"⬜ {nome} ({format_number(pendentes)})")
+    # Show in expander to save space
+    with st.expander(f"Ver todas ({len(completed)}/{len(entities)} concluídas)", expanded=False):
+        for line in entity_lines:
+            st.caption(line)
     
     st.markdown("---")
     
@@ -483,8 +488,8 @@ def render_progress_view():
         st.warning("Extração cancelada.")
         st.rerun()
     
-    # Auto-refresh
-    time.sleep(3)
+    # Auto-refresh every 2 seconds
+    time.sleep(2)
     st.rerun()
 
 
@@ -500,25 +505,12 @@ def render_success_view():
     # Show confetti animation
     show_confetti()
     
-    # Success message
-    st.markdown("""
-    <div class="success-box">
-        <h1>🎉 SUCESSO!</h1>
-    </div>
-    """, unsafe_allow_html=True)
+    # Success message with timestamp
+    finish_time = datetime.now().strftime("%d/%m/%Y %H:%M")
+    total_records = total_stats.get('pendentes', 0)
     
-    # Results summary
-    col1, col2, col3 = st.columns(3)
-    
-    with col1:
-        st.metric("📊 Entidades Processadas", f"{len(completed)}/{len(entities)}")
-    
-    with col2:
-        st.metric("📋 Total Precatórios", format_number(total_stats.get('pendentes', 0)))
-    
-    with col3:
-        regime_label = "Especial" if regime == "especial" else "Geral"
-        st.metric("📁 Regime", regime_label)
+    st.success(f"✅ Extração concluída às {finish_time}")
+    st.caption(f"{len(completed)} entidades processadas — {format_number(total_records)} registros extraídos")
     
     st.markdown("---")
     
@@ -652,7 +644,7 @@ def main():
     """Main application entry point"""
     
     # Header
-    st.markdown('<p class="main-header">🏛️ TJRJ Precatórios Extractor</p>', unsafe_allow_html=True)
+    st.title("Totality Precatórios Extração TJRJ")
     
     # Tabs
     tab1, tab2 = st.tabs(["📥 Extração", "📁 Downloads"])
@@ -666,9 +658,8 @@ def main():
     # Footer
     st.markdown("---")
     st.caption(
-        "TJRJ Precatórios Extractor v1.0 | "
-        "Dados extraídos do Portal de Precatórios do TJRJ | "
-        f"Última atualização: {datetime.now().strftime('%d/%m/%Y %H:%M')}"
+        "Totality Precatórios v1.0 | "
+        "Dados extraídos do Portal de Precatórios do TJRJ"
     )
 
 

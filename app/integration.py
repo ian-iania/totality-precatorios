@@ -199,7 +199,9 @@ class ExtractionRunner:
         entity_name: str,
         regime: str,
         total_pages: int,
-        num_processes: int = 4
+        num_processes: int = 4,
+        output_file: str = None,
+        append_mode: bool = False
     ) -> subprocess.Popen:
         """
         Start extraction as a subprocess
@@ -210,6 +212,8 @@ class ExtractionRunner:
             regime: 'geral' or 'especial'
             total_pages: Total pages to extract
             num_processes: Number of parallel processes (2-6)
+            output_file: Path to consolidated output file
+            append_mode: If True, append to existing file
         
         Returns:
             subprocess.Popen object
@@ -225,6 +229,12 @@ class ExtractionRunner:
             "--num-processes", str(num_processes),
             "--timeout", "20"  # 20 min timeout per worker
         ]
+        
+        if output_file:
+            cmd.extend(["--output", output_file])
+        
+        if append_mode:
+            cmd.append("--append")
         
         logger.info(f"Starting extraction: {' '.join(cmd)}")
         
@@ -258,57 +268,85 @@ class ExtractionRunner:
     
     def get_progress(self) -> Dict:
         """
-        Get current extraction progress
+        Get current extraction progress by parsing log file
         
         Returns:
-            Dict with: records, percent, eta_seconds, eta_time
+            Dict with: records, percent, elapsed_seconds
         """
+        import re
+        
         if not self.entity_info:
-            return {"records": 0, "percent": 0, "eta_seconds": 0}
-        
-        # Count records from partial files created AFTER extraction started
-        partial_files = []
-        if self.start_time:
-            for f in list_partial_files(self.output_dir):
-                # Only count files created after extraction started
-                file_mtime = datetime.fromtimestamp(f.stat().st_mtime)
-                if file_mtime >= self.start_time:
-                    partial_files.append(f)
-        
-        total_records = sum(count_csv_records(f) for f in partial_files)
+            return {"records": 0, "percent": 0, "elapsed_seconds": 0, "is_running": False}
         
         expected = self.entity_info.get("expected_records", 1)
-        percent = min(99, (total_records / expected * 100)) if expected > 0 else 0  # Cap at 99% until done
+        total_pages = self.entity_info.get("total_pages", 0)
+        num_processes = self.entity_info.get("num_processes", 4)
         
-        # Calculate timing
+        # Calculate elapsed time
         elapsed_seconds = 0
-        eta_seconds = 0
-        eta_time = None
-        
         if self.start_time:
             elapsed_seconds = (datetime.now() - self.start_time).total_seconds()
-            
-            if percent > 5:  # Only estimate after some progress
-                # Estimate remaining time based on current speed
-                total_estimated = elapsed_seconds / (percent / 100)
-                eta_seconds = max(0, total_estimated - elapsed_seconds)
-                eta_time = datetime.now().timestamp() + eta_seconds
-            else:
-                # Initial estimate based on expected time
-                total_pages = self.entity_info.get("total_pages", 0)
-                num_processes = self.entity_info.get("num_processes", 4)
-                if total_pages > 0:
-                    # ~5 seconds per page with skip-expanded
-                    eta_seconds = (total_pages / num_processes) * 5
-                    eta_time = datetime.now().timestamp() + eta_seconds
+        
+        # Parse log file to get current progress - ONLY lines after start_time
+        total_records = 0
+        pages_done = 0
+        
+        if not self.start_time:
+            return {
+                "records": 0,
+                "expected_records": expected,
+                "percent": 0,
+                "elapsed_seconds": elapsed_seconds,
+                "is_running": self.is_running()
+            }
+        
+        # Format start time for comparison
+        start_str = self.start_time.strftime('%Y-%m-%d %H:%M:%S')
+        
+        log_file = self.project_root / "logs" / "scraper_v3.log"
+        if log_file.exists():
+            try:
+                with open(log_file, 'r') as f:
+                    lines = f.readlines()
+                
+                # Only check lines AFTER our start time
+                for line in lines:
+                    # Extract timestamp from line (format: 2025-11-30 15:14:34 | INFO |)
+                    match = re.match(r'(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})', line)
+                    if match:
+                        line_time = match.group(1)
+                        if line_time < start_str:
+                            continue  # Skip old lines
+                    
+                    # Match: [P1]   ✅ 10 records (total: 620)
+                    match = re.search(r'\[P\d\].*total: (\d+)\)', line)
+                    if match:
+                        records = int(match.group(1))
+                        if records > total_records:
+                            total_records = records
+                    
+                    # Match: [P1] Page 42/63 (42/63)
+                    match = re.search(r'\[P\d\] Page (\d+)/(\d+)', line)
+                    if match:
+                        page = int(match.group(1))
+                        if page > pages_done:
+                            pages_done = page
+            except Exception:
+                pass
+        
+        # Estimate: each process reports its own total
+        # Multiply by num_processes and divide by 2 (rough average)
+        estimated_total = total_records * num_processes // 2
+        
+        # Calculate percent based on records
+        percent = min(99, (estimated_total / expected * 100)) if expected > 0 else 0
         
         return {
-            "records": total_records,
+            "records": estimated_total,
             "expected_records": expected,
             "percent": percent,
-            "eta_seconds": eta_seconds,
-            "eta_time": datetime.fromtimestamp(eta_time) if eta_time else None,
-            "partial_files": len(partial_files),
+            "elapsed_seconds": elapsed_seconds,
+            "pages_done": pages_done,
             "is_running": self.is_running()
         }
     

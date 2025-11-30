@@ -206,10 +206,14 @@ def run_parallel_extraction(
     skip_expanded: bool = True,
     headless: bool = True,
     timeout_minutes: int = 30,
-    output_path: Optional[str] = None
+    output_path: Optional[str] = None,
+    append_mode: bool = False
 ) -> Tuple[pd.DataFrame, Dict]:
     """
     Run parallel extraction with optimized memory handling
+    
+    Args:
+        append_mode: If True, append to existing CSV file
     
     Returns:
         Tuple of (DataFrame with all records, stats dict)
@@ -264,27 +268,35 @@ def run_parallel_extraction(
     
     if all_records:
         df = pd.DataFrame(all_records)
-        
-        # Remove duplicates
-        if 'numero_precatorio' in df.columns:
-            before = len(df)
-            df = df.drop_duplicates(subset=['numero_precatorio'], keep='first')
-            dupes = before - len(df)
-            if dupes > 0:
-                logger.warning(f"⚠️ Removed {dupes} duplicates")
     else:
         df = pd.DataFrame()
     
     # Save to CSV
     if output_path and not df.empty:
-        df.to_csv(
-            output_path,
-            index=False,
-            encoding='utf-8-sig',
-            sep=';',
-            decimal=','
-        )
-        logger.info(f"💾 Saved: {output_path}")
+        import os
+        
+        if append_mode and os.path.exists(output_path):
+            # Append without header
+            df.to_csv(
+                output_path,
+                mode='a',
+                header=False,
+                index=False,
+                encoding='utf-8-sig',
+                sep=';',
+                decimal=','
+            )
+            logger.info(f"📎 Appended to: {output_path}")
+        else:
+            # Write new file with header
+            df.to_csv(
+                output_path,
+                index=False,
+                encoding='utf-8-sig',
+                sep=';',
+                decimal=','
+            )
+            logger.info(f"💾 Saved: {output_path}")
     
     elapsed = time.time() - start_time
     
@@ -316,6 +328,7 @@ def main():
     parser.add_argument('--num-processes', type=int, default=4, help='Parallel processes (2-6)')
     parser.add_argument('--timeout', type=int, default=30, help='Timeout per worker (minutes)')
     parser.add_argument('--output', type=str, help='Output CSV path')
+    parser.add_argument('--append', action='store_true', help='Append to existing file')
     parser.add_argument('--no-headless', action='store_true', help='Show browser')
     parser.add_argument('--log-level', default='INFO', help='Log level')
     
@@ -323,9 +336,9 @@ def main():
     
     setup_logging(args.log_level)
     
-    # Generate output path
+    # Generate output path - use regime name, not entity name
     timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-    output_path = args.output or f"output/precatorios_{args.entity_name.replace(' ', '_')}_{timestamp}.csv"
+    output_path = args.output or f"output/precatorios_regime_{args.regime}_{timestamp}.csv"
     
     # Run extraction
     df, stats = run_parallel_extraction(
@@ -337,7 +350,8 @@ def main():
         skip_expanded=True,  # Always fast mode
         headless=not args.no_headless,
         timeout_minutes=args.timeout,
-        output_path=output_path
+        output_path=output_path,
+        append_mode=args.append
     )
     
     return 0 if stats['failed_processes'] == 0 else 1
