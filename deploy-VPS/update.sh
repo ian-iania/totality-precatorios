@@ -2,33 +2,34 @@
 # =============================================================================
 # TJRJ Precatórios Scraper V5 - Quick Update Script
 # =============================================================================
-# Usage: sudo bash update.sh
+# Usage: bash update.sh
 # =============================================================================
 
 set -e
 
-APP_DIR="/opt/charles"
-APP_USER="charles"
+APP_DIR="/root/charles/totality-precatorios"
 
-echo "🔄 Stopping service..."
-systemctl stop charles || true
+echo "🔄 Stopping Streamlit..."
+pkill -f streamlit || true
+pkill -f chromium || true
+screen -X -S charles quit 2>/dev/null || true
 
 echo "📥 Pulling latest code..."
 cd $APP_DIR
-sudo -u $APP_USER git pull origin main
+git pull origin main
 
 echo "📦 Updating dependencies..."
-sudo -u $APP_USER ./venv/bin/pip install -r requirements.txt
-sudo -u $APP_USER ./venv/bin/pip install -r app/requirements.txt
+./venv/bin/pip install -r requirements.txt
+./venv/bin/pip install -r app/requirements.txt
 
 echo "🧹 Cleaning old logs..."
 rm -f $APP_DIR/logs/scraper_v3.log
 rm -rf $APP_DIR/logs/screenshots/*.png
 
-echo "🚀 Starting service..."
-systemctl start charles
+echo "🚀 Starting Streamlit..."
+screen -dmS charles ./venv/bin/streamlit run app/app.py --server.port 8501 --server.address 0.0.0.0
 
 echo "✅ Update complete!"
 echo ""
-echo "Check status: sudo systemctl status charles"
-echo "View logs: sudo journalctl -u charles -f"
+echo "View screen: screen -r charles"
+echo "Access UI: http://YOUR_VPS_IP:8501"

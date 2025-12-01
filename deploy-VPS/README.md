@@ -8,54 +8,79 @@
 - **Disk**: 10GB+ free space
 - **Port**: 8501 open for Streamlit UI
 
-## Quick Install
+## Quick Setup (Existing Clone)
+
+If you already have the repo cloned at `/root/charles/totality-precatorios`:
+
+```bash
+cd /root/charles/totality-precatorios
+bash deploy-VPS/setup.sh
+```
+
+## First Time Install
 
 ```bash
 # 1. SSH into your VPS
-ssh user@your-vps-ip
+ssh root@your-vps-ip
 
-# 2. Download and run install script
-curl -sSL https://raw.githubusercontent.com/ian-iania/totality-precatorios/main/deploy-VPS/install.sh | sudo bash
+# 2. Create directory and clone
+mkdir -p /root/charles
+cd /root/charles
+git clone https://github.com/ian-iania/totality-precatorios.git
+
+# 3. Run setup
+cd totality-precatorios
+bash deploy-VPS/setup.sh
 ```
 
-## Manual Install
+## Scripts Available
+
+| Script | Description |
+|--------|-------------|
+| `setup.sh` | First-time setup (dependencies, venv, Playwright) |
+| `update.sh` | Pull latest code and restart |
+| `start.sh` | Start Streamlit in background |
+| `stop.sh` | Stop Streamlit and cleanup |
+
+## Daily Usage
 
 ```bash
-# 1. Clone repository
-sudo git clone https://github.com/ian-iania/totality-precatorios.git /opt/charles
+cd /root/charles/totality-precatorios/deploy-VPS
 
-# 2. Run install script
-cd /opt/charles/deploy-VPS
-sudo bash install.sh
+# Start
+bash start.sh
+
+# Stop
+bash stop.sh
+
+# Update and restart
+bash update.sh
 ```
 
-## Service Management
+## Screen Management
 
 ```bash
-# Start service
-sudo systemctl start charles
+# View running session
+screen -r charles
 
-# Stop service
-sudo systemctl stop charles
+# Detach (keep running)
+# Press Ctrl+A, then D
 
-# Restart service
-sudo systemctl restart charles
+# List sessions
+screen -ls
 
-# Check status
-sudo systemctl status charles
-
-# View logs
-sudo journalctl -u charles -f
-
-# View scraper logs
-tail -f /opt/charles/logs/scraper_v3.log
+# Kill session
+screen -X -S charles quit
 ```
 
-## Update to Latest Version
+## View Logs
 
 ```bash
-cd /opt/charles/deploy-VPS
-sudo bash update.sh
+# Scraper logs
+tail -f /root/charles/totality-precatorios/logs/scraper_v3.log
+
+# Streamlit output (in screen)
+screen -r charles
 ```
 
 ## Access UI
@@ -64,57 +89,44 @@ Open in browser: `http://YOUR_VPS_IP:8501`
 
 ## Firewall Configuration
 
-If using UFW:
 ```bash
-sudo ufw allow 8501/tcp
-sudo ufw reload
-```
+# UFW
+ufw allow 8501/tcp
+ufw reload
 
-If using iptables:
-```bash
-sudo iptables -A INPUT -p tcp --dport 8501 -j ACCEPT
+# iptables
+iptables -A INPUT -p tcp --dport 8501 -j ACCEPT
 ```
 
 ## Troubleshooting
 
-### Service won't start
+### Streamlit won't start
 ```bash
-# Check logs
-sudo journalctl -u charles -n 50
-
 # Check if port is in use
-sudo lsof -i :8501
+lsof -i :8501
+
+# Kill stale processes
+pkill -f streamlit
+pkill -f chromium
 ```
 
 ### Playwright issues
 ```bash
-# Reinstall browser dependencies
-cd /opt/charles
-sudo ./venv/bin/playwright install-deps
+cd /root/charles/totality-precatorios
+./venv/bin/playwright install-deps
 ```
 
-### Permission issues
-```bash
-# Fix ownership
-sudo chown -R charles:charles /opt/charles
-```
-
-## Files Structure on VPS
+## Files Structure
 
 ```
-/opt/charles/
+/root/charles/totality-precatorios/
 ├── app/                    # Streamlit UI
 ├── src/                    # Core scraper
 ├── main_v5_all_entities.py # V5 script
+├── deploy-VPS/             # Deploy scripts
 ├── logs/                   # Logs directory
 │   ├── scraper_v3.log     # Main log
 │   └── screenshots/       # Debug screenshots
 ├── output/                 # CSV outputs
 └── venv/                   # Python environment
 ```
-
-## Security Notes
-
-- The service runs as non-root user `charles`
-- Consider using nginx reverse proxy with SSL for production
-- Restrict port 8501 access via firewall if needed
