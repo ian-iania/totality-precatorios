@@ -540,9 +540,9 @@ def render_progress_view():
             time_str = f"~{total_estimated_remaining / 60:.0f} min restantes"
         else:
             time_str = f"~{total_estimated_remaining:.0f} seg restantes"
-        st.caption(f"Progresso geral: {overall_progress * 100:.1f}% ({total_pages_done}/{total_pages_all} páginas) — {time_str}")
+        st.markdown(f'<p style="color: red; font-weight: bold; font-size: 1.1em;">Progresso geral: {overall_progress * 100:.1f}% ({total_pages_done:,}/{total_pages_all:,} páginas) — {time_str}</p>', unsafe_allow_html=True)
     else:
-        st.caption(f"Progresso geral: {overall_progress * 100:.1f}% ({total_pages_done}/{total_pages_all} páginas)")
+        st.markdown(f'<p style="color: red; font-weight: bold; font-size: 1.1em;">Progresso geral: {overall_progress * 100:.1f}% ({total_pages_done:,}/{total_pages_all:,} páginas)</p>', unsafe_allow_html=True)
     
     st.markdown("---")
     

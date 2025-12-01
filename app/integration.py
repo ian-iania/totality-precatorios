@@ -324,15 +324,22 @@ class ExtractionRunner:
         process_max_page = {}  # {process_id: max_page_seen}
         process_records = {}  # {process_id: total_records}
         
-        # Use the specific log file for this extraction (no timestamp filtering needed)
-        log_file = Path(self.current_log_file) if hasattr(self, 'current_log_file') and self.current_log_file else None
+        # Use scraper_v3.log (where workers actually write) with timestamp filtering
+        log_file = self.project_root / "logs" / "scraper_v3.log"
+        start_str = self.start_time.strftime('%Y-%m-%d %H:%M') if self.start_time else None
         
-        if log_file and log_file.exists():
+        if log_file.exists():
             try:
                 with open(log_file, 'r') as f:
                     content = f.read()
                 
                 for line in content.split('\n'):
+                    # Filter by start time to only get current extraction
+                    if start_str:
+                        ts_match = re.match(r'(\d{4}-\d{2}-\d{2} \d{2}:\d{2})', line)
+                        if ts_match and ts_match.group(1) < start_str:
+                            continue
+                    
                     # Match: [P1] Page 42/63 (42/63)
                     # The second number in parentheses is pages done by this process
                     page_match = re.search(r'\[P(\d+)\] Page \d+/\d+ \((\d+)/\d+\)', line)
