@@ -308,51 +308,76 @@ def run_parallel_extraction(
             'timeout_minutes': timeout_minutes
         })
     
-    # Run with apply_async for timeout control per worker
+    # Run extraction with robust timeout handling
     all_records = []
     results = []
     
-    # Use timeout_minutes passed from CLI (already calculated dynamically in integration.py)
-    # Convert to seconds for apply_async
+    # Use timeout_minutes passed from CLI
     worker_timeout = timeout_minutes * 60
+    # Per-worker check interval (check every 30 seconds if worker is done)
+    check_interval = 30
     
     logger.info(f"\n🔄 Starting extraction (worker timeout: {worker_timeout}s = {timeout_minutes}min)...")
     
-    with mp.Pool(processes=num_processes) as pool:
+    # Use spawn context to avoid fork issues on macOS
+    ctx = mp.get_context('spawn')
+    
+    with ctx.Pool(processes=num_processes) as pool:
         # Submit all workers
         async_results = []
         for args in worker_args:
             async_results.append((args['process_id'], pool.apply_async(extract_worker, (args,))))
         
-        # Collect results with timeout
-        for process_id, async_result in async_results:
-            try:
-                result = async_result.get(timeout=worker_timeout)
-                results.append(result)
-                
-                if result['success']:
-                    all_records.extend(result['records'])
-                    logger.info(f"✅ P{result['process_id']} done: {result['records_count']} records")
-                else:
-                    logger.error(f"❌ P{result['process_id']} failed: {result['error']}")
-            except mp.TimeoutError:
-                logger.error(f"❌ P{process_id} TIMEOUT after {worker_timeout}s - skipping")
-                results.append({
-                    'process_id': process_id,
-                    'records': [],
-                    'records_count': 0,
-                    'success': False,
-                    'error': f'Timeout after {worker_timeout}s'
-                })
-            except Exception as e:
-                logger.error(f"❌ P{process_id} ERROR: {e}")
-                results.append({
-                    'process_id': process_id,
-                    'records': [],
-                    'records_count': 0,
-                    'success': False,
-                    'error': str(e)
-                })
+        # Collect results with timeout - check periodically instead of blocking
+        pending = list(async_results)
+        start_wait = time.time()
+        
+        while pending and (time.time() - start_wait) < worker_timeout:
+            still_pending = []
+            for process_id, async_result in pending:
+                try:
+                    # Try to get result with short timeout
+                    result = async_result.get(timeout=0.5)
+                    results.append(result)
+                    
+                    if result['success']:
+                        all_records.extend(result['records'])
+                        logger.info(f"✅ P{result['process_id']} done: {result['records_count']} records")
+                    else:
+                        logger.error(f"❌ P{result['process_id']} failed: {result['error']}")
+                except mp.TimeoutError:
+                    # Not ready yet, keep waiting
+                    still_pending.append((process_id, async_result))
+                except Exception as e:
+                    logger.error(f"❌ P{process_id} ERROR: {e}")
+                    results.append({
+                        'process_id': process_id,
+                        'records': [],
+                        'records_count': 0,
+                        'success': False,
+                        'error': str(e)
+                    })
+            
+            pending = still_pending
+            if pending:
+                time.sleep(1)  # Brief pause before next check
+        
+        # Handle any workers that timed out
+        for process_id, async_result in pending:
+            logger.error(f"❌ P{process_id} TIMEOUT after {worker_timeout}s - terminating")
+            results.append({
+                'process_id': process_id,
+                'records': [],
+                'records_count': 0,
+                'success': False,
+                'error': f'Timeout after {worker_timeout}s'
+            })
+        
+        # Force terminate pool if there are stuck workers
+        if pending:
+            logger.warning(f"⚠️ Terminating {len(pending)} stuck workers...")
+            pool.terminate()
+            pool.join()
     
     # Create DataFrame from in-memory data (no partial files)
     logger.info(f"\n📦 Consolidating {len(all_records)} records from memory...")
