@@ -166,6 +166,12 @@ def extract_worker(args: Dict) -> Dict:
                 
                 logger.info(f"[P{process_id}]   ✅ {len(precatorios)} records (total: {len(precatorios_data)})")
                 
+                # Check if this is the last page
+                if current_page >= end_page:
+                    logger.info(f"[P{process_id}] 🏁 Reached last page ({current_page}), exiting loop...")
+                    current_page += 1
+                    continue
+                
                 # Next page navigation
                 if current_page < end_page:
                     # Multiple selectors for next button (fallback approach)
