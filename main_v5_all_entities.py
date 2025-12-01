@@ -264,10 +264,8 @@ def extract_worker(args: Dict) -> Dict:
                                 # Try multiple selectors for "Próxima" button
                                 next_btn = page.query_selector('a[ng-click="vm.ProximaPagina()"]')
                                 if not next_btn:
-                                    # Fallback: find by text content
                                     next_btn = page.query_selector('a:has-text("Próxima")')
                                 if not next_btn:
-                                    # Fallback: find by partial text
                                     next_btn = page.query_selector('text=Próxima')
                                 
                                 if next_btn:
@@ -288,9 +286,26 @@ def extract_worker(args: Dict) -> Dict:
                                         logger.warning(f"[P{process_id}] ⚠️ Click failed (retry {retry+1}): {click_err}")
                                         page.wait_for_timeout(1000)
                                 else:
-                                    # Button not found - take screenshot
+                                    # FALLBACK: Use "Ir para página" input box
                                     if retry == 2:
-                                        take_debug_screenshot(page, process_id, f"no_next_btn_page{current_page}")
+                                        try:
+                                            next_page = current_page + 1
+                                            logger.info(f"[P{process_id}] 🔄 Using page input fallback to go to page {next_page}")
+                                            page_input = page.query_selector('input[ng-model="vm.PaginaAtual"]')
+                                            if page_input:
+                                                page_input.scroll_into_view_if_needed()
+                                                page_input.click()
+                                                page_input.fill('')
+                                                page_input.type(str(next_page))
+                                                page_input.press('Enter')
+                                                page.wait_for_timeout(2000)
+                                                nav_success = True
+                                                break
+                                            else:
+                                                take_debug_screenshot(page, process_id, f"no_next_btn_page{current_page}")
+                                        except Exception as input_err:
+                                            logger.warning(f"[P{process_id}] ⚠️ Page input fallback failed: {input_err}")
+                                            take_debug_screenshot(page, process_id, f"no_next_btn_page{current_page}")
                                     page.wait_for_timeout(1000)
                             except Exception as nav_err:
                                 logger.warning(f"[P{process_id}] ⚠️ Navigation error (retry {retry+1}): {nav_err}")
