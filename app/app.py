@@ -441,31 +441,67 @@ def render_progress_view():
         # Compact header
         st.caption(f"Processando: **{current_entity['nome']}** — Entidade {current_idx + 1} de {len(entities)}")
         
-        # Progress bar for current entity
-        st.progress(current_progress)
+        # === TWO-COLUMN LAYOUT ===
+        col_status, col_workers = st.columns(2)
         
-        # Compact stats line with speed
-        elapsed_seconds = progress.get('elapsed_seconds', 0)
-        if elapsed_seconds > 0 and records_extracted > 0:
-            speed = records_extracted / elapsed_seconds
-            st.caption(f"Registros: {format_number(records_extracted)} / {format_number(expected_records)} ({current_progress * 100:.0f}%) — {speed:.1f} rec/s")
-        else:
-            st.caption(f"Registros: {format_number(records_extracted)} / {format_number(expected_records)} ({current_progress * 100:.0f}%)")
+        with col_status:
+            # Progress bar for current entity
+            st.progress(current_progress)
+            
+            # Compact stats line with speed
+            elapsed_seconds = progress.get('elapsed_seconds', 0)
+            if elapsed_seconds > 0 and records_extracted > 0:
+                speed = records_extracted / elapsed_seconds
+                st.caption(f"Registros: {format_number(records_extracted)} / {format_number(expected_records)} ({current_progress * 100:.0f}%) — {speed:.1f} rec/s")
+            else:
+                st.caption(f"Registros: {format_number(records_extracted)} / {format_number(expected_records)} ({current_progress * 100:.0f}%)")
+            
+            # Estimated time remaining
+            if elapsed_seconds > 10 and current_progress > 0.01:
+                remaining_progress = 1.0 - current_progress
+                estimated_remaining = (elapsed_seconds / current_progress) * remaining_progress
+                if estimated_remaining > 60:
+                    st.caption(f"⏱️ Tempo restante estimado: {estimated_remaining / 60:.0f} min")
+                elif estimated_remaining > 0:
+                    st.caption(f"⏱️ Tempo restante estimado: {estimated_remaining:.0f} seg")
+            
+            # Status messages for high progress (finalization phase)
+            if current_progress >= 0.98:
+                st.info("📦 Finalizando extração e consolidando dados dos workers paralelos...")
+            elif current_progress >= 0.95:
+                st.info("⏳ Aguardando workers finalizarem...")
         
-        # Estimated time remaining
-        if elapsed_seconds > 10 and current_progress > 0.01:
-            remaining_progress = 1.0 - current_progress
-            estimated_remaining = (elapsed_seconds / current_progress) * remaining_progress
-            if estimated_remaining > 60:
-                st.caption(f"⏱️ Tempo restante estimado: {estimated_remaining / 60:.0f} min")
-            elif estimated_remaining > 0:
-                st.caption(f"⏱️ Tempo restante estimado: {estimated_remaining:.0f} seg")
-        
-        # Status messages for high progress (finalization phase)
-        if current_progress >= 0.98:
-            st.info("📦 Finalizando extração e consolidando dados dos workers paralelos...")
-        elif current_progress >= 0.95:
-            st.info("⏳ Aguardando workers finalizarem...")
+        with col_workers:
+            # Workers status table
+            workers = progress.get('workers', [])
+            if workers:
+                st.caption("**Workers em Processamento:**")
+                
+                # Build table data
+                table_data = []
+                for w in workers:
+                    status = "✅" if w['progress'] >= 100 else "🔄"
+                    table_data.append({
+                        "Worker": w['id'],
+                        "Página": f"{w['current_page']}/{w['end_page']}",
+                        "Progresso": f"{w['progress']:.0f}%",
+                        "Records": format_number(w['records'])
+                    })
+                
+                # Display as dataframe (compact)
+                import pandas as pd
+                df_workers = pd.DataFrame(table_data)
+                st.dataframe(
+                    df_workers,
+                    hide_index=True,
+                    use_container_width=True,
+                    height=min(35 * len(workers) + 38, 300)  # Dynamic height
+                )
+                
+                # Total parcial
+                total_partial = sum(w['records'] for w in workers)
+                avg_progress = sum(w['progress'] for w in workers) / len(workers) if workers else 0
+                st.caption(f"**Total parcial:** {format_number(total_partial)} records ({avg_progress:.0f}% médio)")
     
     # === OVERALL PROGRESS (based on pages) ===
     # Calculate pages done from completed entities

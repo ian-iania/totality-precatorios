@@ -354,6 +354,32 @@ class ExtractionRunner:
         # Calculate percent based on pages (more accurate)
         percent = min(99, (pages_done / total_pages * 100)) if total_pages > 0 else 0
         
+        # Build worker details for UI
+        workers_data = []
+        pages_per_process = total_pages // num_processes if num_processes > 0 else 0
+        
+        for i in range(1, num_processes + 1):
+            proc_id = str(i)
+            pages_done_proc = process_max_page.get(proc_id, 0)
+            records_proc = process_records.get(proc_id, 0)
+            
+            # Calculate page range for this worker
+            start_page = (i - 1) * pages_per_process + 1
+            end_page = i * pages_per_process if i < num_processes else total_pages
+            current_page = start_page + pages_done_proc - 1 if pages_done_proc > 0 else start_page
+            
+            progress_pct = (pages_done_proc / pages_per_process * 100) if pages_per_process > 0 else 0
+            
+            workers_data.append({
+                "id": f"P{i}",
+                "current_page": current_page,
+                "end_page": end_page,
+                "pages_done": pages_done_proc,
+                "pages_total": pages_per_process,
+                "progress": min(100, progress_pct),
+                "records": records_proc
+            })
+        
         return {
             "records": total_records,
             "expected_records": expected,
@@ -361,7 +387,9 @@ class ExtractionRunner:
             "elapsed_seconds": elapsed_seconds,
             "pages_done": pages_done,
             "total_pages": total_pages,
-            "is_running": self.is_running()
+            "is_running": self.is_running(),
+            "workers": workers_data,
+            "num_processes": num_processes
         }
     
     def get_result(self) -> Dict:
