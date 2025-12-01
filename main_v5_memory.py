@@ -324,13 +324,30 @@ def run_full_extraction(
     if all_records:
         df = pd.DataFrame(all_records)
         
-        # Sort by entidade_devedora and ordem
+        # Clean 'ordem' column - extract numeric part only (e.g., "1964º" -> 1964)
+        if 'ordem' in df.columns:
+            try:
+                # Remove ordinal suffix (º, °, ª) and convert to int
+                df['ordem'] = df['ordem'].astype(str).str.replace(r'[º°ª]', '', regex=True).str.strip()
+                df['ordem'] = pd.to_numeric(df['ordem'], errors='coerce').fillna(0).astype(int)
+                logger.info(f"📊 Cleaned 'ordem' column (removed ordinal suffix)")
+            except Exception as e:
+                logger.warning(f"⚠️ Failed to clean 'ordem': {e}")
+        
+        # Format monetary columns as numeric with 2 decimal places
+        for col in ['valor_historico', 'saldo_atualizado']:
+            if col in df.columns:
+                try:
+                    # Convert to float and round to 2 decimal places
+                    df[col] = pd.to_numeric(df[col], errors='coerce').fillna(0).round(2)
+                    logger.info(f"📊 Formatted '{col}' as numeric (2 decimal places)")
+                except Exception as e:
+                    logger.warning(f"⚠️ Failed to format '{col}': {e}")
+        
+        # Sort by entidade_devedora and ordem (now numeric)
         if 'entidade_devedora' in df.columns and 'ordem' in df.columns:
             try:
-                # Convert ordem to sortable int
-                df['ordem_sort'] = df['ordem'].str.replace('º', '').str.replace('°', '').astype(int)
-                df = df.sort_values(['entidade_devedora', 'ordem_sort'])
-                df = df.drop(columns=['ordem_sort'])
+                df = df.sort_values(['entidade_devedora', 'ordem'])
                 logger.info(f"📊 Sorted by (entidade_devedora, ordem)")
             except Exception as e:
                 logger.warning(f"⚠️ Sort failed: {e}")
