@@ -516,3 +516,157 @@ def get_entity_page_count(entity_id: int, regime: str, headless: bool = True) ->
     except Exception as e:
         logger.error(f"Error getting page count: {e}")
         return 0
+
+
+class FullMemoryExtractionRunner:
+    """
+    V5 - Full Memory Mode Extraction Runner
+    
+    Processes ALL entities at once, accumulates everything in memory,
+    writes a single CSV at the very end.
+    """
+    
+    def __init__(self):
+        self.project_root = get_project_root()
+        self.output_dir = get_output_dir()
+        self.process: Optional[subprocess.Popen] = None
+        self.start_time: Optional[datetime] = None
+        self.extraction_info: Optional[Dict] = None
+    
+    def start_full_extraction(
+        self,
+        entities: List[Dict],
+        regime: str,
+        max_concurrent: int = 4,
+        timeout_minutes: int = 30,
+        output_file: str = None
+    ) -> subprocess.Popen:
+        """
+        Start extraction of ALL entities as a single subprocess.
+        
+        Args:
+            entities: List of {"id": int, "nome": str, "precatorios_pendentes": int}
+            regime: 'geral' or 'especial'
+            max_concurrent: Max concurrent entity extractions
+            timeout_minutes: Timeout per entity
+            output_file: Final CSV path
+        
+        Returns:
+            subprocess.Popen object
+        """
+        import json
+        
+        # Convert entities to simplified format for JSON
+        entities_json = []
+        total_pages = 0
+        total_expected = 0
+        
+        for e in entities:
+            pendentes = e.get('precatorios_pendentes', 0)
+            pages = (pendentes + 9) // 10
+            if pages > 0:
+                entities_json.append({
+                    "id": e['id'],
+                    "name": e['nome'],
+                    "pages": pages
+                })
+                total_pages += pages
+                total_expected += pages * 10
+        
+        if not entities_json:
+            raise ValueError("No entities with pages to process")
+        
+        # Build command
+        cmd = [
+            sys.executable,
+            "main_v5_memory.py",
+            "--entities-json", json.dumps(entities_json),
+            "--regime", regime,
+            "--max-concurrent", str(max_concurrent),
+            "--timeout", str(timeout_minutes)
+        ]
+        
+        if output_file:
+            cmd.extend(["--output", output_file])
+        
+        logger.info(f"Starting V5 full memory extraction: {len(entities_json)} entities, {total_pages} pages")
+        
+        # Start subprocess
+        self.process = subprocess.Popen(
+            cmd,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            cwd=str(self.project_root),
+            text=True,
+            bufsize=1
+        )
+        
+        self.start_time = datetime.now()
+        self.extraction_info = {
+            "total_entities": len(entities_json),
+            "total_pages": total_pages,
+            "expected_records": total_expected,
+            "regime": regime,
+            "max_concurrent": max_concurrent
+        }
+        
+        return self.process
+    
+    def is_running(self) -> bool:
+        """Check if extraction is still running"""
+        if self.process is None:
+            return False
+        return self.process.poll() is None
+    
+    def get_progress(self) -> Dict:
+        """Get extraction progress from log file"""
+        if not self.extraction_info:
+            return {"records": 0, "percent": 0, "entities_done": 0}
+        
+        # Parse log for progress
+        log_file = Path("logs/scraper_v3.log")
+        records = 0
+        entities_done = 0
+        
+        if log_file.exists():
+            try:
+                with open(log_file, 'r') as f:
+                    lines = f.readlines()[-200:]  # Last 200 lines
+                    for line in lines:
+                        # Count completed entities
+                        if "✅ Complete:" in line or "✅" in line and "records" in line:
+                            entities_done += 1
+                        # Get latest record count
+                        if "records in memory" in line:
+                            import re
+                            match = re.search(r'(\d+(?:,\d+)?)\s*records in memory', line)
+                            if match:
+                                records = int(match.group(1).replace(',', ''))
+            except:
+                pass
+        
+        expected = self.extraction_info.get("expected_records", 1)
+        percent = min(100, (records / expected) * 100) if expected > 0 else 0
+        
+        elapsed_seconds = 0
+        if self.start_time:
+            elapsed_seconds = (datetime.now() - self.start_time).total_seconds()
+        
+        return {
+            "records": records,
+            "percent": percent,
+            "entities_done": entities_done,
+            "total_entities": self.extraction_info.get("total_entities", 0),
+            "expected_records": expected,
+            "elapsed_seconds": elapsed_seconds,
+            "is_running": self.is_running()
+        }
+    
+    def stop(self):
+        """Stop the extraction process"""
+        if self.process:
+            self.process.terminate()
+            try:
+                self.process.wait(timeout=10)
+            except:
+                self.process.kill()
