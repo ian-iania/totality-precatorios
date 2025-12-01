@@ -369,9 +369,11 @@ def extract_single_entity(
     all_records = []
     results = []
     
-    worker_timeout = timeout_minutes * 60 + 60  # Add 1 min buffer
+    # Entity-level timeout (all workers must finish within this time)
+    entity_timeout = timeout_minutes * 60  # Total time for entity
+    check_interval = 5  # Check every 5 seconds
     
-    logger.info(f"\n🔄 Starting extraction...")
+    logger.info(f"\n🔄 Starting extraction (timeout: {timeout_minutes}min)...")
     start_time = time.time()
     
     with mp.Pool(processes=effective_workers) as pool:
@@ -380,37 +382,67 @@ def extract_single_entity(
         for args in worker_args:
             async_results.append((args['process_id'], pool.apply_async(extract_worker, (args,))))
         
-        # Collect results with timeout
-        for process_id, async_result in async_results:
-            try:
-                result = async_result.get(timeout=worker_timeout)
-                results.append(result)
-                
-                if result['success']:
-                    all_records.extend(result['records'])
-                    logger.info(f"✅ P{result['process_id']} done: {result['records_count']} records")
+        # Poll for completion with global timeout
+        pending = {pid: ar for pid, ar in async_results}
+        completed = {}
+        
+        while pending and (time.time() - start_time) < entity_timeout:
+            # Check each pending worker
+            still_pending = {}
+            for process_id, async_result in pending.items():
+                if async_result.ready():
+                    try:
+                        result = async_result.get(timeout=1)
+                        completed[process_id] = result
+                        results.append(result)
+                        
+                        if result['success']:
+                            all_records.extend(result['records'])
+                            logger.info(f"✅ P{result['process_id']} done: {result['records_count']} records")
+                        else:
+                            logger.error(f"❌ P{result['process_id']} failed: {result['error']}")
+                            all_records.extend(result['records'])
+                    except Exception as e:
+                        logger.error(f"❌ P{process_id} ERROR getting result: {e}")
+                        results.append({
+                            'process_id': process_id,
+                            'records': [],
+                            'records_count': 0,
+                            'success': False,
+                            'error': str(e)
+                        })
                 else:
-                    logger.error(f"❌ P{result['process_id']} failed: {result['error']}")
-                    # Still add partial records
-                    all_records.extend(result['records'])
-                    
-            except mp.TimeoutError:
-                logger.error(f"❌ P{process_id} TIMEOUT after {worker_timeout}s")
+                    still_pending[process_id] = async_result
+            
+            pending = still_pending
+            
+            if pending:
+                time.sleep(check_interval)
+        
+        # Handle timeout - kill stuck workers
+        if pending:
+            stuck_workers = list(pending.keys())
+            logger.warning(f"⏱️ ENTITY TIMEOUT after {timeout_minutes}min - {len(stuck_workers)} workers stuck: {stuck_workers}")
+            
+            # Terminate the pool (kills all workers)
+            pool.terminate()
+            
+            # Kill any remaining browser processes
+            import subprocess
+            try:
+                subprocess.run(['pkill', '-9', '-f', 'chromium'], capture_output=True)
+                logger.info("🔪 Killed remaining browser processes")
+            except:
+                pass
+            
+            # Record stuck workers
+            for process_id in stuck_workers:
                 results.append({
                     'process_id': process_id,
                     'records': [],
                     'records_count': 0,
                     'success': False,
-                    'error': f'Timeout after {worker_timeout}s'
-                })
-            except Exception as e:
-                logger.error(f"❌ P{process_id} ERROR: {e}")
-                results.append({
-                    'process_id': process_id,
-                    'records': [],
-                    'records_count': 0,
-                    'success': False,
-                    'error': str(e)
+                    'error': f'Timeout - worker stuck'
                 })
     
     elapsed = time.time() - start_time
