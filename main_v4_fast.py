@@ -168,40 +168,36 @@ def extract_worker(args: Dict) -> Dict:
                 
                 # Next page navigation
                 if current_page < end_page:
-                    pages_remaining = end_page - current_page
+                    # Multiple selectors for next button (fallback approach)
+                    next_selectors = [
+                        'a[ng-click="vm.ProximaPagina()"]',
+                        'text=Próxima',
+                        'a:has-text("Próxima")',
+                        'button:has-text("Próxima")',
+                    ]
                     
-                    # Use retry logic only in last 5 pages (where hangs typically occur)
-                    # This avoids overhead during normal processing
-                    if pages_remaining <= 5:
-                        # Robust navigation for final pages
-                        next_clicked = False
-                        for retry in range(3):
-                            try:
-                                page.wait_for_selector('.block-ui-overlay', state='hidden', timeout=3000)
-                            except:
-                                pass
-                            
-                            next_btn = page.query_selector('a[ng-click="vm.ProximaPagina()"]')
+                    next_clicked = False
+                    
+                    # Wait for overlay to disappear
+                    try:
+                        page.wait_for_selector('.block-ui-overlay', state='hidden', timeout=3000)
+                    except:
+                        pass
+                    
+                    # Try each selector
+                    for selector in next_selectors:
+                        try:
+                            next_btn = page.query_selector(selector)
                             if next_btn and next_btn.is_visible():
-                                try:
-                                    next_btn.click()
-                                    page.wait_for_timeout(2000)
-                                    next_clicked = True
-                                    break
-                                except Exception as click_err:
-                                    logger.warning(f"[P{process_id}] ⚠️ Click failed (retry {retry+1}): {click_err}")
-                                    page.wait_for_timeout(1000)
-                            else:
+                                next_btn.click()
                                 page.wait_for_timeout(2000)
-                        
-                        if not next_clicked:
-                            logger.warning(f"[P{process_id}] ⚠️ Failed to navigate after 3 retries on page {current_page}")
-                    else:
-                        # Fast navigation for most pages (no retry overhead)
-                        next_btn = page.query_selector('a[ng-click="vm.ProximaPagina()"]')
-                        if next_btn:
-                            next_btn.click()
-                            page.wait_for_timeout(2000)
+                                next_clicked = True
+                                break
+                        except:
+                            continue
+                    
+                    if not next_clicked:
+                        logger.warning(f"[P{process_id}] ⚠️ Next button not found on page {current_page}")
                 
                 current_page += 1
             
