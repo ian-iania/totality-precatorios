@@ -205,7 +205,7 @@ def extract_entity_worker(args: Dict) -> Dict:
 def run_full_extraction(
     entities: List[Dict],
     regime: str,
-    max_concurrent: int = 4,
+    max_concurrent: int = 10,
     headless: bool = True,
     timeout_minutes: int = 30,
     output_path: str = None

@@ -267,8 +267,8 @@ def start_all_entities_extraction(regime: str):
     runner.start_full_extraction(
         entities=entities,
         regime=regime,
-        max_concurrent=4,  # 4 concurrent entity extractions
-        timeout_minutes=60,  # 60 min timeout per entity
+        max_concurrent=10,  # 10 concurrent workers (hybrid mode)
+        timeout_minutes=60,  # 60 min timeout per worker
         output_file=output_file
     )
     
@@ -403,7 +403,7 @@ def render_v5_progress_view():
     
     # === HEADER ===
     st.markdown("## 🚀 Extração V5 - Full Memory Mode")
-    st.markdown(f"**Regime:** {regime.upper()} | **Workers:** 4 simultâneos")
+    st.markdown(f"**Regime:** {regime.upper()} | **Workers:** 10 simultâneos (modo híbrido)")
     
     # === PROGRESS METRICS ===
     col1, col2, col3 = st.columns(3)
