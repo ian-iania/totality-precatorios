@@ -785,7 +785,7 @@ def render_downloads_tab():
     selected_files = []
     
     for file_info in files:
-        col_check, col_name, col_size, col_records, col_date = st.columns([0.5, 3, 1, 1, 1.5])
+        col_check, col_date, col_name, col_size, col_records = st.columns([0.5, 1.5, 3, 1, 1])
         
         with col_check:
             is_selected = st.checkbox(
@@ -797,6 +797,9 @@ def render_downloads_tab():
             if is_selected:
                 selected_files.append(file_info)
         
+        with col_date:
+            st.text(file_info['modified_formatted'])
+        
         with col_name:
             st.text(file_info['name'])
         
@@ -805,9 +808,6 @@ def render_downloads_tab():
         
         with col_records:
             st.text(f"{format_number(file_info['records'])} reg.")
-        
-        with col_date:
-            st.text(file_info['modified_formatted'])
     
     st.markdown("---")
     
