@@ -231,6 +231,12 @@ class ExtractionRunner:
         
         logger.info(f"Dynamic timeout: {timeout_minutes} min for {pages_per_worker} pages/worker")
         
+        # Generate unique log file for this extraction
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        log_file = self.project_root / "logs" / f"extraction_{timestamp}.log"
+        log_file.parent.mkdir(exist_ok=True)
+        self.current_log_file = str(log_file)
+        
         # Build command - Use V4 Memory extraction (no intermediate I/O)
         cmd = [
             sys.executable,  # Use same Python interpreter
@@ -240,7 +246,8 @@ class ExtractionRunner:
             "--regime", regime,
             "--total-pages", str(total_pages),
             "--num-processes", str(effective_processes),
-            "--timeout", str(timeout_minutes)
+            "--timeout", str(timeout_minutes),
+            "--log-file", str(log_file)
         ]
         
         if output_file:
@@ -250,6 +257,7 @@ class ExtractionRunner:
             cmd.append("--append")
         
         logger.info(f"Starting extraction: {' '.join(cmd)}")
+        logger.info(f"Log file: {log_file}")
         
         # Start subprocess
         self.process = subprocess.Popen(
@@ -316,34 +324,25 @@ class ExtractionRunner:
         process_max_page = {}  # {process_id: max_page_seen}
         process_records = {}  # {process_id: total_records}
         
-        start_str = self.start_time.strftime('%Y-%m-%d %H:%M:%S')
+        # Use the specific log file for this extraction (no timestamp filtering needed)
+        log_file = Path(self.current_log_file) if hasattr(self, 'current_log_file') and self.current_log_file else None
         
-        log_file = self.project_root / "logs" / "scraper_v3.log"
-        if log_file.exists():
+        if log_file and log_file.exists():
             try:
                 with open(log_file, 'r') as f:
-                    # Read entire file to not miss any progress
                     content = f.read()
                 
-                # Only process lines after start time
                 for line in content.split('\n'):
-                    # Extract timestamp from line
-                    ts_match = re.match(r'(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})', line)
-                    if ts_match:
-                        line_time = ts_match.group(1)
-                        if line_time < start_str:
-                            continue
-                    
                     # Match: [P1] Page 42/63 (42/63)
                     # The second number in parentheses is pages done by this process
-                    page_match = re.search(r'\[P(\d)\] Page \d+/\d+ \((\d+)/\d+\)', line)
+                    page_match = re.search(r'\[P(\d+)\] Page \d+/\d+ \((\d+)/\d+\)', line)
                     if page_match:
                         proc_id = page_match.group(1)
                         pages_by_proc = int(page_match.group(2))
                         process_max_page[proc_id] = max(process_max_page.get(proc_id, 0), pages_by_proc)
                     
                     # Match: [P1] ✅ ... (total: 620)
-                    rec_match = re.search(r'\[P(\d)\].*total: (\d+)\)', line)
+                    rec_match = re.search(r'\[P(\d+)\].*total: (\d+)\)', line)
                     if rec_match:
                         proc_id = rec_match.group(1)
                         records = int(rec_match.group(2))

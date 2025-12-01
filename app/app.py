@@ -467,9 +467,9 @@ def render_progress_view():
             
             # Status messages for high progress (finalization phase)
             if current_progress >= 0.98:
-                st.info("📦 Finalizando extração e consolidando dados dos workers paralelos...")
+                st.info("📦 Finalizando extração e salvando CSV + Excel...")
             elif current_progress >= 0.95:
-                st.info("⏳ Aguardando workers finalizarem...")
+                st.info("⏳ Workers finalizando últimas páginas...")
         
         with col_workers:
             # Workers status table

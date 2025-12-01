@@ -30,8 +30,8 @@ from src.scraper_v3 import TJRJPrecatoriosScraperV3
 from src.models import ScraperConfig, EntidadeDevedora
 
 
-def setup_logging(level: str = "INFO"):
-    """Configure logging"""
+def setup_logging(level: str = "INFO", log_file: str = None):
+    """Configure logging with timestamped log file"""
     logger.remove()
     
     # Console output
@@ -42,16 +42,23 @@ def setup_logging(level: str = "INFO"):
         colorize=True
     )
     
-    # File output
+    # File output - use provided log_file or generate timestamped one
     log_dir = Path("logs")
     log_dir.mkdir(exist_ok=True)
     
+    if log_file:
+        log_path = Path(log_file)
+    else:
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        log_path = log_dir / f"extraction_{timestamp}.log"
+    
     logger.add(
-        log_dir / "scraper_v3.log",
+        log_path,
         format="{time:YYYY-MM-DD HH:mm:ss} | {level: <7} | {message}",
-        level="DEBUG",
-        rotation="10 MB"
+        level="DEBUG"
     )
+    
+    return str(log_path)
 
 
 def divide_pages_into_ranges(total_pages: int, num_processes: int) -> List[Tuple[int, int]]:
@@ -505,10 +512,12 @@ def main():
     parser.add_argument('--append', action='store_true', help='Append to existing file')
     parser.add_argument('--no-headless', action='store_true', help='Show browser')
     parser.add_argument('--log-level', default='INFO', help='Log level')
+    parser.add_argument('--log-file', type=str, help='Log file path')
     
     args = parser.parse_args()
     
-    setup_logging(args.log_level)
+    log_path = setup_logging(args.log_level, args.log_file)
+    print(f"LOG_FILE:{log_path}")  # Output for integration.py to capture
     
     # Generate output path
     timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
