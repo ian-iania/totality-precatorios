@@ -170,30 +170,59 @@ def extract_worker(args: Dict) -> Dict:
         elapsed = time.time() - start_time
         logger.info(f"[P{process_id}] ✅ Complete: {len(precatorios_data)} records in {elapsed/60:.1f}min")
         
+        # Save partial file immediately (prevents data loss if parent process crashes)
+        partial_file = None
+        if precatorios_data:
+            partial_dir = Path("output/partial")
+            partial_dir.mkdir(parents=True, exist_ok=True)
+            timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+            partial_file = partial_dir / f"partial_p{process_id}_{entity_id}_{timestamp}.csv"
+            
+            df_partial = pd.DataFrame(precatorios_data)
+            df_partial.to_csv(partial_file, index=False, encoding='utf-8-sig', sep=';', decimal=',')
+            logger.info(f"[P{process_id}] 💾 Saved partial: {partial_file}")
+        
         return {
             'process_id': process_id,
             'start_page': start_page,
             'end_page': end_page,
-            'records': precatorios_data,  # Data in memory!
+            'records': precatorios_data,  # Also keep in memory for fast consolidation
             'records_count': len(precatorios_data),
             'elapsed_seconds': elapsed,
             'success': True,
-            'error': None
+            'error': None,
+            'partial_file': str(partial_file) if partial_file else None
         }
     
     except Exception as e:
         elapsed = time.time() - start_time
         logger.error(f"[P{process_id}] ❌ Failed: {e}")
         
+        # Try to save whatever we have before failing
+        partial_file = None
+        if precatorios_data:
+            try:
+                partial_dir = Path("output/partial")
+                partial_dir.mkdir(parents=True, exist_ok=True)
+                timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+                partial_file = partial_dir / f"partial_p{process_id}_{entity_id}_{timestamp}_error.csv"
+                
+                df_partial = pd.DataFrame(precatorios_data)
+                df_partial.to_csv(partial_file, index=False, encoding='utf-8-sig', sep=';', decimal=',')
+                logger.info(f"[P{process_id}] 💾 Saved partial (before error): {partial_file}")
+            except:
+                pass
+        
         return {
             'process_id': process_id,
             'start_page': start_page,
             'end_page': end_page,
-            'records': [],
-            'records_count': 0,
+            'records': precatorios_data,  # Return whatever we have
+            'records_count': len(precatorios_data),
             'elapsed_seconds': elapsed,
             'success': False,
-            'error': str(e)
+            'error': str(e),
+            'partial_file': str(partial_file) if partial_file else None
         }
 
 
@@ -292,11 +321,25 @@ def run_parallel_extraction(
                     'error': str(e)
                 })
     
+    # Collect partial files for cleanup
+    partial_files = [r.get('partial_file') for r in results if r.get('partial_file')]
+    
     # Create DataFrame
     logger.info(f"\n📦 Consolidating {len(all_records)} records...")
     
     if all_records:
         df = pd.DataFrame(all_records)
+        
+        # Sort by 'ordem' field if it exists (for consistent ordering)
+        if 'ordem' in df.columns:
+            # Convert ordem to sortable format (remove 'º' suffix and convert to int)
+            try:
+                df['ordem_sort'] = df['ordem'].str.replace('º', '').str.replace('°', '').astype(int)
+                df = df.sort_values('ordem_sort')
+                df = df.drop(columns=['ordem_sort'])
+                logger.info(f"📊 Sorted by 'ordem' field")
+            except Exception as e:
+                logger.warning(f"⚠️ Could not sort by ordem: {e}")
     else:
         df = pd.DataFrame()
     
@@ -326,6 +369,17 @@ def run_parallel_extraction(
                 decimal=','
             )
             logger.info(f"💾 Saved: {output_path}")
+        
+        # Clean up partial files after successful save
+        for pf in partial_files:
+            try:
+                if pf and Path(pf).exists():
+                    Path(pf).unlink()
+            except Exception as e:
+                logger.warning(f"⚠️ Could not delete partial file {pf}: {e}")
+        
+        if partial_files:
+            logger.info(f"🧹 Cleaned up {len(partial_files)} partial files")
     
     elapsed = time.time() - start_time
     

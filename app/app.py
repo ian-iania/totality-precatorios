@@ -295,7 +295,7 @@ def start_next_entity():
             entity_name=entity['nome'],
             regime=regime,
             total_pages=total_pages,
-            num_processes=4,  # Fixed at 4 processes
+            num_processes=8,  # 8 parallel workers
             output_file=output_file,
             append_mode=not is_first_entity  # Append after first entity
         )
