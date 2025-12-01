@@ -25,8 +25,17 @@ import pandas as pd
 # Add project root to path
 sys.path.insert(0, str(Path(__file__).parent))
 
+from playwright.sync_api import sync_playwright
 from src.scraper_v3 import TJRJPrecatoriosScraperV3
-from src.models import ScraperConfig, EntidadeDevedora
+from src.models import ScraperConfig
+
+
+class SimpleEntity:
+    """Simple entity object compatible with scraper expectations"""
+    def __init__(self, id: int, name: str, regime: str):
+        self.id_entidade = id
+        self.nome_entidade = name
+        self.regime = regime
 
 
 def setup_logging(level: str = "INFO"):
@@ -78,20 +87,14 @@ def extract_entity_worker(args: Dict) -> Dict:
             use_cache=True,
             skip_expanded_details=True
         )
-        scraper = TJRJPrecatoriosScraperV3(regime=regime, config=config)
+        scraper = TJRJPrecatoriosScraperV3(config=config, skip_expanded=True)
         
-        # Create entity object
-        entidade = EntidadeDevedora(
-            id=entity_id,
-            nome=entity_name,
-            precatorios_pendentes=total_pages * 10,
-            precatorios_pagos=0,
-            total=total_pages * 10
-        )
+        # Create simple entity object compatible with scraper
+        entidade = SimpleEntity(id=entity_id, name=entity_name, regime=regime)
         
         logger.info(f"[E{entity_id}] 🌐 Starting {entity_name} ({total_pages} pages)")
         
-        with scraper.playwright_context() as p:
+        with sync_playwright() as p:
             browser = p.chromium.launch(headless=headless)
             context = browser.new_context(
                 viewport={'width': 1920, 'height': 1080},

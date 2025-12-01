@@ -1,0 +1,8 @@
+﻿entidade_grupo;id_entidade_grupo;entidade_devedora;regime;ordem;numero_precatorio;situacao;natureza;orcamento;valor_historico;saldo_atualizado;classe;localizacao;peticoes_a_juntar;ultima_fase;possui_herdeiros;possui_cessao;possui_retificador;timestamp_extracao
+CARDOSO MOREIRA;107;MUNICÍPIO DE BOM JESUS DE ITABAPOANA;geral;1º;2025.03102-0;Ativo;Comum;2026;19952.08;22322.68;;;;;;;;2025-12-01 01:41:15.817842
+VARRE-SAI;55;MUNICÍPIO DE SUMIDOURO;geral;1º;2024.03273-1;Suspensão Administrativa;Comum;2025;38781.78;46610.96;;;;;;;;2025-12-01 01:41:15.222657
+VARRE-SAI;55;MUNICÍPIO DE SUMIDOURO;geral;2º;2024.16462-0;Ativo;Comum;2026;107862.50;126625.19;;;;;;;;2025-12-01 01:41:15.258078
+VARRE-SAI;55;MUNICÍPIO DE SUMIDOURO;geral;3º;2024.16463-8;Ativo;Comum;2026;215725.00;253250.38;;;;;;;;2025-12-01 01:41:15.293382
+VARRE-SAI;55;MUNICÍPIO DE SUMIDOURO;geral;4º;2024.16464-6;Ativo;Comum;2026;215725.00;253250.38;;;;;;;;2025-12-01 01:41:15.326479
+VARRE-SAI;55;MUNICÍPIO DE SUMIDOURO;geral;5º;2024.16465-4;Ativo;Comum;2026;70110.63;82306.38;;;;;;;;2025-12-01 01:41:15.359889
+VARRE-SAI;55;MUNICÍPIO DE SUMIDOURO;geral;6º;2025.04120-3;Ativo;Comum;2026;68987.87;115890.86;;;;;;;;2025-12-01 01:41:15.393454
