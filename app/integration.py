@@ -218,9 +218,15 @@ class ExtractionRunner:
         Returns:
             subprocess.Popen object
         """
+        # Optimize: Don't create more workers than pages
+        # Many entities have very few pages (1-5), no need for 8 workers
+        effective_processes = min(num_processes, total_pages)
+        if effective_processes < num_processes:
+            logger.info(f"Optimized: {total_pages} pages → {effective_processes} workers (instead of {num_processes})")
+        
         # Calculate dynamic timeout based on pages per worker
         # ~3 seconds per page + 5 min margin, minimum 30 min, maximum 120 min
-        pages_per_worker = total_pages // num_processes
+        pages_per_worker = total_pages // effective_processes if effective_processes > 0 else total_pages
         timeout_minutes = max(30, min(120, (pages_per_worker * 3) // 60 + 5))
         
         logger.info(f"Dynamic timeout: {timeout_minutes} min for {pages_per_worker} pages/worker")
@@ -233,7 +239,7 @@ class ExtractionRunner:
             "--entity-name", entity_name,
             "--regime", regime,
             "--total-pages", str(total_pages),
-            "--num-processes", str(num_processes),
+            "--num-processes", str(effective_processes),
             "--timeout", str(timeout_minutes)
         ]
         
@@ -261,7 +267,7 @@ class ExtractionRunner:
             "name": entity_name,
             "regime": regime,
             "total_pages": total_pages,
-            "num_processes": num_processes,
+            "num_processes": effective_processes,  # Use optimized count
             "expected_records": total_pages * 10  # ~10 records per page
         }
         
