@@ -264,7 +264,7 @@ def extract_worker(args: Dict) -> Dict:
                                 next_btn = page.query_selector('a[ng-click="vm.ProximaPagina()"]')
                                 if next_btn and next_btn.is_visible():
                                     next_btn.click()
-                                    page.wait_for_timeout(1500)
+                                    page.wait_for_timeout(2000)
                                     nav_success = True
                                     break
                                 else:
@@ -285,17 +285,20 @@ def extract_worker(args: Dict) -> Dict:
                             next_btn = page.query_selector('a[ng-click="vm.ProximaPagina()"]')
                             if next_btn:
                                 next_btn.click()
-                                page.wait_for_timeout(1500)
+                                page.wait_for_timeout(2000)
                         except Exception as nav_err:
                             logger.warning(f"[P{process_id}] ⚠️ Navigation error: {nav_err}")
                 
                 current_page += 1
             
-            # Close browser gracefully
+            # Close browser explicitly (like V4)
             logger.info(f"[P{process_id}] 🔄 Extraction complete, closing browser...")
-        
-        # Browser closed by context manager
-        logger.info(f"[P{process_id}] ✅ Browser closed")
+            try:
+                context.close()
+                browser.close()
+                logger.info(f"[P{process_id}] ✅ Browser closed")
+            except Exception as close_error:
+                logger.warning(f"[P{process_id}] ⚠️ Browser close issue: {close_error}")
         
         elapsed = time.time() - start_time
         logger.info(f"[P{process_id}] ✅ Complete: {len(precatorios_data)} records in {elapsed/60:.1f}min")
