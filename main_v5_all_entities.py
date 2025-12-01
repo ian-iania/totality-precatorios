@@ -482,37 +482,47 @@ def load_entities_from_website(regime: str, headless: bool = True) -> List[Dict]
         
         for card in cards:
             try:
-                # Get entity ID from ng-click
-                link = card.query_selector('a[ng-click*="idEntidadeDevedora"]')
-                if not link:
+                # Get card text and parse
+                card_text = card.inner_text()
+                lines = [line.strip() for line in card_text.split('\n') if line.strip()]
+                
+                # Get entity name (first line)
+                name = lines[0] if lines else ''
+                if not name:
                     continue
                 
-                ng_click = link.get_attribute('ng-click') or ''
-                id_match = re.search(r'idEntidadeDevedora=(\d+)', ng_click)
+                # Get link for ID - try href first, then ng-click
+                link = card.query_selector('a[href*="idEntidadeDevedora"]')
+                if link:
+                    href = link.get_attribute('href') or ''
+                    id_match = re.search(r'idEntidadeDevedora=(\d+)', href)
+                else:
+                    link = card.query_selector('a[ng-click*="idEntidadeDevedora"]')
+                    if link:
+                        ng_click = link.get_attribute('ng-click') or ''
+                        id_match = re.search(r'idEntidadeDevedora=(\d+)', ng_click)
+                    else:
+                        continue
+                
                 if not id_match:
                     continue
                 
                 entity_id = int(id_match.group(1))
                 
-                # Get name
-                name_el = card.query_selector('h5')
-                name = name_el.inner_text().strip() if name_el else f"Entity {entity_id}"
-                
-                # Get counts
+                # Parse statistics from card text
                 pendentes = 0
                 pagos = 0
                 
-                spans = card.query_selector_all('span')
-                for span in spans:
-                    text = span.inner_text()
-                    if 'Pendentes' in text:
-                        num_match = re.search(r'(\d+)', text.replace('.', ''))
-                        if num_match:
-                            pendentes = int(num_match.group(1))
-                    elif 'Pagos' in text:
-                        num_match = re.search(r'(\d+)', text.replace('.', ''))
-                        if num_match:
-                            pagos = int(num_match.group(1))
+                for i, line in enumerate(lines):
+                    if 'Precatórios Pagos' in line:
+                        if i + 1 < len(lines):
+                            num = re.sub(r'[^\d]', '', lines[i + 1])
+                            pagos = int(num) if num else 0
+                    
+                    if 'Precatórios Pendentes' in line:
+                        if i + 1 < len(lines):
+                            num = re.sub(r'[^\d]', '', lines[i + 1])
+                            pendentes = int(num) if num else 0
                 
                 entities.append({
                     'id': entity_id,
