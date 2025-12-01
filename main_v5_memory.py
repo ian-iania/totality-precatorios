@@ -239,6 +239,34 @@ def extract_page_range_worker(args: Dict) -> Dict:
         }
 
 
+def divide_pages_into_ranges(total_pages: int, num_workers: int) -> List[Tuple[int, int]]:
+    """Divide pages into ranges for parallel processing"""
+    if total_pages <= 0:
+        return []
+    
+    pages_per_worker = max(1, total_pages // num_workers)
+    remainder = total_pages % num_workers
+    
+    ranges = []
+    start = 1
+    
+    for i in range(min(num_workers, total_pages)):
+        extra = 1 if i < remainder else 0
+        end = start + pages_per_worker - 1 + extra
+        if end > total_pages:
+            end = total_pages
+        ranges.append((start, end))
+        start = end + 1
+        if start > total_pages:
+            break
+    
+    return ranges
+
+
+# Threshold for splitting entity across workers
+LARGE_ENTITY_THRESHOLD = 100  # pages - entities with more pages get split
+
+
 def run_full_extraction(
     entities: List[Dict],
     regime: str,
@@ -249,7 +277,7 @@ def run_full_extraction(
 ) -> Tuple[pd.DataFrame, Dict]:
     """
     Extract ALL entities, accumulate in memory, write CSV once at the end.
-    Simple mode: 1 worker per entity.
+    Large entities (>=100 pages) are split across multiple workers.
     
     Args:
         entities: List of {"id": int, "name": str, "pages": int}
@@ -268,19 +296,37 @@ def run_full_extraction(
     total_expected_records = sum(e['pages'] * 10 for e in entities)
     total_pages = sum(e['pages'] for e in entities)
     
-    # Prepare worker args - 1 worker per entity
+    # Prepare worker args - split large entities across workers
     worker_args = []
     for entity in entities:
-        worker_args.append({
-            'entity_id': entity['id'],
-            'entity_name': entity['name'],
-            'regime': regime,
-            'start_page': 1,
-            'end_page': entity['pages'],
-            'worker_id': 0,
-            'headless': headless,
-            'timeout_minutes': timeout_minutes
-        })
+        entity_pages = entity['pages']
+        
+        if entity_pages >= LARGE_ENTITY_THRESHOLD:
+            # Split large entity across max_concurrent workers
+            ranges = divide_pages_into_ranges(entity_pages, max_concurrent)
+            for worker_id, (start_page, end_page) in enumerate(ranges):
+                worker_args.append({
+                    'entity_id': entity['id'],
+                    'entity_name': entity['name'],
+                    'regime': regime,
+                    'start_page': start_page,
+                    'end_page': end_page,
+                    'worker_id': worker_id,
+                    'headless': headless,
+                    'timeout_minutes': timeout_minutes
+                })
+        else:
+            # Small entity - 1 worker
+            worker_args.append({
+                'entity_id': entity['id'],
+                'entity_name': entity['name'],
+                'regime': regime,
+                'start_page': 1,
+                'end_page': entity_pages,
+                'worker_id': 0,
+                'headless': headless,
+                'timeout_minutes': timeout_minutes
+            })
     
     logger.info(f"\n{'='*80}")
     logger.info(f"🚀 V5 FULL MEMORY EXTRACTION - {regime.upper()}")
@@ -288,7 +334,10 @@ def run_full_extraction(
     logger.info(f"Entities: {len(entities)}")
     logger.info(f"Total pages: {total_pages:,}")
     logger.info(f"Expected records: {total_expected_records:,}")
-    logger.info(f"Workers: {len(worker_args)} (1 per entity), {max_concurrent} concurrent")
+    logger.info(f"Workers: {len(worker_args)}, {max_concurrent} concurrent")
+    for entity in entities:
+        if entity['pages'] >= LARGE_ENTITY_THRESHOLD:
+            logger.info(f"  📦 {entity['name']}: {entity['pages']} pages → {max_concurrent} workers")
     logger.info(f"{'='*80}\n")
     
     # Accumulator for all records
@@ -302,7 +351,7 @@ def run_full_extraction(
         # Submit all workers
         async_results = []
         for args in worker_args:
-            task_id = f"E{args['entity_id']}"
+            task_id = f"E{args['entity_id']}:W{args['worker_id']}"
             async_results.append((task_id, args, pool.apply_async(extract_page_range_worker, (args,))))
         
         # Collect results with polling (avoid deadlocks)
