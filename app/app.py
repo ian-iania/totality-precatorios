@@ -26,7 +26,7 @@ from typing import List, Dict, Optional
 # Add parent directory to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from app.integration import EntityLoader, ExtractionRunner, FullMemoryExtractionRunner
+from app.integration import EntityLoader, ExtractionRunner
 from app.utils import (
     get_output_dir, format_number, format_duration, format_time,
     format_datetime, format_filesize, estimate_time_minutes,
@@ -126,13 +126,6 @@ def init_session_state():
     
     if 'total_stats' not in st.session_state:
         st.session_state.total_stats = {"pendentes": 0, "paginas": 0}
-    
-    # V5 Full Memory Mode
-    if 'use_v5' not in st.session_state:
-        st.session_state.use_v5 = False
-    
-    if 'v5_runner' not in st.session_state:
-        st.session_state.v5_runner = None
 
 init_session_state()
 
@@ -187,11 +180,7 @@ def render_extraction_tab():
     
     # Check if extraction is running
     if st.session_state.extraction_running:
-        # Use V5 progress view if V5 mode is active
-        if st.session_state.use_v5:
-            render_v5_progress_view()
-        else:
-            render_progress_view()
+        render_progress_view()
         return
     
     # Normal extraction setup view
@@ -201,50 +190,22 @@ def render_extraction_tab():
 def render_setup_view():
     """Render the simplified extraction setup view"""
     
-    # Regime selection with 3 options
-    regime_option = st.radio(
+    # Regime selection
+    regime = st.radio(
         "Regime",
-        options=["especial_rj", "especial_sem_rj", "geral"],
-        format_func=lambda x: {
-            "especial_rj": "Especial RJ",
-            "especial_sem_rj": "Especial sem RJ",
-            "geral": "Geral"
-        }.get(x, x),
+        options=["especial", "geral"],
+        format_func=lambda x: x.capitalize(),
         horizontal=True,
-        key="regime_selector",
-        index=0  # Default: Especial RJ
+        key="regime_selector"
     )
-    
-    # Show description
-    descriptions = {
-        "especial_rj": "📍 Somente **Estado do Rio de Janeiro** (regime especial)",
-        "especial_sem_rj": "📍 Todas entidades especiais **exceto** Estado do Rio de Janeiro",
-        "geral": "📍 Todas entidades do regime geral"
-    }
-    st.caption(descriptions.get(regime_option, ""))
     
     # Process button below
     if st.button("Processar", type="primary"):
-        start_all_entities_extraction(regime_option)
+        start_all_entities_extraction(regime)
 
 
-def start_all_entities_extraction(regime_option: str):
-    """Start extraction of all entities for a regime using V5 Full Memory Mode"""
-    from loguru import logger
-    
-    # Determine actual regime and filter
-    if regime_option == "especial_rj":
-        regime = "especial"
-        entity_filter = lambda e: e['id'] == 1  # Only Estado do Rio de Janeiro
-        filter_desc = "Estado do Rio de Janeiro"
-    elif regime_option == "especial_sem_rj":
-        regime = "especial"
-        entity_filter = lambda e: e['id'] != 1  # All except Estado RJ
-        filter_desc = "Especial (sem Estado RJ)"
-    else:  # geral
-        regime = "geral"
-        entity_filter = lambda e: True  # All entities
-        filter_desc = "Geral"
+def start_all_entities_extraction(regime: str):
+    """Start extraction of all entities for a regime"""
     
     # Load entities
     with st.spinner("Carregando entidades do TJRJ..."):
@@ -258,9 +219,6 @@ def start_all_entities_extraction(regime_option: str):
         st.error("Nenhuma entidade encontrada.")
         return
     
-    # Apply entity filter based on regime option
-    entities = [e for e in entities if entity_filter(e)]
-    
     # Filter entities with pending > 0 (keep original order from site)
     entities = [e for e in entities if e['precatorios_pendentes'] > 0]
     
@@ -268,44 +226,29 @@ def start_all_entities_extraction(regime_option: str):
         st.warning("Nenhuma entidade com precatórios pendentes encontrada.")
         return
     
-    logger.info(f"Filter: {filter_desc} - {len(entities)} entities")
-    
     # Calculate totals
     total_pendentes = sum(e['precatorios_pendentes'] for e in entities)
     total_paginas = sum((e['precatorios_pendentes'] + 9) // 10 for e in entities)
     
     # Store in session state
     st.session_state.entities_to_process = entities
+    st.session_state.current_entity_index = 0
+    st.session_state.completed_entities = set()
     st.session_state.processing_regime = regime
-    st.session_state.processing_regime_option = regime_option  # Store original option
     st.session_state.total_stats = {
         "pendentes": total_pendentes,
-        "paginas": total_paginas,
-        "entities": len(entities)
+        "paginas": total_paginas
     }
     st.session_state.extraction_running = True
     st.session_state.show_success = False
-    st.session_state.use_v5 = True  # Flag for V5 mode
     
-    # Create consolidated output file name based on regime option
+    # Create consolidated output file name for this regime
     timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-    output_file = f"output/precatorios_{regime_option}_{timestamp}.csv"
-    st.session_state.output_file = output_file
+    st.session_state.output_file = f"output/precatorios_regime_{regime}_{timestamp}.csv"
     st.session_state.extraction_start_time = datetime.now()
     
-    # Start V5 Full Memory Extraction (ALL entities at once)
-    logger.info(f"Starting V5 Full Memory Extraction ({regime_option}): {len(entities)} entities, {total_paginas} pages")
-    
-    runner = FullMemoryExtractionRunner()
-    runner.start_full_extraction(
-        entities=entities,
-        regime=regime,
-        max_concurrent=10,  # 10 concurrent workers
-        timeout_minutes=60,  # 60 min timeout per worker
-        output_file=output_file
-    )
-    
-    st.session_state.v5_runner = runner
+    # Start first entity
+    start_next_entity()
     
     st.rerun()
 
@@ -401,113 +344,6 @@ def start_extraction(entity: Dict, regime: str, num_processes: int, pendentes: i
     
     except Exception as e:
         st.error(f"Erro ao iniciar extração: {e}")
-
-
-def render_v5_progress_view():
-    """Render progress view for V5 Full Memory Mode - clean UI like V4"""
-    
-    runner = st.session_state.v5_runner
-    total_stats = st.session_state.total_stats
-    regime = st.session_state.processing_regime
-    regime_option = st.session_state.get('processing_regime_option', regime)
-    entities = st.session_state.get('entities_to_process', [])
-    
-    if not runner:
-        st.error("Runner não encontrado")
-        st.session_state.extraction_running = False
-        st.rerun()
-        return
-    
-    # Get progress
-    progress = runner.get_progress()
-    entity_status = progress.get('entity_status', {})
-    
-    # Check if finished
-    if not progress.get('is_running', False):
-        st.session_state.extraction_running = False
-        st.session_state.show_success = True
-        st.session_state.extraction_result = {
-            "success": True,
-            "total_entities": total_stats.get('entities', 0),
-            "records": progress.get('records', 0),
-            "expected_records": progress.get('expected_records', 0)
-        }
-        st.rerun()
-        return
-    
-    # Get values
-    records = progress.get('records', 0)
-    expected = progress.get('expected_records', 1)
-    elapsed = progress.get('elapsed_seconds', 0)
-    entities_done = progress.get('entities_done', 0)
-    
-    # Calculate
-    percent = min(99, (records / expected * 100)) if expected > 0 else 0
-    speed = records / elapsed if elapsed > 0 else 0
-    
-    # Regime display name
-    regime_display = {
-        "especial_rj": "Especial RJ",
-        "especial_sem_rj": "Especial sem RJ",
-        "geral": "Geral"
-    }.get(regime_option, regime.upper())
-    
-    # === HEADER ===
-    st.caption(f"**{regime_display}** — {len(entities)} entidades, {total_stats.get('paginas', 0):,} páginas")
-    
-    # === TWO COLUMN LAYOUT ===
-    col_status, col_entities = st.columns(2)
-    
-    with col_status:
-        # Progress bar
-        st.progress(percent / 100)
-        
-        # Stats line
-        st.caption(f"Registros: {records:,} / ~{expected:,} ({percent:.0f}%) — {speed:.1f} rec/s")
-        
-        # Time estimate
-        if elapsed > 10 and percent > 1:
-            remaining = (elapsed / percent) * (100 - percent)
-            if remaining > 60:
-                st.caption(f"⏱️ ~{remaining / 60:.0f} min restantes")
-            else:
-                st.caption(f"⏱️ ~{remaining:.0f} seg restantes")
-        
-        # Elapsed time
-        st.caption(f"Tempo decorrido: {format_duration(elapsed)}")
-    
-    with col_entities:
-        # Get active workers
-        active_workers = []
-        for key, value in entity_status.items():
-            if isinstance(key, str) and key.startswith('worker_') and isinstance(value, dict):
-                active_workers.append(value)
-        
-        if active_workers:
-            st.caption("**Workers:**")
-            for w in active_workers[:10]:
-                entity_name = w.get('entity_name', '?')[:25]
-                current = w.get('current_page', 0)
-                end = w.get('end_page', 0)
-                rec = w.get('records', 0)
-                status = w.get('status', 'starting')
-                
-                if status == 'extracting' and end > 0:
-                    pct = int(100 * current / end)
-                    st.caption(f"🔄 {entity_name}: pág {current}/{end} ({pct}%) - {rec:,} rec")
-                elif status == 'done':
-                    st.caption(f"✅ {entity_name}: {rec:,} registros")
-                else:
-                    st.caption(f"⏳ {entity_name}: iniciando...")
-        else:
-            st.caption("Aguardando workers...")
-    
-    st.markdown("---")
-    st.info("💾 **Full Memory**: CSV + Excel gravados ao final")
-    
-    # Auto-refresh
-    time.sleep(3)
-    st.rerun()
 
 
 def render_progress_view():
@@ -701,9 +537,9 @@ def render_progress_view():
             time_str = f"~{total_estimated_remaining / 60:.0f} min restantes"
         else:
             time_str = f"~{total_estimated_remaining:.0f} seg restantes"
-        st.markdown(f"<p style='color: #ff6b6b; font-weight: bold;'>📊 Progresso geral: {overall_progress * 100:.1f}% ({total_pages_done}/{total_pages_all} páginas) — {time_str}</p>", unsafe_allow_html=True)
+        st.caption(f"Progresso geral: {overall_progress * 100:.1f}% ({total_pages_done}/{total_pages_all} páginas) — {time_str}")
     else:
-        st.markdown(f"<p style='color: #ff6b6b; font-weight: bold;'>📊 Progresso geral: {overall_progress * 100:.1f}% ({total_pages_done}/{total_pages_all} páginas)</p>", unsafe_allow_html=True)
+        st.caption(f"Progresso geral: {overall_progress * 100:.1f}% ({total_pages_done}/{total_pages_all} páginas)")
     
     st.markdown("---")
     
@@ -753,11 +589,11 @@ def render_success_view():
     
     result = st.session_state.get('extraction_result', {})
     entities = st.session_state.get('entities_to_process', [])
+    completed = st.session_state.get('completed_entities', set())
     total_stats = st.session_state.get('total_stats', {})
     regime = st.session_state.get('processing_regime', 'geral')
     output_file = st.session_state.get('output_file', '')
     start_time = st.session_state.get('extraction_start_time')
-    use_v5 = st.session_state.get('use_v5', False)
     
     # Calculate duration
     if start_time:
@@ -765,17 +601,6 @@ def render_success_view():
         duration_str = f"{int(duration.total_seconds() // 60)}min {int(duration.total_seconds() % 60)}s"
     else:
         duration_str = "N/A"
-    
-    # For V5, all entities are processed together
-    if use_v5:
-        total_entities = total_stats.get('entities', len(entities))
-        completed_count = total_entities  # V5 processes all at once
-        records_count = result.get('records', total_stats.get('pendentes', 0))
-    else:
-        completed = st.session_state.get('completed_entities', set())
-        completed_count = len(completed)
-        total_entities = len(entities)
-        records_count = total_stats.get('pendentes', 0)
     
     # Show confetti animation
     show_confetti()
@@ -786,9 +611,9 @@ def render_success_view():
     # Summary metrics
     col1, col2, col3 = st.columns(3)
     with col1:
-        st.metric("Entidades Processadas", f"{completed_count}/{total_entities}")
+        st.metric("Entidades", f"{len(completed)}/{len(entities)}")
     with col2:
-        st.metric("Registros", format_number(records_count))
+        st.metric("Registros", format_number(total_stats.get('pendentes', 0)))
     with col3:
         st.metric("Duração", duration_str)
     
@@ -798,10 +623,11 @@ def render_success_view():
     
     st.markdown("---")
     
-    # Show entities in expander
-    with st.expander(f"Ver entidades processadas ({completed_count})", expanded=False):
+    # Show completed entities in expander
+    with st.expander(f"Ver entidades processadas ({len(completed)})", expanded=False):
         for entity in entities:
-            st.caption(f"✓ {entity['nome']} ({format_number(entity['precatorios_pendentes'])})")
+            if entity['id'] in completed:
+                st.caption(f"✓ {entity['nome']} ({format_number(entity['precatorios_pendentes'])})")
     
     st.markdown("---")
     
@@ -818,8 +644,6 @@ def render_success_view():
         st.session_state.current_entity_index = 0
         st.session_state.completed_entities = set()
         st.session_state.processing_regime = None
-        st.session_state.use_v5 = False
-        st.session_state.v5_runner = None
         st.rerun()
     
     st.caption("Os arquivos CSV estão disponíveis na aba 'Downloads'.")
@@ -861,7 +685,7 @@ def render_downloads_tab():
     selected_files = []
     
     for file_info in files:
-        col_check, col_date, col_name, col_size, col_records = st.columns([0.5, 1.5, 3, 1, 1])
+        col_check, col_name, col_size, col_records, col_date = st.columns([0.5, 3, 1, 1, 1.5])
         
         with col_check:
             is_selected = st.checkbox(
@@ -873,9 +697,6 @@ def render_downloads_tab():
             if is_selected:
                 selected_files.append(file_info)
         
-        with col_date:
-            st.text(file_info['modified_formatted'])
-        
         with col_name:
             st.text(file_info['name'])
         
@@ -884,6 +705,9 @@ def render_downloads_tab():
         
         with col_records:
             st.text(f"{format_number(file_info['records'])} reg.")
+        
+        with col_date:
+            st.text(file_info['modified_formatted'])
     
     st.markdown("---")
     
