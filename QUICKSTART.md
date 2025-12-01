@@ -1,6 +1,6 @@
 # ⚡ Quick Start Guide
 
-Get started with TJRJ Precatórios Scraper in 5 minutes.
+Get started with TJRJ Precatórios Scraper V5 in 5 minutes.
 
 ## 🚀 Installation (5 minutes)
 
@@ -19,94 +19,89 @@ pip install -r requirements.txt
 
 # 5. Install Playwright browsers
 playwright install chromium
-
-# 6. Verify installation
-pytest tests/ -v
 ```
 
-**Expected output**: All tests pass ✅
+## 🎯 Running the Scraper
 
-## 🎯 First Run (2 minutes)
+### Option 1: Web Interface (Recommended)
 
 ```bash
-# Run with visible browser to see what happens
-python main.py --regime geral --no-headless --log-level DEBUG
+# Start the Streamlit UI
+streamlit run app/app.py --server.port 8501
 ```
 
-**What you'll see**:
-- Chrome browser opens
-- Navigates to TJRJ portal
-- Attempts to extract data
-- Shows placeholder message (expected!)
+Then open http://localhost:8501 in your browser.
 
-**This is normal!** The framework is working. It just needs HTML selectors.
+**Features**:
+- Select regime (Especial or Geral)
+- Real-time progress tracking
+- Worker status monitoring
+- ETA calculation based on total records
+- Download results as CSV
 
-## 🔧 What to Do Next
+### Option 2: Command Line
 
-### Option 1: Quick Test (Just verify it works)
+```bash
+# Run V5 extraction for all entities
+python main_v5_all_entities.py --regime especial --workers 12
 
-The framework is complete and working. You can stop here if you just wanted to review the code structure.
-
-### Option 2: Complete Implementation (3-4 hours)
-
-Follow these steps to make it actually scrape data:
-
-1. **Open development guide**:
-   ```bash
-   open docs/DEVELOPMENT_GUIDE.md
-   # or on Linux: xdg-open docs/DEVELOPMENT_GUIDE.md
-   ```
-
-2. **Inspect the TJRJ website**:
-   - Run: `python main.py --regime geral --no-headless`
-   - Press F12 in browser to open DevTools
-   - Click "Elements" tab
-   - Find entity card elements and note their CSS classes
-
-3. **Update `src/scraper.py`**:
-   - Line ~105: Update `get_entidades()` with real selectors
-   - Line ~145: Implement `get_precatorios_entidade()`
-
-4. **Test incrementally**:
-   ```bash
-   python main.py --regime geral --no-headless --log-level DEBUG
-   ```
-
-5. **Run full scrape**:
-   ```bash
-   python main.py --regime geral
-   ```
-
-## 📁 Where to Find Things
-
-```
-✅ Main scraper code:     src/scraper.py
-✅ Data models:            src/models.py
-✅ Configuration:          .env (copy from .env.example)
-✅ Test results:           logs/scraper.log
-✅ CSV outputs:            data/processed/
-✅ Documentation:          docs/
+# Options:
+#   --regime: especial or geral
+#   --workers: number of parallel workers (default: 12)
+#   --headless: run without browser UI (default: True)
 ```
 
-## 🎓 Learning Path
+## 📊 What the UI Shows
 
-### Beginner (Just exploring)
-1. Read `README.md`
-2. Run `pytest tests/ -v` to see tests
-3. Browse code in `src/`
+- **Processando**: Current entity being extracted
+- **Registros**: Records extracted / Total expected
+- **Tempo restante**: ETA based on extraction speed
+- **Workers em Processamento**: Status of each parallel worker
+- **Progresso geral**: Overall percentage complete
 
-### Intermediate (Want to use it)
-1. Follow installation above
-2. Read `docs/SETUP_GUIDE.md`
-3. Read `docs/DEVELOPMENT_GUIDE.md`
-4. Complete HTML selector implementation
+## 📁 Output Files
 
-### Advanced (Want to extend it)
-1. Read `PROJECT_SUMMARY.md` for architecture
-2. Review `src/scraper.py` for extensibility points
-3. Add new features (async, database export, etc.)
+```
+output/
+├── precatorios_especial_YYYYMMDD_HHMMSS.csv  # Full extraction
+├── partial_p1_*.csv                           # Worker partial files
+└── ...
+
+logs/
+├── scraper_v3.log                             # Main extraction log
+├── extraction_v5_*.log                        # V5 session logs
+└── screenshots/                               # Debug screenshots
+```
+
+## 🔧 Architecture
+
+### V5 All-Entities Mode
+- Processes all 41 entities sequentially in one run
+- Uses 12 parallel workers per entity
+- Accumulates data in memory (no disk I/O during extraction)
+- Saves single consolidated CSV at the end
+
+### Key Files
+```
+main_v5_all_entities.py   # V5 extraction script
+app/app.py                # Streamlit UI
+app/integration.py        # UI-scraper integration
+src/scraper_v3.py         # Core scraper class
+```
 
 ## 🆘 Common Issues
+
+### Workers stuck at 96-99%
+The "Próxima" button may be below viewport. V5 includes:
+1. Multiple button selectors
+2. Scroll to button before click
+3. Fallback: use "Ir para página" input box
+
+### Old data showing in UI
+Delete old logs before new run:
+```bash
+rm -f logs/scraper_v3.log
+```
 
 ### "playwright: command not found"
 ```bash
@@ -119,57 +114,52 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-### "Permission denied"
+## 📞 Monitoring Progress
+
+### Via UI
+The Streamlit interface shows real-time progress with:
+- Per-worker page progress
+- Total records extracted
+- Speed (records/second)
+- Estimated time remaining
+
+### Via Logs
 ```bash
-chmod +x main.py
+# Watch live extraction
+tail -f logs/scraper_v3.log
+
+# Check for errors
+grep -i "error\|warning" logs/scraper_v3.log
 ```
-
-### Tests fail
-Expected on first run! The framework is complete, just needs site-specific selectors.
-
-## 📞 Getting Help
-
-1. Check logs: `tail -f logs/scraper.log`
-2. Read docs: `docs/DEVELOPMENT_GUIDE.md`
-3. Review errors: Run with `--log-level DEBUG`
 
 ## 🎉 Success Criteria
 
 You'll know it's working when:
 
-- ✅ Installation completes without errors
-- ✅ Tests pass
-- ✅ Browser opens when you run the scraper
-- ✅ You see log messages in terminal
-- ✅ After adding selectors: CSV file appears in `data/processed/`
+- ✅ UI shows "Processando: [Entity Name]"
+- ✅ Workers show increasing page counts
+- ✅ Records counter increases steadily
+- ✅ Progress bar advances
+- ✅ CSV file appears in `output/` after completion
 
 ## ⏱️ Time Estimates
 
-- **Installation**: 5 minutes
-- **First run**: 2 minutes
-- **Reading docs**: 30 minutes
-- **Site inspection**: 1 hour
-- **Implementation**: 2-3 hours
-- **Testing**: 1 hour
-- **Total**: ~4-5 hours to fully working scraper
+| Regime | Entities | Records | Time (12 workers) |
+|--------|----------|---------|-------------------|
+| Especial | 41 | ~40,000 | ~15-20 min |
+| Geral | 41 | ~30,000 | ~12-15 min |
 
 ## 🚦 Current Status
 
 ```
-Phase 1: Project Setup      ✅ COMPLETE
-Phase 2: Framework Build    ✅ COMPLETE
-Phase 3: Documentation      ✅ COMPLETE
-Phase 4: HTML Selectors     ⏳ PENDING (your task!)
-Phase 5: Testing            ⏳ PENDING
-Phase 6: Production Use     ⏳ PENDING
+✅ V5 All-Entities Mode    COMPLETE
+✅ Parallel Workers        COMPLETE  
+✅ Streamlit UI            COMPLETE
+✅ Progress Tracking       COMPLETE
+✅ ETA Calculation         COMPLETE
+✅ Navigation Fallbacks    COMPLETE
 ```
 
 ---
 
-**Ready to start? Run the installation commands above!** 🚀
-
-For detailed instructions, see:
-- 📘 **README.md** - Full documentation
-- 🔧 **docs/SETUP_GUIDE.md** - Installation details
-- 💻 **docs/DEVELOPMENT_GUIDE.md** - Implementation guide
-- ⚡ **docs/QUICK_REFERENCE.md** - Command cheat sheet
+**Ready to start?** Run `streamlit run app/app.py` 🚀

@@ -1,135 +1,142 @@
-# Charles - TJRJ Precatórios Scraper
-## Final Clean Project Structure
+# Charles - TJRJ Precatórios Scraper V5
+## Project Structure
 
 ```
 Charles/
 ├── README.md                          # Main documentation
-├── QUICKSTART.md                      # Quick start guide
+├── QUICKSTART.md                      # Quick start guide (UPDATED)
+├── PROJECT_STRUCTURE.md               # This file
 ├── CLAUDE.MD                          # Claude Code context
+├── AGENTS.md                          # AI agent rules
 ├── requirements.txt                   # Python dependencies
-├── main.py                            # CLI entry point
 ├── .env.example                       # Environment variables template
 ├── .gitignore                         # Git ignore rules
 │
-├── src/                               # Source code
+├── main_v5_all_entities.py            # V5 extraction script (MAIN)
+├── main_v4_memory.py                  # V4 per-entity extraction
+│
+├── app/                               # Streamlit Web UI
 │   ├── __init__.py
-│   ├── models.py                      # Data models (CORRECTED)
-│   ├── scraper.py                     # Core scraper logic
-│   └── config.py                      # Configuration
+│   ├── app.py                         # Main Streamlit application
+│   ├── integration.py                 # UI-scraper integration
+│   ├── utils.py                       # Helper utilities
+│   └── requirements.txt               # App-specific dependencies
+│
+├── src/                               # Core scraper modules
+│   ├── __init__.py
+│   ├── config.py                      # Configuration
+│   ├── models.py                      # Data models (Pydantic)
+│   ├── scraper.py                     # Original scraper
+│   ├── scraper_v2.py                  # V2 with improvements
+│   └── scraper_v3.py                  # V3 fast mode (CURRENT)
+│
+├── output/                            # Extraction outputs
+│   ├── precatorios_*.csv              # Final CSV files
+│   └── partial/                       # Worker partial files
+│
+├── logs/                              # Application logs
+│   ├── scraper_v3.log                 # Main extraction log
+│   ├── extraction_v5_*.log            # V5 session logs
+│   └── screenshots/                   # Debug screenshots
 │
 ├── tests/                             # Unit tests
-│   ├── __init__.py
-│   └── test_scraper.py
-│
-├── data/                              # Data directory
-│   ├── processed/                     # Final CSVs (CURRENT)
-│   │   ├── precatorios_geral_20251119_013857.csv      (5,444 records)
-│   │   └── precatorios_especial_20251119_030948.csv   (20,239 records)
-│   ├── backup/                        # Previous extractions
-│   │   ├── precatorios_geral_20251118_225720.csv
-│   │   └── precatorios_especial_20251119_002534.csv
-│   ├── cache/                         # Runtime cache
-│   │   └── .gitkeep
-│   └── debug/                         # Debug assets
-│       └── table_structure.png
+│   └── *.py
 │
 ├── docs/                              # Documentation
-│   ├── SETUP_GUIDE.md                 # Installation guide
-│   ├── DEVELOPMENT_GUIDE.md           # Developer guide
-│   ├── QUICK_REFERENCE.md             # Command reference
-│   └── FINAL_CORRECTED_EXTRACTION_REPORT.md  # Extraction report
+│   ├── SETUP_GUIDE.md
+│   ├── DEVELOPMENT_GUIDE.md
+│   └── QUICK_REFERENCE.md
 │
-├── archive/                           # Historical files
-│   ├── docs/                          # Old documentation (7 files)
-│   │   ├── SUCCESS_REPORT.md
-│   │   ├── FINAL_STATUS.md
-│   │   ├── EXTRACTION_COMPLETE_REPORT.md
-│   │   ├── IMPLEMENTATION_COMPLETE.md
-│   │   ├── PROJECT_SUMMARY.md
-│   │   ├── ARCHITECTURE_COMPARISON.md
-│   │   └── TEST_RESULTS.md
-│   ├── debug/                         # Debug scripts (12 files)
-│   │   ├── test_live_scrape.py
-│   │   ├── test_corrected_extraction.py
-│   │   ├── test_first_entity_each_regime.py
-│   │   ├── test_scraper_now.py
-│   │   ├── test_url_routes.py
-│   │   ├── capture_html.py
-│   │   ├── capture_html_auto.py
-│   │   ├── inspect_table_columns.py
-│   │   ├── inspect_rendered_dom.py
-│   │   ├── map_all_columns.py
-│   │   ├── verify_actual_columns.py
-│   │   └── scraper_corrected_extraction.py
-│   └── data/                          # Debug data
-│       └── raw/                       # Raw HTML captures
-│           ├── HTML/
-│           └── rendered/
+├── data/                              # Legacy data directory
+│   └── processed/                     # Old extractions
 │
-└── logs/                              # Application logs
-    ├── .gitkeep
-    └── scraper.log
-
+└── archive/                           # Historical files
+    ├── docs/                          # Old documentation
+    ├── scripts/                       # Debug/test scripts
+    └── data/                          # Debug data
 ```
 
-## Current Data Extraction
+## V5 Architecture
 
-**Total Records**: 25,683 precatórios
-**Total Unique Entities**: 187 (77 from Regime Geral + 110 from Regime Especial)
-**Total Entity Groups**: 97 (56 Geral + 41 Especial)
+### Extraction Flow
+```
+┌─────────────────┐     ┌──────────────────────┐     ┌─────────────┐
+│  Streamlit UI   │────▶│ main_v5_all_entities │────▶│  Output CSV │
+│   (app.py)      │     │   (12 workers)       │     │             │
+└─────────────────┘     └──────────────────────┘     └─────────────┘
+        │                        │
+        ▼                        ▼
+┌─────────────────┐     ┌──────────────────────┐
+│ integration.py  │     │    scraper_v3.py     │
+│ (log parsing)   │     │   (page extraction)  │
+└─────────────────┘     └──────────────────────┘
+```
 
-### Regime Geral
-- **File**: `data/processed/precatorios_geral_20251119_013857.csv`
-- **Records**: 5,444 precatórios
-- **Entity Groups**: 56
-- **Unique Entities**: 77 (21 sub-entities discovered)
+### Key Components
+
+| Component | File | Purpose |
+|-----------|------|---------|
+| **V5 Script** | `main_v5_all_entities.py` | Processes all entities sequentially |
+| **Streamlit UI** | `app/app.py` | Web interface with progress tracking |
+| **Integration** | `app/integration.py` | Manages subprocess, parses logs |
+| **Scraper V3** | `src/scraper_v3.py` | Fast extraction (11 columns) |
+
+### Parallel Processing
+- **12 workers** per entity (configurable)
+- Each worker handles a page range
+- Workers run in separate processes
+- Data accumulated in memory, saved at end
+
+## Current Data
 
 ### Regime Especial
-- **File**: `data/processed/precatorios_especial_20251119_030948.csv`
-- **Records**: 20,239 precatórios
-- **Entity Groups**: 41
-- **Unique Entities**: 110 (69 sub-entities discovered)
+- **Entities**: 41
+- **Total Pendentes**: ~40,252 records
+- **Total Pages**: ~4,041
 
-## CSV Structure (17 Columns)
+### Regime Geral
+- **Entities**: 56
+- **Total Pendentes**: ~30,000 records
 
-### Entity Information (4 columns)
-1. `entidade_grupo` - Parent/Group entity (from card clicked)
-2. `id_entidade_grupo` - Parent entity ID
-3. `entidade_devedora` - Specific entity responsible (from table Cell 6)
-4. `regime` - Regime type (geral/especial)
+## CSV Structure (11 Columns - Fast Mode)
 
-### Visible Columns (8 columns)
-5. `ordem` - Order position (e.g., "2º", "4º")
-6. `numero_precatorio` - Precatório number
-7. `situacao` - Status/Situation
-8. `natureza` - Nature (Comum/Alimentícia)
-9. `orcamento` - Budget year
-10. `valor_historico` - Historical value (BRL)
-11. `saldo_atualizado` - Updated balance (BRL)
-
-### Non-Visible Columns (5 columns)
-12. `prioridade` - Priority
-13. `valor_parcela` - Installment value (BRL)
-14. `parcelas_pagas` - Installments paid (e.g., "5/5")
-15. `previsao_pagamento` - Payment forecast
-16. `quitado` - Settled (Sim/Não)
-
-### Metadata (1 column)
-17. `timestamp_extracao` - Extraction timestamp (ISO 8601)
+| Column | Description |
+|--------|-------------|
+| `ordem` | Order position |
+| `entidade_devedora` | Debtor entity |
+| `numero_precatorio` | Precatório number |
+| `situacao` | Status |
+| `natureza` | Nature (Comum/Alimentícia) |
+| `orcamento` | Budget year |
+| `valor_historico` | Historical value (BRL) |
+| `saldo_atualizado` | Updated balance (BRL) |
+| `regime` | Regime type |
+| `id_entidade` | Entity ID |
+| `timestamp_extracao` | Extraction timestamp |
 
 ## Key Features
 
-✅ **Two-Level Entity Hierarchy** - Captures both parent group and specific entity
-✅ **Complete Column Extraction** - All 17 actual columns from website
-✅ **Non-Visible Data** - Includes 5 hidden columns from HTML
-✅ **Accurate Column Names** - Matches website terminology exactly
-✅ **Large Dataset Handling** - Successfully processed 25,683 records
-✅ **Data Validation** - Pydantic models ensure type safety
-✅ **Brazilian Format** - CSV with UTF-8 BOM, semicolon separator, comma decimal
+✅ **V5 All-Entities Mode** - Single run for all entities
+✅ **12 Parallel Workers** - Fast extraction per entity
+✅ **Streamlit UI** - Real-time progress monitoring
+✅ **ETA Calculation** - Based on total pendentes
+✅ **Navigation Fallbacks** - Multiple selectors + page input
+✅ **Memory Accumulation** - No disk I/O during extraction
+✅ **Graceful Shutdown** - Clean process termination
 
-## Cleanup Summary
+## Performance
 
-**Moved to Archive**: 19 files (7 docs + 12 debug scripts)
-**Deleted**: 2 duplicate model files
-**Organized**: Clean structure with core files in root/src, historical in archive
-**Preserved**: All working code, tests, documentation, and current data
+| Metric | Value |
+|--------|-------|
+| **Speed** | ~150-200 records/second |
+| **Regime Especial** | ~15-20 minutes |
+| **Regime Geral** | ~12-15 minutes |
+| **Workers** | 12 (configurable) |
+
+## Navigation Strategy
+
+When clicking "Próxima" button fails:
+1. Try `a[ng-click="vm.ProximaPagina()"]`
+2. Try `a:has-text("Próxima")`
+3. Try `text=Próxima`
+4. **Fallback**: Use "Ir para página" input box
