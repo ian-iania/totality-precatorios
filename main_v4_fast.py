@@ -166,16 +166,36 @@ def extract_worker(args: Dict) -> Dict:
                 
                 logger.info(f"[P{process_id}]   ✅ {len(precatorios)} records (total: {len(precatorios_data)})")
                 
-                # Next page
+                # Next page with retry logic
                 if current_page < end_page:
                     logger.debug(f"[P{process_id}] 🔄 Navigating to next page...")
-                    next_btn = page.query_selector('a[ng-click="vm.ProximaPagina()"]')
-                    if next_btn:
-                        next_btn.click()
-                        page.wait_for_timeout(2000)
-                        logger.debug(f"[P{process_id}] ✅ Next page loaded")
-                    else:
-                        logger.warning(f"[P{process_id}] ⚠️ Next button not found on page {current_page}")
+                    
+                    # Retry up to 3 times to find and click next button
+                    next_clicked = False
+                    for retry in range(3):
+                        # Wait for any loading overlay to disappear
+                        try:
+                            page.wait_for_selector('.block-ui-overlay', state='hidden', timeout=3000)
+                        except:
+                            pass
+                        
+                        next_btn = page.query_selector('a[ng-click="vm.ProximaPagina()"]')
+                        if next_btn and next_btn.is_visible():
+                            try:
+                                next_btn.click()
+                                page.wait_for_timeout(2000)
+                                next_clicked = True
+                                logger.debug(f"[P{process_id}] ✅ Next page loaded")
+                                break
+                            except Exception as click_err:
+                                logger.warning(f"[P{process_id}] ⚠️ Click failed (retry {retry+1}): {click_err}")
+                                page.wait_for_timeout(1000)
+                        else:
+                            logger.debug(f"[P{process_id}] Next button not visible, waiting... (retry {retry+1})")
+                            page.wait_for_timeout(2000)
+                    
+                    if not next_clicked:
+                        logger.warning(f"[P{process_id}] ⚠️ Failed to navigate to next page after 3 retries on page {current_page}")
                 
                 current_page += 1
             
