@@ -262,28 +262,47 @@ def extract_worker(args: Dict) -> Dict:
                                     pass
                                 
                                 next_btn = page.query_selector('a[ng-click="vm.ProximaPagina()"]')
-                                if next_btn and next_btn.is_visible():
-                                    next_btn.click()
-                                    page.wait_for_timeout(2000)
-                                    nav_success = True
-                                    break
+                                if next_btn:
+                                    # Scroll to button first (may be below viewport)
+                                    try:
+                                        next_btn.scroll_into_view_if_needed()
+                                        page.wait_for_timeout(300)
+                                    except:
+                                        pass
+                                    
+                                    # Try to click
+                                    try:
+                                        next_btn.click()
+                                        page.wait_for_timeout(2000)
+                                        nav_success = True
+                                        break
+                                    except Exception as click_err:
+                                        logger.warning(f"[P{process_id}] ⚠️ Click failed (retry {retry+1}): {click_err}")
+                                        page.wait_for_timeout(1000)
                                 else:
                                     # Button not found - take screenshot
                                     if retry == 2:
                                         take_debug_screenshot(page, process_id, f"no_next_btn_page{current_page}")
                                     page.wait_for_timeout(1000)
-                            except Exception as click_err:
-                                logger.warning(f"[P{process_id}] ⚠️ Click failed (retry {retry+1}): {click_err}")
+                            except Exception as nav_err:
+                                logger.warning(f"[P{process_id}] ⚠️ Navigation error (retry {retry+1}): {nav_err}")
                                 page.wait_for_timeout(1000)
                         
                         if not nav_success:
                             logger.warning(f"[P{process_id}] ⚠️ Failed to navigate after 3 retries on page {current_page}")
-                            # Continue anyway - we might be on the last page
+                            # STOP - don't continue with wrong page data
+                            logger.warning(f"[P{process_id}] 🛑 Stopping worker to avoid duplicate data")
+                            break
                     else:
-                        # Fast navigation for most pages
+                        # Fast navigation for most pages - also with scroll
                         try:
                             next_btn = page.query_selector('a[ng-click="vm.ProximaPagina()"]')
                             if next_btn:
+                                try:
+                                    next_btn.scroll_into_view_if_needed()
+                                    page.wait_for_timeout(200)
+                                except:
+                                    pass
                                 next_btn.click()
                                 page.wait_for_timeout(2000)
                         except Exception as nav_err:

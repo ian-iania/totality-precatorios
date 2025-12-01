@@ -594,12 +594,14 @@ class AllEntitiesRunner:
         
         # Parse log file
         log_file = self.project_root / "logs" / "scraper_v3.log"
-        start_str = self.start_time.strftime('%Y-%m-%d %H:%M') if self.start_time else None
+        # Use timestamp with seconds for precise filtering
+        start_str = self.start_time.strftime('%Y-%m-%d %H:%M:%S') if self.start_time else None
         
         current_entity = None
         current_entity_idx = 0
         total_entities = 0
         total_records = 0
+        total_pendentes = 0  # Total expected records for accurate ETA
         workers_data = {}
         
         if log_file.exists():
@@ -608,11 +610,16 @@ class AllEntitiesRunner:
                     content = f.read()
                 
                 for line in content.split('\n'):
-                    # Filter by start time
+                    # Filter by start time (with seconds for precision)
                     if start_str:
-                        ts_match = re.match(r'(\d{4}-\d{2}-\d{2} \d{2}:\d{2})', line)
+                        ts_match = re.match(r'(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})', line)
                         if ts_match and ts_match.group(1) < start_str:
                             continue
+                    
+                    # Match total pendentes: Total pendentes: 40,252
+                    pendentes_match = re.search(r'Total pendentes:\s*([\d,]+)', line)
+                    if pendentes_match:
+                        total_pendentes = int(pendentes_match.group(1).replace(',', ''))
                     
                     # Match entity progress: 📍 ENTITY 1/41: Estado do Rio de Janeiro (with or without emoji)
                     entity_match = re.search(r'ENTITY\s*(\d+)/(\d+):\s*(.+)', line)
@@ -654,26 +661,32 @@ class AllEntitiesRunner:
             except Exception as e:
                 logger.warning(f"Error parsing log: {e}")
         
-        # Calculate overall percent
+        # Calculate current records from workers
+        current_records = sum(w.get('records', 0) for w in workers_data.values()) if workers_data else 0
+        # Use total_records from log if available, otherwise use worker sum
+        display_records = total_records if total_records > 0 else current_records
+        
+        # Calculate overall percent based on records vs total_pendentes (most accurate)
         percent = 0
-        if total_entities > 0:
-            # Base progress on entities completed
+        if total_pendentes > 0 and display_records > 0:
+            # Progress based on actual records extracted vs expected total
+            percent = (display_records / total_pendentes) * 100
+        elif total_entities > 0:
+            # Fallback: progress based on entities (less accurate)
             entity_progress = (current_entity_idx - 1) / total_entities if current_entity_idx > 0 else 0
-            
-            # Add current entity worker progress
             if workers_data:
                 avg_worker_progress = sum(w.get('progress', 0) for w in workers_data.values()) / len(workers_data)
                 entity_progress += avg_worker_progress / total_entities
-            
             percent = entity_progress * 100
         
         return {
-            "records": total_records,
+            "records": display_records,
             "percent": min(percent, 100),
             "elapsed_seconds": elapsed_seconds,
             "current_entity": current_entity,
             "current_entity_idx": current_entity_idx,
             "total_entities": total_entities,
+            "total_pendentes": total_pendentes,
             "is_running": self.is_running(),
             "workers": workers_data,
             "num_processes": self.extraction_info.get("num_processes", 12)
