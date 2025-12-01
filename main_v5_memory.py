@@ -1,20 +1,16 @@
 """
-TJRJ Precatórios Scraper V5 - Full Memory Mode (Hybrid)
+TJRJ Precatórios Scraper V5 - Full Memory Mode
 
 Key improvements:
 - ALL data accumulated in memory - NO intermediate I/O
-- HYBRID MODE: Large entities (>=50 pages) split across multiple workers
-- Separate output files: large entity gets its own file, others combined
+- Single worker per entity (simpler, more reliable)
 - Validation: expected records vs actual records
 - Sorted by (entidade_devedora, ordem) at the end
-- Excel output with auto-filter
+- Excel output with auto-filter, styled headers, freeze panes
 
 Usage:
-    python main_v5_memory.py --entities-json '[{"id":1,"name":"...","pages":10},...]' --regime geral
+    python main_v5_memory.py --entities-json '[{"id":1,"name":"...","pages":10},...]' --regime especial_rj
 """
-
-# Threshold for splitting entity across workers
-LARGE_ENTITY_THRESHOLD = 50  # pages
 
 import sys
 import time
@@ -243,30 +239,6 @@ def extract_page_range_worker(args: Dict) -> Dict:
         }
 
 
-def divide_pages_into_ranges(total_pages: int, num_workers: int) -> List[Tuple[int, int]]:
-    """Divide pages into ranges for parallel processing"""
-    if total_pages <= 0:
-        return []
-    
-    pages_per_worker = max(1, total_pages // num_workers)
-    remainder = total_pages % num_workers
-    
-    ranges = []
-    start = 1
-    
-    for i in range(min(num_workers, total_pages)):
-        extra = 1 if i < remainder else 0
-        end = start + pages_per_worker - 1 + extra
-        if end > total_pages:
-            end = total_pages
-        ranges.append((start, end))
-        start = end + 1
-        if start > total_pages:
-            break
-    
-    return ranges
-
-
 def run_full_extraction(
     entities: List[Dict],
     regime: str,
@@ -277,7 +249,7 @@ def run_full_extraction(
 ) -> Tuple[pd.DataFrame, Dict]:
     """
     Extract ALL entities, accumulate in memory, write CSV once at the end.
-    HYBRID MODE: Large entities are split across multiple workers.
+    Simple mode: 1 worker per entity.
     
     Args:
         entities: List of {"id": int, "name": str, "pages": int}
@@ -296,34 +268,9 @@ def run_full_extraction(
     total_expected_records = sum(e['pages'] * 10 for e in entities)
     total_pages = sum(e['pages'] for e in entities)
     
-    # Separate large and small entities
-    large_entities = [e for e in entities if e['pages'] >= LARGE_ENTITY_THRESHOLD]
-    small_entities = [e for e in entities if e['pages'] < LARGE_ENTITY_THRESHOLD]
-    
-    # Prepare worker args - HYBRID MODE
+    # Prepare worker args - 1 worker per entity
     worker_args = []
-    large_entity_ids = set()
-    
-    # For large entities, split pages across 5 workers each
-    workers_per_large = 5
-    for entity in large_entities:
-        large_entity_ids.add(entity['id'])
-        ranges = divide_pages_into_ranges(entity['pages'], workers_per_large)
-        for worker_id, (start_page, end_page) in enumerate(ranges):
-            worker_args.append({
-                'entity_id': entity['id'],
-                'entity_name': entity['name'],
-                'regime': regime,
-                'start_page': start_page,
-                'end_page': end_page,
-                'worker_id': worker_id,
-                'headless': headless,
-                'timeout_minutes': timeout_minutes,
-                'is_large_entity': True
-            })
-    
-    # For small entities, 1 worker per entity
-    for entity in small_entities:
+    for entity in entities:
         worker_args.append({
             'entity_id': entity['id'],
             'entity_name': entity['name'],
@@ -332,36 +279,30 @@ def run_full_extraction(
             'end_page': entity['pages'],
             'worker_id': 0,
             'headless': headless,
-            'timeout_minutes': timeout_minutes,
-            'is_large_entity': False
+            'timeout_minutes': timeout_minutes
         })
     
     logger.info(f"\n{'='*80}")
-    logger.info(f"🚀 V5 HYBRID EXTRACTION - {regime.upper()}")
+    logger.info(f"🚀 V5 FULL MEMORY EXTRACTION - {regime.upper()}")
     logger.info(f"{'='*80}")
-    logger.info(f"Entities: {len(entities)} ({len(large_entities)} large, {len(small_entities)} small)")
+    logger.info(f"Entities: {len(entities)}")
     logger.info(f"Total pages: {total_pages:,}")
     logger.info(f"Expected records: {total_expected_records:,}")
-    logger.info(f"Workers: {len(worker_args)} tasks, {max_concurrent} concurrent")
-    if large_entities:
-        for e in large_entities:
-            logger.info(f"  📦 Large: {e['name']} ({e['pages']} pages) → {workers_per_large} workers")
+    logger.info(f"Workers: {len(worker_args)} (1 per entity), {max_concurrent} concurrent")
     logger.info(f"{'='*80}\n")
     
-    # Accumulators - separate for large entities
-    large_entity_records = {eid: [] for eid in large_entity_ids}
-    small_entity_records = []
+    # Accumulator for all records
+    all_records = []
     results = []
     
     # Process with limited concurrency
     ctx = mp.get_context('spawn')
-    worker_timeout = timeout_minutes * 60
     
     with ctx.Pool(processes=max_concurrent) as pool:
         # Submit all workers
         async_results = []
         for args in worker_args:
-            task_id = f"E{args['entity_id']}:W{args['worker_id']}"
+            task_id = f"E{args['entity_id']}"
             async_results.append((task_id, args, pool.apply_async(extract_page_range_worker, (args,))))
         
         # Collect results with polling (avoid deadlocks)
@@ -374,24 +315,13 @@ def run_full_extraction(
                     result = async_result.get(timeout=1.0)
                     results.append(result)
                     
-                    entity_id = result['entity_id']
-                    is_large = args.get('is_large_entity', False)
-                    
                     if result['success']:
-                        # Accumulate in appropriate list
-                        if is_large and entity_id in large_entity_records:
-                            large_entity_records[entity_id].extend(result['records'])
-                        else:
-                            small_entity_records.extend(result['records'])
-                        
+                        all_records.extend(result['records'])
                         logger.info(f"✅ {task_id} {result['entity_name']}: {result['records_count']} records")
                     else:
                         logger.error(f"❌ {task_id} {result['entity_name']}: {result['error']}")
                         # Still add partial records
-                        if is_large and entity_id in large_entity_records:
-                            large_entity_records[entity_id].extend(result['records'])
-                        else:
-                            small_entity_records.extend(result['records'])
+                        all_records.extend(result['records'])
                         
                 except mp.TimeoutError:
                     still_pending.append((task_id, args, async_result))
@@ -409,16 +339,9 @@ def run_full_extraction(
             pending = still_pending
             if pending:
                 # Log progress
-                total_in_memory = sum(len(r) for r in large_entity_records.values()) + len(small_entity_records)
                 done = len(worker_args) - len(pending)
-                logger.info(f"⏳ Progress: {done}/{len(worker_args)} workers complete, {total_in_memory:,} records in memory")
+                logger.info(f"⏳ Progress: {done}/{len(worker_args)} entities complete, {len(all_records):,} records in memory")
                 time.sleep(5)  # Check every 5 seconds
-    
-    # Combine all records for validation
-    all_records = []
-    for records in large_entity_records.values():
-        all_records.extend(records)
-    all_records.extend(small_entity_records)
     
     # === VALIDATION ===
     actual_records = len(all_records)
@@ -505,42 +428,15 @@ def run_full_extraction(
         except Exception as e:
             logger.warning(f"⚠️ Failed to generate Excel: {e}")
     
-    # === SAVE FILES ===
-    logger.info(f"\n📦 Saving files...")
+    # === SAVE FILE ===
+    logger.info(f"\n📦 Saving file...")
     
-    output_dir = Path(output_path).parent if output_path else Path("output")
-    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-    
-    # Save large entities separately (each gets its own file)
-    for entity in large_entities:
-        entity_id = entity['id']
-        entity_name = entity['name']
-        records = large_entity_records.get(entity_id, [])
-        
-        if records:
-            # Clean entity name for filename
-            safe_name = entity_name.upper().replace(' ', '_').replace('/', '_')[:30]
-            csv_path = str(output_dir / f"precatorios_{regime}_{safe_name}_{timestamp}.csv")
-            
-            df_entity = pd.DataFrame(records)
-            save_dataframe(df_entity, csv_path, entity_name[:31])
-            logger.info(f"📁 Large entity file: {entity_name} → {len(records):,} records")
-    
-    # Save small entities combined
-    if small_entity_records:
-        if large_entities:
-            # If there are large entities, save small ones as "demais"
-            csv_path = str(output_dir / f"precatorios_{regime}_demais_entidades_{timestamp}.csv")
-        else:
-            # If no large entities, use the original output path
-            csv_path = output_path if output_path else str(output_dir / f"precatorios_{regime}_{timestamp}.csv")
-        
-        df_small = pd.DataFrame(small_entity_records)
-        save_dataframe(df_small, csv_path, "Demais Entidades")
-        logger.info(f"📁 Small entities file: {len(small_entities)} entities → {len(small_entity_records):,} records")
-    
-    # Create combined DataFrame for return
+    # Create DataFrame
     df = pd.DataFrame(all_records) if all_records else pd.DataFrame()
+    
+    # Save to output path
+    if output_path and not df.empty:
+        save_dataframe(df, output_path, "Precatórios")
     
     elapsed = time.time() - start_time
     

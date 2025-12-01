@@ -201,23 +201,50 @@ def render_extraction_tab():
 def render_setup_view():
     """Render the simplified extraction setup view"""
     
-    # Regime selection
-    regime = st.radio(
+    # Regime selection with 3 options
+    regime_option = st.radio(
         "Regime",
-        options=["especial", "geral"],
-        format_func=lambda x: x.capitalize(),
+        options=["especial_rj", "especial_sem_rj", "geral"],
+        format_func=lambda x: {
+            "especial_rj": "Especial RJ",
+            "especial_sem_rj": "Especial sem RJ",
+            "geral": "Geral"
+        }.get(x, x),
         horizontal=True,
-        key="regime_selector"
+        key="regime_selector",
+        index=0  # Default: Especial RJ
     )
+    
+    # Show description
+    descriptions = {
+        "especial_rj": "📍 Somente **Estado do Rio de Janeiro** (regime especial)",
+        "especial_sem_rj": "📍 Todas entidades especiais **exceto** Estado do Rio de Janeiro",
+        "geral": "📍 Todas entidades do regime geral"
+    }
+    st.caption(descriptions.get(regime_option, ""))
     
     # Process button below
     if st.button("Processar", type="primary"):
-        start_all_entities_extraction(regime)
+        start_all_entities_extraction(regime_option)
 
 
-def start_all_entities_extraction(regime: str):
+def start_all_entities_extraction(regime_option: str):
     """Start extraction of all entities for a regime using V5 Full Memory Mode"""
     from loguru import logger
+    
+    # Determine actual regime and filter
+    if regime_option == "especial_rj":
+        regime = "especial"
+        entity_filter = lambda e: e['id'] == 1  # Only Estado do Rio de Janeiro
+        filter_desc = "Estado do Rio de Janeiro"
+    elif regime_option == "especial_sem_rj":
+        regime = "especial"
+        entity_filter = lambda e: e['id'] != 1  # All except Estado RJ
+        filter_desc = "Especial (sem Estado RJ)"
+    else:  # geral
+        regime = "geral"
+        entity_filter = lambda e: True  # All entities
+        filter_desc = "Geral"
     
     # Load entities
     with st.spinner("Carregando entidades do TJRJ..."):
@@ -231,12 +258,17 @@ def start_all_entities_extraction(regime: str):
         st.error("Nenhuma entidade encontrada.")
         return
     
+    # Apply entity filter based on regime option
+    entities = [e for e in entities if entity_filter(e)]
+    
     # Filter entities with pending > 0 (keep original order from site)
     entities = [e for e in entities if e['precatorios_pendentes'] > 0]
     
     if not entities:
         st.warning("Nenhuma entidade com precatórios pendentes encontrada.")
         return
+    
+    logger.info(f"Filter: {filter_desc} - {len(entities)} entities")
     
     # Calculate totals
     total_pendentes = sum(e['precatorios_pendentes'] for e in entities)
@@ -245,6 +277,7 @@ def start_all_entities_extraction(regime: str):
     # Store in session state
     st.session_state.entities_to_process = entities
     st.session_state.processing_regime = regime
+    st.session_state.processing_regime_option = regime_option  # Store original option
     st.session_state.total_stats = {
         "pendentes": total_pendentes,
         "paginas": total_paginas,
@@ -254,20 +287,20 @@ def start_all_entities_extraction(regime: str):
     st.session_state.show_success = False
     st.session_state.use_v5 = True  # Flag for V5 mode
     
-    # Create consolidated output file name for this regime
+    # Create consolidated output file name based on regime option
     timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-    output_file = f"output/precatorios_{regime}_{timestamp}.csv"
+    output_file = f"output/precatorios_{regime_option}_{timestamp}.csv"
     st.session_state.output_file = output_file
     st.session_state.extraction_start_time = datetime.now()
     
     # Start V5 Full Memory Extraction (ALL entities at once)
-    logger.info(f"Starting V5 Full Memory Extraction: {len(entities)} entities, {total_paginas} pages")
+    logger.info(f"Starting V5 Full Memory Extraction ({regime_option}): {len(entities)} entities, {total_paginas} pages")
     
     runner = FullMemoryExtractionRunner()
     runner.start_full_extraction(
         entities=entities,
         regime=regime,
-        max_concurrent=10,  # 10 concurrent workers (hybrid mode)
+        max_concurrent=10,  # 10 concurrent workers
         timeout_minutes=60,  # 60 min timeout per worker
         output_file=output_file
     )
@@ -371,11 +404,12 @@ def start_extraction(entity: Dict, regime: str, num_processes: int, pendentes: i
 
 
 def render_v5_progress_view():
-    """Render progress view for V5 Full Memory Mode with entity status"""
+    """Render progress view for V5 Full Memory Mode - clean UI like V4"""
     
     runner = st.session_state.v5_runner
     total_stats = st.session_state.total_stats
     regime = st.session_state.processing_regime
+    regime_option = st.session_state.get('processing_regime_option', regime)
     entities = st.session_state.get('entities_to_process', [])
     
     if not runner:
@@ -401,111 +435,69 @@ def render_v5_progress_view():
         st.rerun()
         return
     
-    # === HEADER ===
-    st.markdown("## 🚀 Extração V5 - Modo Híbrido")
-    
-    # === SUMMARY STATS ===
-    workers_done = entity_status.get('workers_done', 0) if isinstance(entity_status.get('workers_done'), int) else 0
-    workers_total = entity_status.get('workers_total', 0) if isinstance(entity_status.get('workers_total'), int) else len(entities)
+    # Get values
     records = progress.get('records', 0)
     expected = progress.get('expected_records', 1)
     elapsed = progress.get('elapsed_seconds', 0)
+    entities_done = progress.get('entities_done', 0)
     
-    # Calculate speed
+    # Calculate
+    percent = min(99, (records / expected * 100)) if expected > 0 else 0
     speed = records / elapsed if elapsed > 0 else 0
     
-    # Top metrics row
-    col1, col2, col3, col4 = st.columns(4)
-    with col1:
-        st.metric("📊 Regime", regime.upper())
-    with col2:
-        st.metric("📄 Entidades", f"{len(entities)}")
-    with col3:
-        st.metric("⚙️ Workers", f"{workers_done}/{workers_total}")
-    with col4:
-        st.metric("⏱️ Tempo", format_duration(elapsed))
+    # Regime display name
+    regime_display = {
+        "especial_rj": "Especial RJ",
+        "especial_sem_rj": "Especial sem RJ",
+        "geral": "Geral"
+    }.get(regime_option, regime.upper())
     
-    # Second row
-    col1, col2, col3, col4 = st.columns(4)
-    with col1:
-        st.metric("📝 Registros", f"{records:,}")
-    with col2:
-        st.metric("🎯 Esperado", f"~{expected:,}")
-    with col3:
-        pct = (records / expected * 100) if expected > 0 else 0
-        st.metric("📈 Progresso", f"{pct:.1f}%")
-    with col4:
-        st.metric("⚡ Velocidade", f"{speed:.1f}/s")
-    
-    # Progress bar
-    percent = min(1.0, records / expected) if expected > 0 else 0
-    st.progress(percent)
+    # === HEADER ===
+    st.caption(f"**{regime_display}** — {len(entities)} entidades, {total_stats.get('paginas', 0):,} páginas")
     
     # === TWO COLUMN LAYOUT ===
-    col_left, col_right = st.columns([1, 1])
+    col_status, col_entities = st.columns(2)
     
-    # === LEFT: ACTIVE WORKERS ===
-    with col_left:
-        st.markdown("### ⚙️ Workers Ativos")
+    with col_status:
+        # Progress bar
+        st.progress(percent / 100)
         
-        # Get active workers from entity_status
-        active_workers = []
-        for key, value in entity_status.items():
-            if isinstance(key, str) and key.startswith('worker_') and isinstance(value, dict):
-                if value.get('status') in ['starting', 'extracting']:
-                    active_workers.append(value)
+        # Stats line
+        st.caption(f"Registros: {records:,} / ~{expected:,} ({percent:.0f}%) — {speed:.1f} rec/s")
         
-        # Sort by entity_id, worker_id
-        active_workers.sort(key=lambda w: (w.get('entity_id', 0), w.get('worker_id', 0)))
+        # Time estimate
+        if elapsed > 10 and percent > 1:
+            remaining = (elapsed / percent) * (100 - percent)
+            if remaining > 60:
+                st.caption(f"⏱️ ~{remaining / 60:.0f} min restantes")
+            else:
+                st.caption(f"⏱️ ~{remaining:.0f} seg restantes")
         
-        if active_workers:
-            # Create a simple table
-            for w in active_workers[:10]:
-                entity_name = w.get('entity_name', '?')[:20]
-                wid = w.get('worker_id', 0)
-                current = w.get('current_page', 0)
-                end = w.get('end_page', 0)
-                start = w.get('start_page', 1)
-                
-                # Calculate progress
-                if end > start:
-                    wpct = int(100 * (current - start) / (end - start))
-                else:
-                    wpct = 0
-                
-                # Progress bar for each worker
-                st.caption(f"**W{wid}** {entity_name}")
-                st.progress(wpct / 100, text=f"Pág {current}/{end}")
-        else:
-            st.info("Iniciando workers...")
+        # Elapsed time
+        st.caption(f"Tempo decorrido: {format_duration(elapsed)}")
     
-    # === RIGHT: ENTITIES ===
-    with col_right:
-        st.markdown("### 📋 Entidades")
+    with col_entities:
+        # Entity list
+        st.caption("**Entidades:**")
         
         # Count by status
-        processing_entities = [e for e in entities if entity_status.get(e['id']) == 'processing']
-        with_records = [e for e in entities if isinstance(entity_status.get(f"{e['id']}_records"), int) and entity_status.get(f"{e['id']}_records", 0) > 0]
-        pending = [e for e in entities if entity_status.get(e['id']) not in ['processing', 'error'] and entity_status.get(f"{e['id']}_records", 0) == 0]
-        errors = [e for e in entities if entity_status.get(e['id']) == 'error']
+        processing = [e for e in entities if entity_status.get(e['id']) == 'processing']
+        done_entities = [e for e in entities if isinstance(entity_status.get(f"{e['id']}_records"), int) and entity_status.get(f"{e['id']}_records", 0) > 0]
+        pending_entities = [e for e in entities if entity_status.get(e['id']) not in ['processing', 'error'] and entity_status.get(f"{e['id']}_records", 0) == 0]
+        
+        # Show processing
+        for e in processing[:5]:
+            rec = entity_status.get(f"{e['id']}_records", 0)
+            if isinstance(rec, int) and rec > 0:
+                st.caption(f"🔄 {e['nome'][:30]} ({rec:,})")
+            else:
+                st.caption(f"🔄 {e['nome'][:30]}")
         
         # Summary
-        st.caption(f"🔄 Processando: {len(processing_entities)} | ✅ Com dados: {len(with_records)} | ⏸️ Aguardando: {len(pending)}")
-        
-        # Show entities with records
-        if with_records:
-            with st.expander(f"✅ Entidades com registros ({len(with_records)})", expanded=False):
-                for e in sorted(with_records, key=lambda x: entity_status.get(f"{x['id']}_records", 0), reverse=True):
-                    records_count = entity_status.get(f"{e['id']}_records", 0)
-                    if isinstance(records_count, int):
-                        st.caption(f"✓ {e['nome']}: {records_count:,}")
-        
-        # Show errors
-        if errors:
-            st.error(f"❌ Erros: {len(errors)} entidades")
+        st.caption(f"✅ {len(done_entities)} completas | ⏸️ {len(pending_entities)} aguardando")
     
     st.markdown("---")
-    st.info("💾 **Modo Full Memory**: Todos os dados são acumulados em memória. CSV + Excel serão gravados no final.")
+    st.info("💾 **Full Memory**: CSV + Excel gravados ao final")
     
     # Auto-refresh
     time.sleep(3)
