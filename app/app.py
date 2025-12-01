@@ -402,85 +402,107 @@ def render_v5_progress_view():
         return
     
     # === HEADER ===
-    st.markdown("## 🚀 Extração V5 - Full Memory Mode")
-    st.markdown(f"**Regime:** {regime.upper()} | **Modo Híbrido:** 10 workers simultâneos")
+    st.markdown("## 🚀 Extração V5 - Modo Híbrido")
     
-    # === PROGRESS METRICS ===
-    col1, col2, col3 = st.columns(3)
+    # === SUMMARY STATS ===
+    workers_done = entity_status.get('workers_done', 0) if isinstance(entity_status.get('workers_done'), int) else 0
+    workers_total = entity_status.get('workers_total', 0) if isinstance(entity_status.get('workers_total'), int) else len(entities)
+    records = progress.get('records', 0)
+    expected = progress.get('expected_records', 1)
+    elapsed = progress.get('elapsed_seconds', 0)
     
-    workers_done = entity_status.get('workers_done', 0)
-    workers_total = entity_status.get('workers_total', len(entities))
+    # Calculate speed
+    speed = records / elapsed if elapsed > 0 else 0
     
+    # Top metrics row
+    col1, col2, col3, col4 = st.columns(4)
     with col1:
-        st.metric("⚙️ Workers", f"{workers_done} / {workers_total}")
-    
+        st.metric("📊 Regime", regime.upper())
     with col2:
-        st.metric("📝 Registros em Memória", f"{progress.get('records', 0):,}")
-    
+        st.metric("📄 Entidades", f"{len(entities)}")
     with col3:
-        elapsed = progress.get('elapsed_seconds', 0)
+        st.metric("⚙️ Workers", f"{workers_done}/{workers_total}")
+    with col4:
         st.metric("⏱️ Tempo", format_duration(elapsed))
     
+    # Second row
+    col1, col2, col3, col4 = st.columns(4)
+    with col1:
+        st.metric("📝 Registros", f"{records:,}")
+    with col2:
+        st.metric("🎯 Esperado", f"~{expected:,}")
+    with col3:
+        pct = (records / expected * 100) if expected > 0 else 0
+        st.metric("📈 Progresso", f"{pct:.1f}%")
+    with col4:
+        st.metric("⚡ Velocidade", f"{speed:.1f}/s")
+    
     # Progress bar
-    percent = progress.get('percent', 0) / 100
-    st.progress(percent, text=f"Progresso: {percent*100:.1f}%")
+    percent = min(1.0, records / expected) if expected > 0 else 0
+    st.progress(percent)
     
-    # === ACTIVE WORKERS ===
-    st.markdown("---")
-    st.markdown("### ⚙️ Workers Ativos")
+    # === TWO COLUMN LAYOUT ===
+    col_left, col_right = st.columns([1, 1])
     
-    # Get active workers from entity_status
-    active_workers = []
-    for key, value in entity_status.items():
-        if key.startswith('worker_') and isinstance(value, dict):
-            if value.get('status') in ['starting', 'extracting']:
-                active_workers.append(value)
+    # === LEFT: ACTIVE WORKERS ===
+    with col_left:
+        st.markdown("### ⚙️ Workers Ativos")
+        
+        # Get active workers from entity_status
+        active_workers = []
+        for key, value in entity_status.items():
+            if isinstance(key, str) and key.startswith('worker_') and isinstance(value, dict):
+                if value.get('status') in ['starting', 'extracting']:
+                    active_workers.append(value)
+        
+        # Sort by entity_id, worker_id
+        active_workers.sort(key=lambda w: (w.get('entity_id', 0), w.get('worker_id', 0)))
+        
+        if active_workers:
+            # Create a simple table
+            for w in active_workers[:10]:
+                entity_name = w.get('entity_name', '?')[:20]
+                wid = w.get('worker_id', 0)
+                current = w.get('current_page', 0)
+                end = w.get('end_page', 0)
+                start = w.get('start_page', 1)
+                
+                # Calculate progress
+                if end > start:
+                    wpct = int(100 * (current - start) / (end - start))
+                else:
+                    wpct = 0
+                
+                # Progress bar for each worker
+                st.caption(f"**W{wid}** {entity_name}")
+                st.progress(wpct / 100, text=f"Pág {current}/{end}")
+        else:
+            st.info("Iniciando workers...")
     
-    # Sort by entity_id, worker_id
-    active_workers.sort(key=lambda w: (w.get('entity_id', 0), w.get('worker_id', 0)))
-    
-    if active_workers:
-        for w in active_workers[:10]:  # Show max 10
-            entity_name = w.get('entity_name', '?')[:25]
-            wid = w.get('worker_id', 0)
-            current = w.get('current_page', 0)
-            end = w.get('end_page', 0)
-            start = w.get('start_page', 1)
-            
-            # Calculate progress
-            if end > start:
-                pct = int(100 * (current - start) / (end - start))
-            else:
-                pct = 0
-            
-            status_icon = "🔄" if w.get('status') == 'extracting' else "⏳"
-            st.caption(f"{status_icon} W{wid}: {entity_name} - pág {current}/{end} ({pct}%)")
-    else:
-        st.caption("Aguardando workers...")
-    
-    # === ENTITY SUMMARY ===
-    st.markdown("---")
-    st.markdown("### 📋 Entidades")
-    
-    # Count by status
-    with_records = [e for e in entities if entity_status.get(f"{e['id']}_records", 0) > 0]
-    pending = [e for e in entities if entity_status.get(e['id']) not in ['processing', 'error'] and entity_status.get(f"{e['id']}_records", 0) == 0]
-    errors = [e for e in entities if entity_status.get(e['id']) == 'error']
-    
-    # Show entities with records
-    if with_records:
-        with st.expander(f"✅ Com registros ({len(with_records)})", expanded=False):
-            for e in with_records:
-                records = entity_status.get(f"{e['id']}_records", 0)
-                st.caption(f"✓ {e['nome']} - {records:,} registros")
-    
-    # Show pending count
-    if pending:
-        st.caption(f"⏸️ Aguardando: {len(pending)} entidades")
-    
-    # Show errors
-    if errors:
-        st.error(f"❌ Erros: {len(errors)} entidades")
+    # === RIGHT: ENTITIES ===
+    with col_right:
+        st.markdown("### 📋 Entidades")
+        
+        # Count by status
+        processing_entities = [e for e in entities if entity_status.get(e['id']) == 'processing']
+        with_records = [e for e in entities if isinstance(entity_status.get(f"{e['id']}_records"), int) and entity_status.get(f"{e['id']}_records", 0) > 0]
+        pending = [e for e in entities if entity_status.get(e['id']) not in ['processing', 'error'] and entity_status.get(f"{e['id']}_records", 0) == 0]
+        errors = [e for e in entities if entity_status.get(e['id']) == 'error']
+        
+        # Summary
+        st.caption(f"🔄 Processando: {len(processing_entities)} | ✅ Com dados: {len(with_records)} | ⏸️ Aguardando: {len(pending)}")
+        
+        # Show entities with records
+        if with_records:
+            with st.expander(f"✅ Entidades com registros ({len(with_records)})", expanded=False):
+                for e in sorted(with_records, key=lambda x: entity_status.get(f"{x['id']}_records", 0), reverse=True):
+                    records_count = entity_status.get(f"{e['id']}_records", 0)
+                    if isinstance(records_count, int):
+                        st.caption(f"✓ {e['nome']}: {records_count:,}")
+        
+        # Show errors
+        if errors:
+            st.error(f"❌ Erros: {len(errors)} entidades")
     
     st.markdown("---")
     st.info("💾 **Modo Full Memory**: Todos os dados são acumulados em memória. CSV + Excel serão gravados no final.")
