@@ -231,10 +231,10 @@ class ExtractionRunner:
         
         logger.info(f"Dynamic timeout: {timeout_minutes} min for {pages_per_worker} pages/worker")
         
-        # Build command - Use V4 fast extraction
+        # Build command - Use V4 Memory extraction (no intermediate I/O)
         cmd = [
             sys.executable,  # Use same Python interpreter
-            "main_v4_fast.py",
+            "main_v4_memory.py",
             "--entity-id", str(entity_id),
             "--entity-name", entity_name,
             "--regime", regime,
