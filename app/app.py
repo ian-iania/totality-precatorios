@@ -456,14 +456,14 @@ def render_progress_view():
             else:
                 st.caption(f"Registros: {format_number(records_extracted)} / {format_number(expected_records)} ({current_progress * 100:.0f}%)")
             
-            # Estimated time remaining
+            # Estimated time remaining for current entity
             if elapsed_seconds > 10 and current_progress > 0.01:
                 remaining_progress = 1.0 - current_progress
                 estimated_remaining = (elapsed_seconds / current_progress) * remaining_progress
                 if estimated_remaining > 60:
-                    st.caption(f"⏱️ Tempo restante estimado: {estimated_remaining / 60:.0f} min")
+                    st.caption(f"⏱️ Entidade atual: ~{estimated_remaining / 60:.0f} min restantes")
                 elif estimated_remaining > 0:
-                    st.caption(f"⏱️ Tempo restante estimado: {estimated_remaining:.0f} seg")
+                    st.caption(f"⏱️ Entidade atual: ~{estimated_remaining:.0f} seg restantes")
             
             # Status messages for high progress (finalization phase)
             if current_progress >= 0.98:
@@ -521,8 +521,25 @@ def render_progress_view():
     overall_progress = total_pages_done / total_pages_all if total_pages_all > 0 else 0
     overall_progress = min(0.99, overall_progress)  # Cap at 99%
     
-    # Display overall progress
-    st.caption(f"Progresso geral: {overall_progress * 100:.1f}% ({total_pages_done}/{total_pages_all} páginas)")
+    # Calculate total elapsed time (from session start)
+    total_elapsed = st.session_state.get('extraction_start_time')
+    if total_elapsed:
+        total_elapsed_seconds = (datetime.now() - total_elapsed).total_seconds()
+    else:
+        total_elapsed_seconds = progress.get('elapsed_seconds', 0)
+    
+    # Estimate total remaining time based on overall progress
+    if overall_progress > 0.01 and total_elapsed_seconds > 30:
+        total_estimated_remaining = (total_elapsed_seconds / overall_progress) * (1.0 - overall_progress)
+        if total_estimated_remaining > 3600:
+            time_str = f"~{total_estimated_remaining / 3600:.1f}h restantes"
+        elif total_estimated_remaining > 60:
+            time_str = f"~{total_estimated_remaining / 60:.0f} min restantes"
+        else:
+            time_str = f"~{total_estimated_remaining:.0f} seg restantes"
+        st.caption(f"Progresso geral: {overall_progress * 100:.1f}% ({total_pages_done}/{total_pages_all} páginas) — {time_str}")
+    else:
+        st.caption(f"Progresso geral: {overall_progress * 100:.1f}% ({total_pages_done}/{total_pages_all} páginas)")
     
     st.markdown("---")
     
