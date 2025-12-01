@@ -261,7 +261,15 @@ def extract_worker(args: Dict) -> Dict:
                                 except:
                                     pass
                                 
+                                # Try multiple selectors for "Próxima" button
                                 next_btn = page.query_selector('a[ng-click="vm.ProximaPagina()"]')
+                                if not next_btn:
+                                    # Fallback: find by text content
+                                    next_btn = page.query_selector('a:has-text("Próxima")')
+                                if not next_btn:
+                                    # Fallback: find by partial text
+                                    next_btn = page.query_selector('text=Próxima')
+                                
                                 if next_btn:
                                     # Scroll to button first (may be below viewport)
                                     try:
@@ -296,7 +304,13 @@ def extract_worker(args: Dict) -> Dict:
                     else:
                         # Fast navigation for most pages - also with scroll
                         try:
+                            # Try multiple selectors
                             next_btn = page.query_selector('a[ng-click="vm.ProximaPagina()"]')
+                            if not next_btn:
+                                next_btn = page.query_selector('a:has-text("Próxima")')
+                            if not next_btn:
+                                next_btn = page.query_selector('text=Próxima')
+                            
                             if next_btn:
                                 try:
                                     next_btn.scroll_into_view_if_needed()
