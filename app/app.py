@@ -439,12 +439,20 @@ def render_progress_view():
                 for proc_id, w in sorted(workers.items(), key=lambda x: int(x[0])):
                     pages_done = w.get('pages_done', 0)
                     pages_total = w.get('pages_total', 0)
+                    real_current = w.get('real_current', 0)
+                    real_end = w.get('real_end', 0)
                     worker_progress = w.get('progress', 0) * 100
                     records = w.get('records', 0)
                     
+                    # Show real page if available, otherwise relative
+                    if real_current > 0:
+                        page_display = f"{real_current}/{real_end}"
+                    else:
+                        page_display = f"{pages_done}/{pages_total}"
+                    
                     table_data.append({
                         "Worker": f"P{proc_id}",
-                        "Página": f"{pages_done}/{pages_total}",
+                        "Página": page_display,
                         "Progresso": f"{worker_progress:.0f}%",
                         "Records": format_number(records)
                     })

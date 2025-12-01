@@ -246,96 +246,17 @@ def extract_worker(args: Dict) -> Dict:
                         take_debug_screenshot(page, process_id, f"consecutive_fail_page{current_page}")
                         break
                 
-                # Next page navigation
+                # Next page navigation - ALWAYS use direct page input (more reliable than clicking "Próxima")
                 if current_page < end_page:
-                    pages_remaining = end_page - current_page
+                    next_page = current_page + 1
                     
-                    # More aggressive handling for final pages (last 10)
-                    if pages_remaining <= 10:
-                        nav_success = False
-                        for retry in range(3):
-                            try:
-                                # Wait for any loading overlay to disappear
-                                try:
-                                    page.wait_for_selector('.block-ui-overlay', state='hidden', timeout=2000)
-                                except:
-                                    pass
-                                
-                                # Try multiple selectors for "Próxima" button
-                                next_btn = page.query_selector('a[ng-click="vm.ProximaPagina()"]')
-                                if not next_btn:
-                                    next_btn = page.query_selector('a:has-text("Próxima")')
-                                if not next_btn:
-                                    next_btn = page.query_selector('text=Próxima')
-                                
-                                if next_btn:
-                                    # Scroll to button first (may be below viewport)
-                                    try:
-                                        next_btn.scroll_into_view_if_needed()
-                                        page.wait_for_timeout(300)
-                                    except:
-                                        pass
-                                    
-                                    # Try to click
-                                    try:
-                                        next_btn.click()
-                                        page.wait_for_timeout(2000)
-                                        nav_success = True
-                                        break
-                                    except Exception as click_err:
-                                        logger.warning(f"[P{process_id}] ⚠️ Click failed (retry {retry+1}): {click_err}")
-                                        page.wait_for_timeout(1000)
-                                else:
-                                    # FALLBACK: Use "Ir para página" input box
-                                    if retry == 2:
-                                        try:
-                                            next_page = current_page + 1
-                                            logger.info(f"[P{process_id}] 🔄 Using page input fallback to go to page {next_page}")
-                                            page_input = page.query_selector('input[ng-model="vm.PaginaAtual"]')
-                                            if page_input:
-                                                page_input.scroll_into_view_if_needed()
-                                                page_input.click()
-                                                page_input.fill('')
-                                                page_input.type(str(next_page))
-                                                page_input.press('Enter')
-                                                page.wait_for_timeout(2000)
-                                                nav_success = True
-                                                break
-                                            else:
-                                                take_debug_screenshot(page, process_id, f"no_next_btn_page{current_page}")
-                                        except Exception as input_err:
-                                            logger.warning(f"[P{process_id}] ⚠️ Page input fallback failed: {input_err}")
-                                            take_debug_screenshot(page, process_id, f"no_next_btn_page{current_page}")
-                                    page.wait_for_timeout(1000)
-                            except Exception as nav_err:
-                                logger.warning(f"[P{process_id}] ⚠️ Navigation error (retry {retry+1}): {nav_err}")
-                                page.wait_for_timeout(1000)
-                        
-                        if not nav_success:
-                            logger.warning(f"[P{process_id}] ⚠️ Failed to navigate after 3 retries on page {current_page}")
-                            # STOP - don't continue with wrong page data
-                            logger.warning(f"[P{process_id}] 🛑 Stopping worker to avoid duplicate data")
-                            break
-                    else:
-                        # Fast navigation for most pages - also with scroll
-                        try:
-                            # Try multiple selectors
-                            next_btn = page.query_selector('a[ng-click="vm.ProximaPagina()"]')
-                            if not next_btn:
-                                next_btn = page.query_selector('a:has-text("Próxima")')
-                            if not next_btn:
-                                next_btn = page.query_selector('text=Próxima')
-                            
-                            if next_btn:
-                                try:
-                                    next_btn.scroll_into_view_if_needed()
-                                    page.wait_for_timeout(200)
-                                except:
-                                    pass
-                                next_btn.click()
-                                page.wait_for_timeout(2000)
-                        except Exception as nav_err:
-                            logger.warning(f"[P{process_id}] ⚠️ Navigation error: {nav_err}")
+                    # Use goto_page_direct for ALL navigation (same method used to jump to start_page)
+                    if not scraper.goto_page_direct(page, next_page):
+                        logger.warning(f"[P{process_id}] ⚠️ Failed to navigate to page {next_page}")
+                        take_debug_screenshot(page, process_id, f"nav_fail_page{next_page}")
+                        # STOP - don't continue with wrong page data
+                        logger.warning(f"[P{process_id}] 🛑 Stopping worker to avoid duplicate data")
+                        break
                 
                 current_page += 1
             

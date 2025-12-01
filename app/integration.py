@@ -629,16 +629,21 @@ class AllEntitiesRunner:
                         current_entity = entity_match.group(3).strip()
                     
                     # Match worker page progress: [P1] Page 42/63 (42/63)
-                    page_match = re.search(r'\[P(\d+)\] Page \d+/\d+ \((\d+)/(\d+)\)', line)
+                    # Captures: real_current/real_end (relative_done/relative_total)
+                    page_match = re.search(r'\[P(\d+)\] Page (\d+)/(\d+) \((\d+)/(\d+)\)', line)
                     if page_match:
                         proc_id = page_match.group(1)
-                        pages_done = int(page_match.group(2))
-                        pages_total = int(page_match.group(3))
+                        real_current = int(page_match.group(2))
+                        real_end = int(page_match.group(3))
+                        pages_done = int(page_match.group(4))
+                        pages_total = int(page_match.group(5))
                         if proc_id not in workers_data:
                             workers_data[proc_id] = {'records': 0}
                         workers_data[proc_id].update({
                             'pages_done': pages_done,
                             'pages_total': pages_total,
+                            'real_current': real_current,
+                            'real_end': real_end,
                             'progress': pages_done / pages_total if pages_total > 0 else 0
                         })
                     
