@@ -4,16 +4,17 @@
 
 ## 🎯 Features
 
-- ✅ **V4 Fast Extraction**: Optimized parallel processing with timeout protection
-- ✅ **Streamlit UI**: User-friendly web interface for extraction management
-- ✅ **Parallel Processing**: 4 concurrent workers for ~4x faster extraction
-- ✅ **Memory-First Storage**: Data consolidated in memory, no intermediate files
+- ✅ **V4 Memory Mode**: Full in-memory extraction with no intermediate I/O
+- ✅ **12 Parallel Workers**: Configurable concurrent workers for maximum speed
+- ✅ **Streamlit UI**: User-friendly web interface with real-time progress
+- ✅ **Excel Export**: Auto-filter, styled headers, freeze panes
+- ✅ **Data Formatting**: Numeric ordem, formatted monetary values
 - ✅ **Comprehensive Coverage**: Both regime geral and especial
-- ✅ **Automatic Pagination**: Handles multi-page results automatically
+- ✅ **Automatic Pagination**: Direct page navigation for any page
 - ✅ **Robust Error Handling**: Per-worker timeouts and graceful degradation
 - ✅ **Data Validation**: Pydantic models ensure data integrity
 - ✅ **CSV Export**: Excel-compatible format with Brazilian standards
-- ✅ **Real-time Progress**: Entity tracking with ETA calculation
+- ✅ **Real-time Progress**: Workers table with page/records tracking
 
 ## 📊 Extracted Data
 
@@ -79,35 +80,44 @@ streamlit run app/app.py
 The Streamlit UI provides:
 - Regime selection (Especial/Geral)
 - One-click extraction of all entities
-- Real-time progress tracking with entity status
+- Real-time progress tracking with workers table
+- 12 parallel workers with page/records status
+- Overall progress in bold red
 - ETA calculation and completion time
+- CSV + Excel output with formatting
 - Success animation and download management
 
-### Option 2: Command Line (V4 Fast Extraction)
+### Option 2: Command Line (V4 Memory Mode)
 
 ```bash
-# Extract single entity with parallel processing
-python main_v4_fast.py \
+# Extract single entity with 12 parallel workers (full memory mode)
+python main_v4_memory.py \
   --entity-id 1 \
   --entity-name "Estado do Rio de Janeiro" \
   --regime especial \
   --total-pages 2984 \
-  --num-processes 4 \
-  --timeout 20
+  --num-processes 12 \
+  --timeout 30
 
 # Extract with visible browser for debugging
-python main_v4_fast.py \
+python main_v4_memory.py \
   --entity-id 1 \
   --entity-name "Estado do Rio de Janeiro" \
   --regime especial \
   --total-pages 100 \
-  --num-processes 2 \
+  --num-processes 4 \
   --no-headless
 ```
 
-### Option 3: Legacy V3 (Deprecated)
+### Option 3: Legacy Scripts
 
 ```bash
+# V4 Fast (with intermediate files - deprecated)
+python main_v4_fast.py \
+  --entity-id 1 \
+  --total-pages 2984 \
+  --num-processes 8
+
 # V3 parallel extraction (may hang on large extractions)
 python main_v3_parallel.py \
   --entity-id 1 \
@@ -118,24 +128,27 @@ python main_v3_parallel.py \
 
 ## ⚡ Performance
 
-### V4 Fast Extraction Benchmarks
+### V4 Memory Mode Benchmarks
 
 | Metric | Value |
 |--------|-------|
+| Workers | 12 parallel (configurable) |
 | Speed per page | ~2 seconds |
-| Effective speed (4 workers) | ~0.5 seconds/page |
-| Estado do RJ (2,984 pages) | ~25 minutes |
-| Timeout protection | 20 min per worker |
+| Effective speed (12 workers) | ~0.17 seconds/page |
+| Estado do RJ (2,984 pages) | ~10-15 minutes |
+| Timeout protection | 30 min per worker |
+| Storage | Full in-memory (no I/O) |
 
-### V4 vs V3 Comparison
+### Version Comparison
 
-| Aspect | V3 | V4 |
-|--------|----|----|
-| Pool method | `pool.map()` (blocking) | `pool.imap_unordered()` (non-blocking) |
-| Timeout | None | 20 min per worker |
-| Storage | Intermediate CSV files | Memory consolidation |
-| Error handling | All-or-nothing | Per-worker graceful |
-| Hang risk | High | Low |
+| Aspect | V3 | V4 Fast | V4 Memory |
+|--------|----|---------|-----------|
+| Workers | 4 | 8 | 12 |
+| Pool method | `pool.map()` | `apply_async()` | `apply_async()` |
+| Intermediate I/O | Yes | Yes | **No** |
+| Data formatting | No | No | **Yes** |
+| Excel output | No | No | **Yes** |
+| Hang risk | High | Low | Low |
 
 ## 📖 Advanced Usage
 
@@ -208,7 +221,8 @@ Charles/
 │   └── utils.py            # Helper functions
 ├── output/                 # CSV output files
 ├── logs/                   # Application logs
-├── main_v4_fast.py         # V4 Fast Extraction (recommended)
+├── main_v4_memory.py       # V4 Memory Mode (recommended)
+├── main_v4_fast.py         # V4 Fast (with intermediate files)
 ├── main_v3_parallel.py     # V3 Parallel (deprecated)
 ├── requirements.txt        # Python dependencies
 └── README.md
@@ -315,6 +329,6 @@ For issues or questions:
 
 ---
 
-**Version**: 4.0.0
-**Last Updated**: 2025-11-30
-**Status**: Production Ready - V4 Fast Extraction with Streamlit UI
+**Version**: 4.1.0
+**Last Updated**: 2025-12-01
+**Status**: Production Ready - V4 Memory Mode with 12 Workers
