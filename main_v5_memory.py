@@ -1,15 +1,20 @@
 """
-TJRJ Precatórios Scraper V5 - Full Memory Mode
+TJRJ Precatórios Scraper V5 - Full Memory Mode (Hybrid)
 
 Key improvements:
-- ALL data accumulated in a single list in memory
-- NO intermediate I/O - only one CSV write at the very end
+- ALL data accumulated in memory - NO intermediate I/O
+- HYBRID MODE: Large entities (>=50 pages) split across multiple workers
+- Separate output files: large entity gets its own file, others combined
 - Validation: expected records vs actual records
 - Sorted by (entidade_devedora, ordem) at the end
+- Excel output with auto-filter
 
 Usage:
     python main_v5_memory.py --entities-json '[{"id":1,"name":"...","pages":10},...]' --regime geral
 """
+
+# Threshold for splitting entity across workers
+LARGE_ENTITY_THRESHOLD = 50  # pages
 
 import sys
 import time
@@ -62,17 +67,21 @@ def setup_logging(level: str = "INFO"):
     )
 
 
-def extract_entity_worker(args: Dict) -> Dict:
+def extract_page_range_worker(args: Dict) -> Dict:
     """
-    Worker function to extract ALL pages of a single entity.
+    Worker function to extract a RANGE of pages from an entity.
+    Used for both full entity extraction and partial (hybrid mode).
     Returns all records in memory.
     """
     entity_id = args['entity_id']
     entity_name = args['entity_name']
     regime = args['regime']
-    total_pages = args['total_pages']
+    start_page = args.get('start_page', 1)
+    end_page = args.get('end_page', args.get('total_pages', 1))
+    worker_id = args.get('worker_id', 0)
     headless = args.get('headless', True)
     timeout_minutes = args.get('timeout_minutes', 30)
+    total_pages = end_page - start_page + 1
     
     start_time = time.time()
     timeout_seconds = timeout_minutes * 60
@@ -92,7 +101,7 @@ def extract_entity_worker(args: Dict) -> Dict:
         # Create simple entity object compatible with scraper
         entidade = SimpleEntity(id=entity_id, name=entity_name, regime=regime)
         
-        logger.info(f"[E{entity_id}] 🌐 Starting {entity_name} ({total_pages} pages)")
+        logger.info(f"[E{entity_id}:W{worker_id}] 🌐 Starting {entity_name} pages {start_page}-{end_page} ({total_pages} pages)")
         
         with sync_playwright() as p:
             browser = p.chromium.launch(headless=headless)
@@ -115,11 +124,37 @@ def extract_entity_worker(args: Dict) -> Dict:
                 pass
             page.wait_for_timeout(2000)
             
-            logger.info(f"[E{entity_id}] ✅ Page loaded")
+            logger.info(f"[E{entity_id}:W{worker_id}] ✅ Page loaded")
             
-            # Extract all pages
-            current_page = 1
-            while current_page <= total_pages:
+            # Navigate to start page if not page 1
+            if start_page > 1:
+                logger.info(f"[E{entity_id}:W{worker_id}] ⏩ Navigating to page {start_page}...")
+                for nav_page in range(1, start_page):
+                    next_selectors = [
+                        'a[ng-click="vm.ProximaPagina()"]',
+                        'text=Próxima',
+                        'a:has-text("Próxima")',
+                    ]
+                    try:
+                        page.wait_for_selector('.block-ui-overlay', state='hidden', timeout=3000)
+                    except:
+                        pass
+                    for selector in next_selectors:
+                        try:
+                            btn = page.query_selector(selector)
+                            if btn and btn.is_visible():
+                                btn.click()
+                                page.wait_for_timeout(800)
+                                break
+                        except:
+                            continue
+                    if nav_page % 50 == 0:
+                        logger.info(f"[E{entity_id}:W{worker_id}] ⏩ Navigation progress: {nav_page}/{start_page-1}")
+                logger.info(f"[E{entity_id}:W{worker_id}] ✅ Reached page {start_page}")
+            
+            # Extract page range
+            current_page = start_page
+            while current_page <= end_page:
                 # Check timeout
                 if time.time() - start_time > timeout_seconds:
                     logger.warning(f"[E{entity_id}] ⏰ Timeout after {timeout_minutes}min")
@@ -131,11 +166,11 @@ def extract_entity_worker(args: Dict) -> Dict:
                 for prec in precatorios:
                     all_records.append(prec.model_dump())
                 
-                if current_page % 10 == 0 or current_page == total_pages:
-                    logger.info(f"[E{entity_id}] Page {current_page}/{total_pages} - {len(all_records)} records")
+                if current_page % 10 == 0 or current_page == end_page:
+                    logger.info(f"[E{entity_id}:W{worker_id}] Page {current_page}/{end_page} - {len(all_records)} records")
                 
                 # Navigate to next page if not last
-                if current_page < total_pages:
+                if current_page < end_page:
                     next_selectors = [
                         'a[ng-click="vm.ProximaPagina()"]',
                         'text=Próxima',
@@ -161,7 +196,7 @@ def extract_entity_worker(args: Dict) -> Dict:
                             continue
                     
                     if not clicked:
-                        logger.warning(f"[E{entity_id}] ⚠️ Next button not found on page {current_page}")
+                        logger.warning(f"[E{entity_id}:W{worker_id}] ⚠️ Next button not found on page {current_page}")
                         break
                 
                 current_page += 1
@@ -174,11 +209,14 @@ def extract_entity_worker(args: Dict) -> Dict:
                 pass
         
         elapsed = time.time() - start_time
-        logger.info(f"[E{entity_id}] ✅ Complete: {len(all_records)} records in {elapsed/60:.1f}min")
+        logger.info(f"[E{entity_id}:W{worker_id}] ✅ Complete: {len(all_records)} records in {elapsed/60:.1f}min")
         
         return {
             'entity_id': entity_id,
             'entity_name': entity_name,
+            'worker_id': worker_id,
+            'start_page': start_page,
+            'end_page': end_page,
             'records': all_records,
             'records_count': len(all_records),
             'expected_records': total_pages * 10,
@@ -189,10 +227,13 @@ def extract_entity_worker(args: Dict) -> Dict:
         
     except Exception as e:
         elapsed = time.time() - start_time
-        logger.error(f"[E{entity_id}] ❌ Failed: {e}")
+        logger.error(f"[E{entity_id}:W{worker_id}] ❌ Failed: {e}")
         return {
             'entity_id': entity_id,
             'entity_name': entity_name,
+            'worker_id': worker_id,
+            'start_page': start_page,
+            'end_page': end_page,
             'records': all_records,
             'records_count': len(all_records),
             'expected_records': total_pages * 10,
@@ -200,6 +241,30 @@ def extract_entity_worker(args: Dict) -> Dict:
             'success': False,
             'error': str(e)
         }
+
+
+def divide_pages_into_ranges(total_pages: int, num_workers: int) -> List[Tuple[int, int]]:
+    """Divide pages into ranges for parallel processing"""
+    if total_pages <= 0:
+        return []
+    
+    pages_per_worker = max(1, total_pages // num_workers)
+    remainder = total_pages % num_workers
+    
+    ranges = []
+    start = 1
+    
+    for i in range(min(num_workers, total_pages)):
+        extra = 1 if i < remainder else 0
+        end = start + pages_per_worker - 1 + extra
+        if end > total_pages:
+            end = total_pages
+        ranges.append((start, end))
+        start = end + 1
+        if start > total_pages:
+            break
+    
+    return ranges
 
 
 def run_full_extraction(
@@ -212,13 +277,14 @@ def run_full_extraction(
 ) -> Tuple[pd.DataFrame, Dict]:
     """
     Extract ALL entities, accumulate in memory, write CSV once at the end.
+    HYBRID MODE: Large entities are split across multiple workers.
     
     Args:
         entities: List of {"id": int, "name": str, "pages": int}
         regime: 'geral' or 'especial'
-        max_concurrent: Max concurrent entity extractions
+        max_concurrent: Max concurrent workers (default 10)
         headless: Run browsers headless
-        timeout_minutes: Timeout per entity
+        timeout_minutes: Timeout per worker
         output_path: Final CSV path
     
     Returns:
@@ -230,66 +296,110 @@ def run_full_extraction(
     total_expected_records = sum(e['pages'] * 10 for e in entities)
     total_pages = sum(e['pages'] for e in entities)
     
-    logger.info(f"\n{'='*80}")
-    logger.info(f"🚀 V5 FULL MEMORY EXTRACTION - {regime.upper()}")
-    logger.info(f"{'='*80}")
-    logger.info(f"Entities: {len(entities)}")
-    logger.info(f"Total pages: {total_pages:,}")
-    logger.info(f"Expected records: {total_expected_records:,}")
-    logger.info(f"Concurrent workers: {max_concurrent}")
-    logger.info(f"{'='*80}\n")
+    # Separate large and small entities
+    large_entities = [e for e in entities if e['pages'] >= LARGE_ENTITY_THRESHOLD]
+    small_entities = [e for e in entities if e['pages'] < LARGE_ENTITY_THRESHOLD]
     
-    # Prepare worker args
+    # Prepare worker args - HYBRID MODE
     worker_args = []
-    for entity in entities:
+    large_entity_ids = set()
+    
+    # For large entities, split pages across 5 workers each
+    workers_per_large = 5
+    for entity in large_entities:
+        large_entity_ids.add(entity['id'])
+        ranges = divide_pages_into_ranges(entity['pages'], workers_per_large)
+        for worker_id, (start_page, end_page) in enumerate(ranges):
+            worker_args.append({
+                'entity_id': entity['id'],
+                'entity_name': entity['name'],
+                'regime': regime,
+                'start_page': start_page,
+                'end_page': end_page,
+                'worker_id': worker_id,
+                'headless': headless,
+                'timeout_minutes': timeout_minutes,
+                'is_large_entity': True
+            })
+    
+    # For small entities, 1 worker per entity
+    for entity in small_entities:
         worker_args.append({
             'entity_id': entity['id'],
             'entity_name': entity['name'],
             'regime': regime,
-            'total_pages': entity['pages'],
+            'start_page': 1,
+            'end_page': entity['pages'],
+            'worker_id': 0,
             'headless': headless,
-            'timeout_minutes': timeout_minutes
+            'timeout_minutes': timeout_minutes,
+            'is_large_entity': False
         })
     
-    # Global accumulator - simple list
-    all_records = []
+    logger.info(f"\n{'='*80}")
+    logger.info(f"🚀 V5 HYBRID EXTRACTION - {regime.upper()}")
+    logger.info(f"{'='*80}")
+    logger.info(f"Entities: {len(entities)} ({len(large_entities)} large, {len(small_entities)} small)")
+    logger.info(f"Total pages: {total_pages:,}")
+    logger.info(f"Expected records: {total_expected_records:,}")
+    logger.info(f"Workers: {len(worker_args)} tasks, {max_concurrent} concurrent")
+    if large_entities:
+        for e in large_entities:
+            logger.info(f"  📦 Large: {e['name']} ({e['pages']} pages) → {workers_per_large} workers")
+    logger.info(f"{'='*80}\n")
+    
+    # Accumulators - separate for large entities
+    large_entity_records = {eid: [] for eid in large_entity_ids}
+    small_entity_records = []
     results = []
     
-    # Process entities with limited concurrency
+    # Process with limited concurrency
     ctx = mp.get_context('spawn')
     worker_timeout = timeout_minutes * 60
     
     with ctx.Pool(processes=max_concurrent) as pool:
-        # Submit all entities
+        # Submit all workers
         async_results = []
         for args in worker_args:
-            async_results.append((args['entity_id'], args['entity_name'], pool.apply_async(extract_entity_worker, (args,))))
+            task_id = f"E{args['entity_id']}:W{args['worker_id']}"
+            async_results.append((task_id, args, pool.apply_async(extract_page_range_worker, (args,))))
         
         # Collect results with polling (avoid deadlocks)
         pending = list(async_results)
         
         while pending:
             still_pending = []
-            for entity_id, entity_name, async_result in pending:
+            for task_id, args, async_result in pending:
                 try:
                     result = async_result.get(timeout=1.0)
                     results.append(result)
                     
+                    entity_id = result['entity_id']
+                    is_large = args.get('is_large_entity', False)
+                    
                     if result['success']:
-                        all_records.extend(result['records'])
-                        logger.info(f"✅ {result['entity_name']}: {result['records_count']} records")
+                        # Accumulate in appropriate list
+                        if is_large and entity_id in large_entity_records:
+                            large_entity_records[entity_id].extend(result['records'])
+                        else:
+                            small_entity_records.extend(result['records'])
+                        
+                        logger.info(f"✅ {task_id} {result['entity_name']}: {result['records_count']} records")
                     else:
-                        logger.error(f"❌ {result['entity_name']}: {result['error']}")
+                        logger.error(f"❌ {task_id} {result['entity_name']}: {result['error']}")
                         # Still add partial records
-                        all_records.extend(result['records'])
+                        if is_large and entity_id in large_entity_records:
+                            large_entity_records[entity_id].extend(result['records'])
+                        else:
+                            small_entity_records.extend(result['records'])
                         
                 except mp.TimeoutError:
-                    still_pending.append((entity_id, entity_name, async_result))
+                    still_pending.append((task_id, args, async_result))
                 except Exception as e:
-                    logger.error(f"❌ {entity_name} ERROR: {e}")
+                    logger.error(f"❌ {task_id} ERROR: {e}")
                     results.append({
-                        'entity_id': entity_id,
-                        'entity_name': entity_name,
+                        'entity_id': args['entity_id'],
+                        'entity_name': args['entity_name'],
                         'records': [],
                         'records_count': 0,
                         'success': False,
@@ -299,9 +409,16 @@ def run_full_extraction(
             pending = still_pending
             if pending:
                 # Log progress
-                done = len(entities) - len(pending)
-                logger.info(f"⏳ Progress: {done}/{len(entities)} entities complete, {len(all_records):,} records in memory")
+                total_in_memory = sum(len(r) for r in large_entity_records.values()) + len(small_entity_records)
+                done = len(worker_args) - len(pending)
+                logger.info(f"⏳ Progress: {done}/{len(worker_args)} workers complete, {total_in_memory:,} records in memory")
                 time.sleep(5)  # Check every 5 seconds
+    
+    # Combine all records for validation
+    all_records = []
+    for records in large_entity_records.values():
+        all_records.extend(records)
+    all_records.extend(small_entity_records)
     
     # === VALIDATION ===
     actual_records = len(all_records)
@@ -318,102 +435,112 @@ def run_full_extraction(
     else:
         logger.error(f"❌ SIGNIFICANT DIFFERENCE: {total_expected_records - actual_records} records missing ({100*actual_records/total_expected_records:.1f}%)")
     
-    # === SORT AND SAVE ===
-    logger.info(f"\n📦 Creating DataFrame with {actual_records:,} records...")
-    
-    if all_records:
-        df = pd.DataFrame(all_records)
+    # === HELPER FUNCTION FOR SAVING ===
+    def save_dataframe(df: pd.DataFrame, csv_path: str, sheet_name: str = "Precatórios"):
+        """Save DataFrame to CSV and Excel with formatting"""
+        if df.empty:
+            return
         
-        # Clean 'ordem' column - extract numeric part only (e.g., "1964º" -> 1964)
+        # Clean 'ordem' column
         if 'ordem' in df.columns:
             try:
-                # Remove ordinal suffix (º, °, ª) and convert to int
                 df['ordem'] = df['ordem'].astype(str).str.replace(r'[º°ª]', '', regex=True).str.strip()
                 df['ordem'] = pd.to_numeric(df['ordem'], errors='coerce').fillna(0).astype(int)
-                logger.info(f"📊 Cleaned 'ordem' column (removed ordinal suffix)")
-            except Exception as e:
-                logger.warning(f"⚠️ Failed to clean 'ordem': {e}")
+            except:
+                pass
         
-        # Format monetary columns as numeric with 2 decimal places
+        # Format monetary columns
         for col in ['valor_historico', 'saldo_atualizado']:
             if col in df.columns:
                 try:
-                    # Convert to float and round to 2 decimal places
                     df[col] = pd.to_numeric(df[col], errors='coerce').fillna(0).round(2)
-                    logger.info(f"📊 Formatted '{col}' as numeric (2 decimal places)")
-                except Exception as e:
-                    logger.warning(f"⚠️ Failed to format '{col}': {e}")
+                except:
+                    pass
         
-        # Sort by entidade_devedora and ordem (now numeric)
+        # Sort
         if 'entidade_devedora' in df.columns and 'ordem' in df.columns:
             try:
                 df = df.sort_values(['entidade_devedora', 'ordem'])
-                logger.info(f"📊 Sorted by (entidade_devedora, ordem)")
-            except Exception as e:
-                logger.warning(f"⚠️ Sort failed: {e}")
-    else:
-        df = pd.DataFrame()
-    
-    # === SINGLE CSV WRITE ===
-    if output_path and not df.empty:
-        Path(output_path).parent.mkdir(parents=True, exist_ok=True)
-        df.to_csv(
-            output_path,
-            index=False,
-            encoding='utf-8-sig',
-            sep=';',
-            decimal=','
-        )
-        logger.info(f"💾 Saved CSV: {output_path}")
+            except:
+                pass
         
-        # === GENERATE EXCEL WITH FILTERS ===
+        # Save CSV
+        Path(csv_path).parent.mkdir(parents=True, exist_ok=True)
+        df.to_csv(csv_path, index=False, encoding='utf-8-sig', sep=';', decimal=',')
+        logger.info(f"💾 Saved CSV: {csv_path} ({len(df):,} records)")
+        
+        # Save Excel
         try:
             from openpyxl import Workbook
             from openpyxl.utils.dataframe import dataframe_to_rows
-            from openpyxl.styles import Font, Alignment, PatternFill, Border, Side
+            from openpyxl.styles import Font, Alignment, PatternFill
             from openpyxl.utils import get_column_letter
             
-            excel_path = output_path.replace('.csv', '.xlsx')
-            
+            excel_path = csv_path.replace('.csv', '.xlsx')
             wb = Workbook()
             ws = wb.active
-            ws.title = "Precatórios"
+            ws.title = sheet_name
             
-            # Write data
             for r_idx, row in enumerate(dataframe_to_rows(df, index=False, header=True), 1):
                 for c_idx, value in enumerate(row, 1):
                     cell = ws.cell(row=r_idx, column=c_idx, value=value)
-                    
-                    # Header styling
                     if r_idx == 1:
                         cell.font = Font(bold=True, color="FFFFFF")
                         cell.fill = PatternFill(start_color="1F4E79", end_color="1F4E79", fill_type="solid")
                         cell.alignment = Alignment(horizontal="center", vertical="center")
             
-            # Auto-filter on all columns
             ws.auto_filter.ref = ws.dimensions
-            
-            # Freeze header row
             ws.freeze_panes = "A2"
             
-            # Auto-adjust column widths
             for col_idx, column in enumerate(df.columns, 1):
                 max_length = len(str(column))
                 for row in ws.iter_rows(min_row=2, min_col=col_idx, max_col=col_idx):
                     for cell in row:
-                        try:
-                            if cell.value:
-                                max_length = max(max_length, len(str(cell.value)))
-                        except:
-                            pass
-                adjusted_width = min(max_length + 2, 50)  # Cap at 50
-                ws.column_dimensions[get_column_letter(col_idx)].width = adjusted_width
+                        if cell.value:
+                            max_length = max(max_length, len(str(cell.value)))
+                ws.column_dimensions[get_column_letter(col_idx)].width = min(max_length + 2, 50)
             
             wb.save(excel_path)
-            logger.info(f"📊 Saved Excel: {excel_path} (with filters)")
-            
+            logger.info(f"📊 Saved Excel: {excel_path}")
         except Exception as e:
             logger.warning(f"⚠️ Failed to generate Excel: {e}")
+    
+    # === SAVE FILES ===
+    logger.info(f"\n📦 Saving files...")
+    
+    output_dir = Path(output_path).parent if output_path else Path("output")
+    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+    
+    # Save large entities separately (each gets its own file)
+    for entity in large_entities:
+        entity_id = entity['id']
+        entity_name = entity['name']
+        records = large_entity_records.get(entity_id, [])
+        
+        if records:
+            # Clean entity name for filename
+            safe_name = entity_name.upper().replace(' ', '_').replace('/', '_')[:30]
+            csv_path = str(output_dir / f"precatorios_{regime}_{safe_name}_{timestamp}.csv")
+            
+            df_entity = pd.DataFrame(records)
+            save_dataframe(df_entity, csv_path, entity_name[:31])
+            logger.info(f"📁 Large entity file: {entity_name} → {len(records):,} records")
+    
+    # Save small entities combined
+    if small_entity_records:
+        if large_entities:
+            # If there are large entities, save small ones as "demais"
+            csv_path = str(output_dir / f"precatorios_{regime}_demais_entidades_{timestamp}.csv")
+        else:
+            # If no large entities, use the original output path
+            csv_path = output_path if output_path else str(output_dir / f"precatorios_{regime}_{timestamp}.csv")
+        
+        df_small = pd.DataFrame(small_entity_records)
+        save_dataframe(df_small, csv_path, "Demais Entidades")
+        logger.info(f"📁 Small entities file: {len(small_entities)} entities → {len(small_entity_records):,} records")
+    
+    # Create combined DataFrame for return
+    df = pd.DataFrame(all_records) if all_records else pd.DataFrame()
     
     elapsed = time.time() - start_time
     
