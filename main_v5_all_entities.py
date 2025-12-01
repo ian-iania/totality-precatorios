@@ -423,13 +423,18 @@ def extract_single_entity(
             if len(pending) < last_pending_count:
                 last_progress_time = time.time()
                 last_pending_count = len(pending)
+                logger.info(f"📊 Progress: {len(completed)}/{len(async_results)} workers done, {len(pending)} pending")
             
             # Check for stall - no progress for stall_timeout seconds
-            if pending and (time.time() - last_progress_time) > stall_timeout:
-                logger.warning(f"⏱️ STALL DETECTED - no progress for {stall_timeout}s, killing stuck workers")
+            time_since_progress = time.time() - last_progress_time
+            if pending and time_since_progress > stall_timeout:
+                logger.warning(f"⏱️ STALL DETECTED - no progress for {time_since_progress:.0f}s, killing {len(pending)} stuck workers")
                 break
             
             if pending:
+                # Log stall check periodically
+                if int(time_since_progress) % 30 == 0 and time_since_progress > 5:
+                    logger.info(f"⏳ Waiting for {len(pending)} workers... ({time_since_progress:.0f}s since last progress)")
                 time.sleep(check_interval)
         
         # Handle timeout or stall - kill stuck workers
