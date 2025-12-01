@@ -397,12 +397,16 @@ def render_progress_view():
             # Overall progress bar
             st.progress(overall_percent)
             
-            # Stats
-            if elapsed_seconds > 0 and total_records > 0:
-                speed = total_records / elapsed_seconds
-                st.caption(f"Registros: {format_number(total_records)} — {speed:.1f} rec/s")
+            # Stats - use worker records sum if total_records not available yet
+            workers = progress.get('workers', {})
+            worker_records_sum = sum(w.get('records', 0) for w in workers.values()) if workers else 0
+            display_records = total_records if total_records > 0 else worker_records_sum
+            
+            if elapsed_seconds > 0 and display_records > 0:
+                speed = display_records / elapsed_seconds
+                st.caption(f"Registros: {format_number(display_records)} — {speed:.1f} rec/s")
             else:
-                st.caption(f"Registros: {format_number(total_records)}")
+                st.caption(f"Registros: {format_number(display_records)}")
             
             # ETA
             if elapsed_seconds > 30 and overall_percent > 0.01:

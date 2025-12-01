@@ -614,8 +614,8 @@ class AllEntitiesRunner:
                         if ts_match and ts_match.group(1) < start_str:
                             continue
                     
-                    # Match entity progress: ENTITY 1/41: Estado do Rio de Janeiro
-                    entity_match = re.search(r'ENTITY (\d+)/(\d+):\s*(.+)', line)
+                    # Match entity progress: 📍 ENTITY 1/41: Estado do Rio de Janeiro (with or without emoji)
+                    entity_match = re.search(r'ENTITY\s*(\d+)/(\d+):\s*(.+)', line)
                     if entity_match:
                         current_entity_idx = int(entity_match.group(1))
                         total_entities = int(entity_match.group(2))
@@ -627,19 +627,22 @@ class AllEntitiesRunner:
                         proc_id = page_match.group(1)
                         pages_done = int(page_match.group(2))
                         pages_total = int(page_match.group(3))
-                        workers_data[proc_id] = {
+                        if proc_id not in workers_data:
+                            workers_data[proc_id] = {'records': 0}
+                        workers_data[proc_id].update({
                             'pages_done': pages_done,
                             'pages_total': pages_total,
                             'progress': pages_done / pages_total if pages_total > 0 else 0
-                        }
+                        })
                     
                     # Match worker records: [P1] ✅ 10 records (total: 420)
                     record_match = re.search(r'\[P(\d+)\].*\(total:\s*(\d+)\)', line)
                     if record_match:
                         proc_id = record_match.group(1)
                         records = int(record_match.group(2))
-                        if proc_id in workers_data:
-                            workers_data[proc_id]['records'] = records
+                        if proc_id not in workers_data:
+                            workers_data[proc_id] = {}
+                        workers_data[proc_id]['records'] = records
                     
                     # Match total progress: Progress: 5/41 entities | 125,000 total records
                     progress_match = re.search(r'Progress:\s*(\d+)/(\d+)\s*entities\s*\|\s*([\d,]+)\s*total records', line)
