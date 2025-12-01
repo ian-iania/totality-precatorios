@@ -93,7 +93,7 @@ def extract_worker(args: Dict) -> Dict:
     timeout_seconds = timeout_minutes * 60
     
     try:
-        logger.info(f"[P{process_id}] Starting: pages {start_page}-{end_page}")
+        logger.info(f"[P{process_id}] 🚀 Starting: pages {start_page}-{end_page} (timeout: {timeout_minutes}min)")
         
         # Create scraper
         config = ScraperConfig(headless=headless)
@@ -124,14 +124,18 @@ def extract_worker(args: Dict) -> Dict:
             page = context.new_page()
             
             # Navigate to entity
+            logger.info(f"[P{process_id}] 🌐 Navigating to entity page...")
             entity_url = f"https://www3.tjrj.jus.br/PortalConhecimento/precatorio#!/ordem-cronologica?idEntidadeDevedora={entity_id}"
             page.goto(entity_url, wait_until='networkidle', timeout=60000)
             page.wait_for_timeout(3000)
+            logger.info(f"[P{process_id}] ✅ Entity page loaded")
             
             # Go to start page
             if start_page > 1:
+                logger.info(f"[P{process_id}] 🔄 Jumping to start page {start_page}...")
                 if not scraper.goto_page_direct(page, start_page):
                     raise Exception(f"Failed to navigate to page {start_page}")
+                logger.info(f"[P{process_id}] ✅ Arrived at page {start_page}")
             
             # Extract pages
             current_page = start_page
@@ -145,6 +149,12 @@ def extract_worker(args: Dict) -> Dict:
                     break
                 
                 page_in_range = current_page - start_page + 1
+                
+                # Heartbeat logging every 50 pages for monitoring long extractions
+                if page_in_range % 50 == 0:
+                    speed = len(precatorios_data) / elapsed if elapsed > 0 else 0
+                    logger.info(f"[P{process_id}] 💓 Heartbeat: {page_in_range}/{total_pages_in_range} pages, {len(precatorios_data)} records, {speed:.1f} rec/s, {elapsed/60:.1f}min elapsed")
+                
                 logger.info(f"[P{process_id}] Page {current_page}/{end_page} ({page_in_range}/{total_pages_in_range})")
                 
                 # Extract precatórios from current page
@@ -158,17 +168,29 @@ def extract_worker(args: Dict) -> Dict:
                 
                 # Next page
                 if current_page < end_page:
+                    logger.debug(f"[P{process_id}] 🔄 Navigating to next page...")
                     next_btn = page.query_selector('a[ng-click="vm.ProximaPagina()"]')
                     if next_btn:
                         next_btn.click()
                         page.wait_for_timeout(2000)
+                        logger.debug(f"[P{process_id}] ✅ Next page loaded")
+                    else:
+                        logger.warning(f"[P{process_id}] ⚠️ Next button not found on page {current_page}")
                 
                 current_page += 1
             
             # Diagnostic logging for debugging hangs
-            logger.info(f"[P{process_id}] 🔄 Extraction loop finished, closing browser...")
-            browser.close()
-            logger.info(f"[P{process_id}] ✅ Browser closed successfully")
+            logger.info(f"[P{process_id}] 🔄 Extraction loop finished ({len(precatorios_data)} records), closing browser...")
+            
+            # Close browser with timeout protection
+            try:
+                # Close context first (more graceful)
+                context.close()
+                logger.debug(f"[P{process_id}] ✅ Context closed")
+                browser.close()
+                logger.info(f"[P{process_id}] ✅ Browser closed successfully")
+            except Exception as close_error:
+                logger.warning(f"[P{process_id}] ⚠️ Browser close issue: {close_error}")
         
         elapsed = time.time() - start_time
         logger.info(f"[P{process_id}] ✅ Complete: {len(precatorios_data)} records in {elapsed/60:.1f}min")
