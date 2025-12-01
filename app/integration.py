@@ -471,6 +471,269 @@ class ExtractionRunner:
         self.entity_info = None
 
 
+class AllEntitiesRunner:
+    """
+    Runs extraction for ALL entities in a single process using main_v5_all_entities.py
+    
+    This is the recommended approach for full extractions:
+    - Single process handles all entities sequentially
+    - No intermediate I/O - all data in memory until final save
+    - Entities processed in order (largest first)
+    - Single CSV/Excel output at the end
+    """
+    
+    def __init__(self):
+        self.project_root = get_project_root()
+        self.output_dir = get_output_dir()
+        self.process: Optional[subprocess.Popen] = None
+        self.start_time: Optional[datetime] = None
+        self.extraction_info: Optional[Dict] = None
+        self.current_log_file: Optional[str] = None
+    
+    def start_extraction(
+        self,
+        regime: str,
+        num_processes: int = 12,
+        timeout_minutes: int = 60,
+        entity_ids: List[int] = None,
+        skip_entity_ids: List[int] = None,
+        output_file: str = None
+    ) -> subprocess.Popen:
+        """
+        Start extraction for all entities as a subprocess
+        
+        Args:
+            regime: 'geral' or 'especial'
+            num_processes: Number of parallel workers per entity
+            timeout_minutes: Timeout per entity
+            entity_ids: Optional list of specific entity IDs to process
+            skip_entity_ids: Optional list of entity IDs to skip
+            output_file: Optional output file path
+        
+        Returns:
+            subprocess.Popen object
+        """
+        # Generate unique log file for this extraction
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        log_file = self.project_root / "logs" / f"extraction_v5_{timestamp}.log"
+        log_file.parent.mkdir(exist_ok=True)
+        self.current_log_file = str(log_file)
+        
+        # Build command
+        cmd = [
+            sys.executable,
+            "main_v5_all_entities.py",
+            "--regime", regime,
+            "--num-processes", str(num_processes),
+            "--timeout", str(timeout_minutes),
+            "--log-file", str(log_file)
+        ]
+        
+        if output_file:
+            cmd.extend(["--output", output_file])
+        
+        if entity_ids:
+            cmd.extend(["--entity-ids", ",".join(str(x) for x in entity_ids)])
+        
+        if skip_entity_ids:
+            cmd.extend(["--skip-entity-ids", ",".join(str(x) for x in skip_entity_ids)])
+        
+        logger.info(f"Starting V5 extraction: {' '.join(cmd)}")
+        logger.info(f"Log file: {log_file}")
+        
+        # Start subprocess
+        self.process = subprocess.Popen(
+            cmd,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            cwd=str(self.project_root),
+            text=True,
+            bufsize=1
+        )
+        
+        self.start_time = datetime.now()
+        self.extraction_info = {
+            "regime": regime,
+            "num_processes": num_processes,
+            "timeout_minutes": timeout_minutes
+        }
+        
+        return self.process
+    
+    def is_running(self) -> bool:
+        """Check if extraction is still running"""
+        if self.process is None:
+            return False
+        return self.process.poll() is None
+    
+    def get_progress(self) -> Dict:
+        """
+        Get current extraction progress by parsing log file
+        
+        Returns progress info including:
+        - Current entity being processed
+        - Total entities
+        - Records extracted so far
+        - Worker progress
+        """
+        if not self.extraction_info:
+            return {
+                "records": 0,
+                "percent": 0,
+                "elapsed_seconds": 0,
+                "current_entity": None,
+                "current_entity_idx": 0,
+                "total_entities": 0,
+                "is_running": False,
+                "workers": {}
+            }
+        
+        elapsed_seconds = 0
+        if self.start_time:
+            elapsed_seconds = (datetime.now() - self.start_time).total_seconds()
+        
+        # Parse log file
+        log_file = self.project_root / "logs" / "scraper_v3.log"
+        start_str = self.start_time.strftime('%Y-%m-%d %H:%M') if self.start_time else None
+        
+        current_entity = None
+        current_entity_idx = 0
+        total_entities = 0
+        total_records = 0
+        workers_data = {}
+        
+        if log_file.exists():
+            try:
+                with open(log_file, 'r') as f:
+                    content = f.read()
+                
+                for line in content.split('\n'):
+                    # Filter by start time
+                    if start_str:
+                        ts_match = re.match(r'(\d{4}-\d{2}-\d{2} \d{2}:\d{2})', line)
+                        if ts_match and ts_match.group(1) < start_str:
+                            continue
+                    
+                    # Match entity progress: ENTITY 1/41: Estado do Rio de Janeiro
+                    entity_match = re.search(r'ENTITY (\d+)/(\d+):\s*(.+)', line)
+                    if entity_match:
+                        current_entity_idx = int(entity_match.group(1))
+                        total_entities = int(entity_match.group(2))
+                        current_entity = entity_match.group(3).strip()
+                    
+                    # Match worker page progress: [P1] Page 42/63 (42/63)
+                    page_match = re.search(r'\[P(\d+)\] Page \d+/\d+ \((\d+)/(\d+)\)', line)
+                    if page_match:
+                        proc_id = page_match.group(1)
+                        pages_done = int(page_match.group(2))
+                        pages_total = int(page_match.group(3))
+                        workers_data[proc_id] = {
+                            'pages_done': pages_done,
+                            'pages_total': pages_total,
+                            'progress': pages_done / pages_total if pages_total > 0 else 0
+                        }
+                    
+                    # Match worker records: [P1] ✅ 10 records (total: 420)
+                    record_match = re.search(r'\[P(\d+)\].*\(total:\s*(\d+)\)', line)
+                    if record_match:
+                        proc_id = record_match.group(1)
+                        records = int(record_match.group(2))
+                        if proc_id in workers_data:
+                            workers_data[proc_id]['records'] = records
+                    
+                    # Match total progress: Progress: 5/41 entities | 125,000 total records
+                    progress_match = re.search(r'Progress:\s*(\d+)/(\d+)\s*entities\s*\|\s*([\d,]+)\s*total records', line)
+                    if progress_match:
+                        current_entity_idx = int(progress_match.group(1))
+                        total_entities = int(progress_match.group(2))
+                        total_records = int(progress_match.group(3).replace(',', ''))
+                
+            except Exception as e:
+                logger.warning(f"Error parsing log: {e}")
+        
+        # Calculate overall percent
+        percent = 0
+        if total_entities > 0:
+            # Base progress on entities completed
+            entity_progress = (current_entity_idx - 1) / total_entities if current_entity_idx > 0 else 0
+            
+            # Add current entity worker progress
+            if workers_data:
+                avg_worker_progress = sum(w.get('progress', 0) for w in workers_data.values()) / len(workers_data)
+                entity_progress += avg_worker_progress / total_entities
+            
+            percent = entity_progress * 100
+        
+        return {
+            "records": total_records,
+            "percent": min(percent, 100),
+            "elapsed_seconds": elapsed_seconds,
+            "current_entity": current_entity,
+            "current_entity_idx": current_entity_idx,
+            "total_entities": total_entities,
+            "is_running": self.is_running(),
+            "workers": workers_data,
+            "num_processes": self.extraction_info.get("num_processes", 12)
+        }
+    
+    def get_result(self) -> Dict:
+        """Get extraction result after completion"""
+        if self.is_running():
+            return {"success": False, "error": "Still running"}
+        
+        if self.process is None:
+            return {"success": False, "error": "No process"}
+        
+        return_code = self.process.returncode
+        
+        # Find output file
+        output_file = None
+        records = 0
+        
+        regime = self.extraction_info.get("regime", "especial") if self.extraction_info else "especial"
+        pattern = f"precatorios_{regime}_ALL_*.csv"
+        
+        files = sorted(
+            self.output_dir.glob(pattern),
+            key=lambda x: x.stat().st_mtime,
+            reverse=True
+        )
+        
+        if files:
+            output_file = files[0]
+            records = count_csv_records(output_file)
+        
+        duration_seconds = 0
+        if self.start_time:
+            duration_seconds = (datetime.now() - self.start_time).total_seconds()
+        
+        return {
+            "success": return_code == 0,
+            "return_code": return_code,
+            "output_file": str(output_file) if output_file else None,
+            "output_filename": output_file.name if output_file else None,
+            "records": records,
+            "duration_seconds": duration_seconds,
+            "error": None if return_code == 0 else f"Process exited with code {return_code}"
+        }
+    
+    def cancel(self):
+        """Cancel running extraction"""
+        if self.process and self.is_running():
+            self.process.terminate()
+            try:
+                self.process.wait(timeout=10)
+            except subprocess.TimeoutExpired:
+                self.process.kill()
+            logger.info("Extraction cancelled")
+    
+    def cleanup(self):
+        """Clean up resources"""
+        self.process = None
+        self.start_time = None
+        self.extraction_info = None
+
+
 def get_entity_page_count(entity_id: int, regime: str, headless: bool = True) -> int:
     """
     Get the actual page count for an entity by navigating to its page

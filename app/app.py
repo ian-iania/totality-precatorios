@@ -26,7 +26,7 @@ from typing import List, Dict, Optional
 # Add parent directory to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from app.integration import EntityLoader, ExtractionRunner
+from app.integration import EntityLoader, ExtractionRunner, AllEntitiesRunner
 from app.utils import (
     get_output_dir, format_number, format_duration, format_time,
     format_datetime, format_filesize, estimate_time_minutes,
@@ -208,52 +208,44 @@ def render_setup_view():
 
 
 def start_all_entities_extraction(regime: str):
-    """Start extraction of all entities for a regime"""
+    """
+    Start extraction of ALL entities for a regime using V5 single-process mode
     
-    # Load entities
-    with st.spinner("Carregando entidades do TJRJ..."):
-        try:
-            entities = load_entities(regime)
-        except Exception as e:
-            st.error(f"Erro ao carregar entidades: {e}")
-            return
+    V5 Mode:
+    - Single subprocess handles all entities sequentially
+    - No intermediate I/O - all data in memory until final save
+    - Entities processed in order (largest first for optimal worker usage)
+    - Single CSV/Excel output at the end
+    """
+    from loguru import logger
     
-    if not entities:
-        st.error("Nenhuma entidade encontrada.")
-        return
+    logger.info(f"Starting V5 all-entities extraction for regime: {regime}")
     
-    # Filter entities with pending > 0 (keep original order from site)
-    entities = [e for e in entities if e['precatorios_pendentes'] > 0]
+    # Create V5 runner
+    runner = AllEntitiesRunner()
     
-    if not entities:
-        st.warning("Nenhuma entidade com precatórios pendentes encontrada.")
-        return
-    
-    # Calculate totals
-    total_pendentes = sum(e['precatorios_pendentes'] for e in entities)
-    total_paginas = sum((e['precatorios_pendentes'] + 9) // 10 for e in entities)
-    
-    # Store in session state
-    st.session_state.entities_to_process = entities
-    st.session_state.current_entity_index = 0
-    st.session_state.completed_entities = set()
-    st.session_state.processing_regime = regime
-    st.session_state.total_stats = {
-        "pendentes": total_pendentes,
-        "paginas": total_paginas
-    }
-    st.session_state.extraction_running = True
-    st.session_state.show_success = False
-    
-    # Create consolidated output file name for this regime
-    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-    st.session_state.output_file = f"output/precatorios_regime_{regime}_{timestamp}.csv"
-    st.session_state.extraction_start_time = datetime.now()
-    
-    # Start first entity
-    start_next_entity()
-    
-    st.rerun()
+    try:
+        # Start extraction - V5 handles entity loading internally
+        runner.start_extraction(
+            regime=regime,
+            num_processes=NUM_WORKERS,
+            timeout_minutes=60  # Per entity timeout
+        )
+        
+        # Store in session state
+        st.session_state.extraction_runner = runner
+        st.session_state.processing_regime = regime
+        st.session_state.extraction_running = True
+        st.session_state.show_success = False
+        st.session_state.extraction_start_time = datetime.now()
+        st.session_state.use_v5_mode = True  # Flag for V5 progress view
+        
+        logger.info("V5 extraction started successfully")
+        st.rerun()
+        
+    except Exception as e:
+        logger.error(f"Failed to start V5 extraction: {e}")
+        st.error(f"Erro ao iniciar extração: {e}")
 
 
 def start_next_entity():
@@ -350,99 +342,134 @@ def start_extraction(entity: Dict, regime: str, num_processes: int, pendentes: i
 
 
 def render_progress_view():
-    """Render the progress view during extraction with entity tracking"""
+    """Render the progress view during extraction - supports V5 mode"""
+    from loguru import logger
     
     runner = st.session_state.extraction_runner
-    entities = st.session_state.entities_to_process
-    current_idx = st.session_state.current_entity_index
-    completed = st.session_state.completed_entities
-    total_stats = st.session_state.total_stats
+    use_v5 = st.session_state.get('use_v5_mode', False)
     
-    # Safety check: if entities list is empty, reset to setup view
-    if not entities:
-        st.warning("Lista de entidades vazia. Reiniciando...")
+    # Check if runner exists
+    if not runner:
+        st.warning("Extração não iniciada. Reiniciando...")
         st.session_state.extraction_running = False
-        st.session_state.show_success = False
         time.sleep(2)
         st.rerun()
         return
     
-    # Check if runner exists
-    if not runner and current_idx < len(entities):
-        # Need to start next entity
-        st.info(f"Iniciando próxima entidade: {entities[current_idx]['nome']}...")
-        if not start_next_entity():
-            # Error starting - but don't mark as success, try to continue
-            st.error(f"Erro ao iniciar entidade {current_idx + 1}. Tentando próxima...")
-            st.session_state.current_entity_index += 1
-            time.sleep(2)
-            st.rerun()
-            return
-    
-    if not runner:
-        # No runner and no more entities - check if we completed any
-        if len(completed) > 0:
-            st.session_state.extraction_running = False
-            st.session_state.show_success = True
-            st.session_state.extraction_result = {
-                "success": True,
-                "total_entities": len(entities),
-                "completed_entities": len(completed)
-            }
-        else:
-            st.session_state.extraction_running = False
-            st.session_state.show_success = False
-        st.rerun()
-        return
-    
-    # Get progress for current entity
+    # Get progress
     progress = runner.get_progress()
     
-    # Check if current entity finished
+    # Check if extraction finished
     if not progress.get('is_running', False):
-        from loguru import logger
-        logger.info(f"Entity {current_idx} finished. Moving to next...")
+        logger.info("Extraction finished!")
         
-        # Mark current entity as complete
-        if current_idx < len(entities):
-            completed.add(entities[current_idx]['id'])
-            st.session_state.completed_entities = completed
-        
+        # Get result
+        result = runner.get_result()
         runner.cleanup()
         st.session_state.extraction_runner = None
         
-        # Move to next entity
-        next_idx = current_idx + 1
-        st.session_state.current_entity_index = next_idx
-        logger.info(f"Next entity index: {next_idx} / {len(entities)}")
-        
-        if next_idx >= len(entities):
-            # All entities done!
-            logger.info("All entities completed!")
-            st.session_state.extraction_running = False
-            st.session_state.show_success = True
-            st.session_state.extraction_result = {
-                "success": True,
-                "total_entities": len(entities),
-                "completed_entities": len(completed)
-            }
-        else:
-            # Start next entity immediately
-            logger.info(f"Starting next entity: {entities[next_idx]['nome']}")
-            start_next_entity()
+        st.session_state.extraction_running = False
+        st.session_state.show_success = result.get('success', False)
+        st.session_state.extraction_result = result
         
         st.rerun()
         return
     
-    # === CURRENT ENTITY INFO ===
-    current_entity = entities[current_idx] if current_idx < len(entities) else None
-    current_progress = progress.get('percent', 0) / 100
-    records_extracted = progress.get('records', 0)
-    expected_records = progress.get('expected_records', 0)
+    # === V5 MODE: All entities in single process ===
+    if use_v5:
+        current_entity = progress.get('current_entity', 'Carregando...')
+        current_entity_idx = progress.get('current_entity_idx', 0)
+        total_entities = progress.get('total_entities', 0)
+        total_records = progress.get('records', 0)
+        overall_percent = progress.get('percent', 0) / 100
+        elapsed_seconds = progress.get('elapsed_seconds', 0)
+        
+        # Header
+        if current_entity and total_entities > 0:
+            st.caption(f"Processando: **{current_entity}** — Entidade {current_entity_idx} de {total_entities}")
+        else:
+            st.caption("🔄 Carregando entidades do TJRJ...")
+        
+        # Two column layout
+        col_status, col_workers = st.columns(2)
+        
+        with col_status:
+            # Overall progress bar
+            st.progress(overall_percent)
+            
+            # Stats
+            if elapsed_seconds > 0 and total_records > 0:
+                speed = total_records / elapsed_seconds
+                st.caption(f"Registros: {format_number(total_records)} — {speed:.1f} rec/s")
+            else:
+                st.caption(f"Registros: {format_number(total_records)}")
+            
+            # ETA
+            if elapsed_seconds > 30 and overall_percent > 0.01:
+                remaining_progress = 1.0 - overall_percent
+                estimated_remaining = (elapsed_seconds / overall_percent) * remaining_progress
+                if estimated_remaining > 3600:
+                    st.caption(f"⏱️ Tempo restante: ~{estimated_remaining / 3600:.1f} horas")
+                elif estimated_remaining > 60:
+                    st.caption(f"⏱️ Tempo restante: ~{estimated_remaining / 60:.0f} min")
+                else:
+                    st.caption(f"⏱️ Tempo restante: ~{estimated_remaining:.0f} seg")
+            
+            # Status messages
+            if overall_percent >= 0.98:
+                st.info("📦 Finalizando extração e salvando CSV + Excel...")
+            elif overall_percent >= 0.95:
+                st.info("⏳ Finalizando últimas entidades...")
+        
+        with col_workers:
+            # Workers status
+            workers = progress.get('workers', {})
+            if workers:
+                st.caption("**Workers em Processamento:**")
+                
+                table_data = []
+                for proc_id, w in sorted(workers.items(), key=lambda x: int(x[0])):
+                    pages_done = w.get('pages_done', 0)
+                    pages_total = w.get('pages_total', 0)
+                    worker_progress = w.get('progress', 0) * 100
+                    records = w.get('records', 0)
+                    
+                    table_data.append({
+                        "Worker": f"P{proc_id}",
+                        "Página": f"{pages_done}/{pages_total}",
+                        "Progresso": f"{worker_progress:.0f}%",
+                        "Records": format_number(records)
+                    })
+                
+                import pandas as pd
+                df_workers = pd.DataFrame(table_data)
+                st.dataframe(
+                    df_workers,
+                    hide_index=True,
+                    use_container_width=True,
+                    height=min(400, 35 + len(table_data) * 35)
+                )
+                
+                # Total parcial
+                total_worker_records = sum(w.get('records', 0) for w in workers.values())
+                avg_progress = sum(w.get('progress', 0) for w in workers.values()) / len(workers) * 100 if workers else 0
+                st.caption(f"Total parcial: {format_number(total_worker_records)} records ({avg_progress:.0f}% médio)")
+        
+        # Overall progress in red/bold
+        st.markdown(f'<p style="color: red; font-weight: bold;">Progresso geral: {overall_percent * 100:.1f}% ({current_entity_idx}/{total_entities} entidades) — ~{elapsed_seconds/60:.0f} min decorridos</p>', unsafe_allow_html=True)
     
-    if current_entity:
-        # Compact header
-        st.caption(f"Processando: **{current_entity['nome']}** — Entidade {current_idx + 1} de {len(entities)}")
+    else:
+        # === LEGACY MODE: Per-entity extraction ===
+        entities = st.session_state.get('entities_to_process', [])
+        current_idx = st.session_state.get('current_entity_index', 0)
+        
+        current_entity = entities[current_idx] if current_idx < len(entities) else None
+        current_progress = progress.get('percent', 0) / 100
+        records_extracted = progress.get('records', 0)
+        expected_records = progress.get('expected_records', 0)
+        
+        if current_entity:
+            st.caption(f"Processando: **{current_entity['nome']}** — Entidade {current_idx + 1} de {len(entities)}")
         
         # === TWO-COLUMN LAYOUT ===
         col_status, col_workers = st.columns(2)
@@ -505,68 +532,39 @@ def render_progress_view():
                 total_partial = sum(w['records'] for w in workers)
                 avg_progress = sum(w['progress'] for w in workers) / len(workers) if workers else 0
                 st.caption(f"**Total parcial:** {format_number(total_partial)} records ({avg_progress:.0f}% médio)")
-    
-    # === OVERALL PROGRESS (based on pages) ===
-    # Calculate pages done from completed entities
-    completed_pages = sum(
-        (e['precatorios_pendentes'] + 9) // 10 for e in entities 
-        if e['id'] in completed
-    )
-    
-    # Add pages done from current entity
-    current_pages_done = progress.get('pages_done', 0)
-    total_pages_done = completed_pages + current_pages_done
-    
-    # Total pages for all entities
-    total_pages_all = total_stats.get('paginas', 1)
-    
-    # Calculate overall progress
-    overall_progress = total_pages_done / total_pages_all if total_pages_all > 0 else 0
-    overall_progress = min(0.99, overall_progress)  # Cap at 99%
-    
-    # Calculate total elapsed time (from session start)
-    total_elapsed = st.session_state.get('extraction_start_time')
-    if total_elapsed:
-        total_elapsed_seconds = (datetime.now() - total_elapsed).total_seconds()
-    else:
-        total_elapsed_seconds = progress.get('elapsed_seconds', 0)
-    
-    # Estimate total remaining time based on overall progress
-    if overall_progress > 0.01 and total_elapsed_seconds > 30:
-        total_estimated_remaining = (total_elapsed_seconds / overall_progress) * (1.0 - overall_progress)
-        if total_estimated_remaining > 3600:
-            time_str = f"~{total_estimated_remaining / 3600:.1f}h restantes"
-        elif total_estimated_remaining > 60:
-            time_str = f"~{total_estimated_remaining / 60:.0f} min restantes"
-        else:
-            time_str = f"~{total_estimated_remaining:.0f} seg restantes"
-        st.markdown(f'<p style="color: red; font-weight: bold; font-size: 1.1em;">Progresso geral: {overall_progress * 100:.1f}% ({total_pages_done:,}/{total_pages_all:,} páginas) — {time_str}</p>', unsafe_allow_html=True)
-    else:
-        st.markdown(f'<p style="color: red; font-weight: bold; font-size: 1.1em;">Progresso geral: {overall_progress * 100:.1f}% ({total_pages_done:,}/{total_pages_all:,} páginas)</p>', unsafe_allow_html=True)
-    
-    st.markdown("---")
-    
-    # === ENTITY TRACKING LIST ===
-    st.caption("Entidades:")
-    
-    # Compact entity list
-    entity_lines = []
-    for idx, entity in enumerate(entities):
-        entity_id = entity['id']
-        nome = entity['nome']
-        pendentes = entity['precatorios_pendentes']
         
-        if entity_id in completed:
-            entity_lines.append(f"✓ {nome} ({format_number(pendentes)})")
-        elif idx == current_idx:
-            entity_lines.append(f"→ **{nome}** ({format_number(pendentes)})")
+        # Legacy mode overall progress
+        completed = st.session_state.get('completed_entities', set())
+        total_stats = st.session_state.get('total_stats', {})
+        
+        completed_pages = sum(
+            (e['precatorios_pendentes'] + 9) // 10 for e in entities 
+            if e['id'] in completed
+        )
+        current_pages_done = progress.get('pages_done', 0)
+        total_pages_done = completed_pages + current_pages_done
+        total_pages_all = total_stats.get('paginas', 1)
+        
+        overall_progress = total_pages_done / total_pages_all if total_pages_all > 0 else 0
+        overall_progress = min(0.99, overall_progress)
+        
+        total_elapsed = st.session_state.get('extraction_start_time')
+        if total_elapsed:
+            total_elapsed_seconds = (datetime.now() - total_elapsed).total_seconds()
         else:
-            entity_lines.append(f"· {nome} ({format_number(pendentes)})")
-    
-    # Show in expander to save space
-    with st.expander(f"Ver todas ({len(completed)}/{len(entities)} concluídas)", expanded=False):
-        for line in entity_lines:
-            st.caption(line)
+            total_elapsed_seconds = progress.get('elapsed_seconds', 0)
+        
+        if overall_progress > 0.01 and total_elapsed_seconds > 30:
+            total_estimated_remaining = (total_elapsed_seconds / overall_progress) * (1.0 - overall_progress)
+            if total_estimated_remaining > 3600:
+                time_str = f"~{total_estimated_remaining / 3600:.1f}h restantes"
+            elif total_estimated_remaining > 60:
+                time_str = f"~{total_estimated_remaining / 60:.0f} min restantes"
+            else:
+                time_str = f"~{total_estimated_remaining:.0f} seg restantes"
+            st.markdown(f'<p style="color: red; font-weight: bold;">Progresso geral: {overall_progress * 100:.1f}% ({total_pages_done:,}/{total_pages_all:,} páginas) — {time_str}</p>', unsafe_allow_html=True)
+        else:
+            st.markdown(f'<p style="color: red; font-weight: bold;">Progresso geral: {overall_progress * 100:.1f}% ({total_pages_done:,}/{total_pages_all:,} páginas)</p>', unsafe_allow_html=True)
     
     st.markdown("---")
     
@@ -576,9 +574,7 @@ def render_progress_view():
         runner.cleanup()
         st.session_state.extraction_running = False
         st.session_state.extraction_runner = None
-        st.session_state.entities_to_process = []
-        st.session_state.current_entity_index = 0
-        st.session_state.completed_entities = set()
+        st.session_state.use_v5_mode = False
         st.warning("Extração cancelada.")
         st.rerun()
     
@@ -588,14 +584,11 @@ def render_progress_view():
 
 
 def render_success_view():
-    """Render the success view after extraction of all entities"""
+    """Render the success view after extraction - supports V5 mode"""
     
     result = st.session_state.get('extraction_result', {})
-    entities = st.session_state.get('entities_to_process', [])
-    completed = st.session_state.get('completed_entities', set())
-    total_stats = st.session_state.get('total_stats', {})
+    use_v5 = st.session_state.get('use_v5_mode', False)
     regime = st.session_state.get('processing_regime', 'geral')
-    output_file = st.session_state.get('output_file', '')
     start_time = st.session_state.get('extraction_start_time')
     
     # Calculate duration
@@ -603,39 +596,44 @@ def render_success_view():
         duration = datetime.now() - start_time
         duration_str = f"{int(duration.total_seconds() // 60)}min {int(duration.total_seconds() % 60)}s"
     else:
-        duration_str = "N/A"
+        duration_str = result.get('duration_seconds', 0)
+        if duration_str:
+            duration_str = f"{int(duration_str // 60)}min {int(duration_str % 60)}s"
+        else:
+            duration_str = "N/A"
     
     # Show confetti animation
     show_confetti()
     
     # Success header
-    st.success("✅ Extração Concluída!")
+    if result.get('success', False):
+        st.success("✅ Extração Concluída!")
+    else:
+        st.warning("⚠️ Extração concluída com avisos")
+    
+    # Get metrics from result
+    records = result.get('records', 0)
+    output_file = result.get('output_file', '')
+    output_filename = result.get('output_filename', '')
     
     # Summary metrics
     col1, col2, col3 = st.columns(3)
     with col1:
-        st.metric("Entidades", f"{len(completed)}/{len(entities)}")
+        st.metric("Registros", format_number(records))
     with col2:
-        st.metric("Registros", format_number(total_stats.get('pendentes', 0)))
+        regime_label = "Especial" if regime == "especial" else "Geral"
+        st.metric("Regime", regime_label)
     with col3:
         st.metric("Duração", duration_str)
     
-    # Details
-    regime_label = "Especial" if regime == "especial" else "Geral"
-    st.caption(f"Regime: {regime_label} — Arquivo: {output_file}")
-    
-    st.markdown("---")
-    
-    # Show completed entities in expander
-    with st.expander(f"Ver entidades processadas ({len(completed)})", expanded=False):
-        for entity in entities:
-            if entity['id'] in completed:
-                st.caption(f"✓ {entity['nome']} ({format_number(entity['precatorios_pendentes'])})")
+    # File info
+    if output_filename:
+        st.caption(f"📁 Arquivo: `{output_filename}`")
     
     st.markdown("---")
     
     # File available message
-    st.info("📁 O arquivo gerado está disponível na aba **Downloads**.")
+    st.info("📁 Os arquivos CSV e Excel estão disponíveis na aba **Downloads**.")
     
     # OK button to reset
     if st.button("OK", type="primary"):
@@ -643,13 +641,11 @@ def render_success_view():
         st.session_state.show_success = False
         st.session_state.extraction_result = None
         st.session_state.extraction_complete = False
-        st.session_state.entities_to_process = []
-        st.session_state.current_entity_index = 0
-        st.session_state.completed_entities = set()
+        st.session_state.use_v5_mode = False
         st.session_state.processing_regime = None
         st.rerun()
     
-    st.caption("Os arquivos CSV estão disponíveis na aba 'Downloads'.")
+    st.caption("Os arquivos CSV e Excel estão disponíveis na aba 'Downloads'.")
 
 
 # =============================================================================
