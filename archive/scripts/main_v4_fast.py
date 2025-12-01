@@ -166,51 +166,42 @@ def extract_worker(args: Dict) -> Dict:
                 
                 logger.info(f"[P{process_id}]   ✅ {len(precatorios)} records (total: {len(precatorios_data)})")
                 
-                # Check if this is the last page
-                if current_page >= end_page:
-                    logger.info(f"[P{process_id}] 🏁 Reached last page ({current_page}), exiting loop...")
-                    current_page += 1
-                    continue
-                
                 # Next page navigation
                 if current_page < end_page:
-                    # Multiple selectors for next button (fallback approach)
-                    next_selectors = [
-                        'a[ng-click="vm.ProximaPagina()"]',
-                        'text=Próxima',
-                        'a:has-text("Próxima")',
-                        'button:has-text("Próxima")',
-                    ]
+                    pages_remaining = end_page - current_page
                     
-                    next_clicked = False
-                    
-                    # Wait for overlay to disappear
-                    try:
-                        page.wait_for_selector('.block-ui-overlay', state='hidden', timeout=3000)
-                    except:
-                        pass
-                    
-                    # Try each selector
-                    for selector in next_selectors:
-                        try:
-                            next_btn = page.query_selector(selector)
+                    # Use retry logic only in last 5 pages (where hangs typically occur)
+                    # This avoids overhead during normal processing
+                    if pages_remaining <= 5:
+                        # Robust navigation for final pages
+                        next_clicked = False
+                        for retry in range(3):
+                            try:
+                                page.wait_for_selector('.block-ui-overlay', state='hidden', timeout=3000)
+                            except:
+                                pass
+                            
+                            next_btn = page.query_selector('a[ng-click="vm.ProximaPagina()"]')
                             if next_btn and next_btn.is_visible():
-                                next_btn.click()
+                                try:
+                                    next_btn.click()
+                                    page.wait_for_timeout(2000)
+                                    next_clicked = True
+                                    break
+                                except Exception as click_err:
+                                    logger.warning(f"[P{process_id}] ⚠️ Click failed (retry {retry+1}): {click_err}")
+                                    page.wait_for_timeout(1000)
+                            else:
                                 page.wait_for_timeout(2000)
-                                next_clicked = True
-                                break
-                        except:
-                            continue
-                    
-                    if not next_clicked:
-                        logger.warning(f"[P{process_id}] ⚠️ Next button not found on page {current_page}")
-                        # Take screenshot for debugging
-                        try:
-                            screenshot_path = Path("output") / f"debug_p{process_id}_page{current_page}.png"
-                            page.screenshot(path=str(screenshot_path))
-                            logger.info(f"[P{process_id}] 📸 Screenshot saved: {screenshot_path}")
-                        except Exception as ss_err:
-                            logger.warning(f"[P{process_id}] ⚠️ Screenshot failed: {ss_err}")
+                        
+                        if not next_clicked:
+                            logger.warning(f"[P{process_id}] ⚠️ Failed to navigate after 3 retries on page {current_page}")
+                    else:
+                        # Fast navigation for most pages (no retry overhead)
+                        next_btn = page.query_selector('a[ng-click="vm.ProximaPagina()"]')
+                        if next_btn:
+                            next_btn.click()
+                            page.wait_for_timeout(2000)
                 
                 current_page += 1
             
@@ -230,23 +221,51 @@ def extract_worker(args: Dict) -> Dict:
         elapsed = time.time() - start_time
         logger.info(f"[P{process_id}] ✅ Complete: {len(precatorios_data)} records in {elapsed/60:.1f}min")
         
-        # Return data in memory - no partial file saving (faster, less I/O contention)
+        # Save partial file immediately (prevents data loss if parent process crashes)
+        partial_file = None
+        if precatorios_data:
+            logger.info(f"[P{process_id}] 🔄 Creating DataFrame with {len(precatorios_data)} records...")
+            partial_dir = Path("output/partial")
+            partial_dir.mkdir(parents=True, exist_ok=True)
+            timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+            partial_file = partial_dir / f"partial_p{process_id}_{entity_id}_{timestamp}.csv"
+            
+            df_partial = pd.DataFrame(precatorios_data)
+            logger.info(f"[P{process_id}] 🔄 Saving partial CSV to {partial_file}...")
+            df_partial.to_csv(partial_file, index=False, encoding='utf-8-sig', sep=';', decimal=',')
+            logger.info(f"[P{process_id}] 💾 Saved partial: {partial_file}")
+        
         return {
             'process_id': process_id,
             'start_page': start_page,
             'end_page': end_page,
-            'records': precatorios_data,  # Keep in memory for consolidation
+            'records': precatorios_data,  # Also keep in memory for fast consolidation
             'records_count': len(precatorios_data),
             'elapsed_seconds': elapsed,
             'success': True,
-            'error': None
+            'error': None,
+            'partial_file': str(partial_file) if partial_file else None
         }
     
     except Exception as e:
         elapsed = time.time() - start_time
         logger.error(f"[P{process_id}] ❌ Failed: {e}")
         
-        # Return whatever data we have in memory (no file saving)
+        # Try to save whatever we have before failing
+        partial_file = None
+        if precatorios_data:
+            try:
+                partial_dir = Path("output/partial")
+                partial_dir.mkdir(parents=True, exist_ok=True)
+                timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+                partial_file = partial_dir / f"partial_p{process_id}_{entity_id}_{timestamp}_error.csv"
+                
+                df_partial = pd.DataFrame(precatorios_data)
+                df_partial.to_csv(partial_file, index=False, encoding='utf-8-sig', sep=';', decimal=',')
+                logger.info(f"[P{process_id}] 💾 Saved partial (before error): {partial_file}")
+            except:
+                pass
+        
         return {
             'process_id': process_id,
             'start_page': start_page,
@@ -255,7 +274,8 @@ def extract_worker(args: Dict) -> Dict:
             'records_count': len(precatorios_data),
             'elapsed_seconds': elapsed,
             'success': False,
-            'error': str(e)
+            'error': str(e),
+            'partial_file': str(partial_file) if partial_file else None
         }
 
 
@@ -308,79 +328,57 @@ def run_parallel_extraction(
             'timeout_minutes': timeout_minutes
         })
     
-    # Run extraction with robust timeout handling
+    # Run with apply_async for timeout control per worker
     all_records = []
     results = []
     
-    # Use timeout_minutes passed from CLI
+    # Use timeout_minutes passed from CLI (already calculated dynamically in integration.py)
+    # Convert to seconds for apply_async
     worker_timeout = timeout_minutes * 60
-    # Per-worker check interval (check every 30 seconds if worker is done)
-    check_interval = 30
     
     logger.info(f"\n🔄 Starting extraction (worker timeout: {worker_timeout}s = {timeout_minutes}min)...")
     
-    # Use spawn context to avoid fork issues on macOS
-    ctx = mp.get_context('spawn')
-    
-    with ctx.Pool(processes=num_processes) as pool:
+    with mp.Pool(processes=num_processes) as pool:
         # Submit all workers
         async_results = []
         for args in worker_args:
             async_results.append((args['process_id'], pool.apply_async(extract_worker, (args,))))
         
-        # Collect results with timeout - check periodically instead of blocking
-        pending = list(async_results)
-        start_wait = time.time()
-        
-        while pending and (time.time() - start_wait) < worker_timeout:
-            still_pending = []
-            for process_id, async_result in pending:
-                try:
-                    # Try to get result with short timeout
-                    result = async_result.get(timeout=0.5)
-                    results.append(result)
-                    
-                    if result['success']:
-                        all_records.extend(result['records'])
-                        logger.info(f"✅ P{result['process_id']} done: {result['records_count']} records")
-                    else:
-                        logger.error(f"❌ P{result['process_id']} failed: {result['error']}")
-                except mp.TimeoutError:
-                    # Not ready yet, keep waiting
-                    still_pending.append((process_id, async_result))
-                except Exception as e:
-                    logger.error(f"❌ P{process_id} ERROR: {e}")
-                    results.append({
-                        'process_id': process_id,
-                        'records': [],
-                        'records_count': 0,
-                        'success': False,
-                        'error': str(e)
-                    })
-            
-            pending = still_pending
-            if pending:
-                time.sleep(1)  # Brief pause before next check
-        
-        # Handle any workers that timed out
-        for process_id, async_result in pending:
-            logger.error(f"❌ P{process_id} TIMEOUT after {worker_timeout}s - terminating")
-            results.append({
-                'process_id': process_id,
-                'records': [],
-                'records_count': 0,
-                'success': False,
-                'error': f'Timeout after {worker_timeout}s'
-            })
-        
-        # Force terminate pool if there are stuck workers
-        if pending:
-            logger.warning(f"⚠️ Terminating {len(pending)} stuck workers...")
-            pool.terminate()
-            pool.join()
+        # Collect results with timeout
+        for process_id, async_result in async_results:
+            try:
+                result = async_result.get(timeout=worker_timeout)
+                results.append(result)
+                
+                if result['success']:
+                    all_records.extend(result['records'])
+                    logger.info(f"✅ P{result['process_id']} done: {result['records_count']} records")
+                else:
+                    logger.error(f"❌ P{result['process_id']} failed: {result['error']}")
+            except mp.TimeoutError:
+                logger.error(f"❌ P{process_id} TIMEOUT after {worker_timeout}s - skipping")
+                results.append({
+                    'process_id': process_id,
+                    'records': [],
+                    'records_count': 0,
+                    'success': False,
+                    'error': f'Timeout after {worker_timeout}s'
+                })
+            except Exception as e:
+                logger.error(f"❌ P{process_id} ERROR: {e}")
+                results.append({
+                    'process_id': process_id,
+                    'records': [],
+                    'records_count': 0,
+                    'success': False,
+                    'error': str(e)
+                })
     
-    # Create DataFrame from in-memory data (no partial files)
-    logger.info(f"\n📦 Consolidating {len(all_records)} records from memory...")
+    # Collect partial files for cleanup
+    partial_files = [r.get('partial_file') for r in results if r.get('partial_file')]
+    
+    # Create DataFrame
+    logger.info(f"\n📦 Consolidating {len(all_records)} records...")
     
     if all_records:
         df = pd.DataFrame(all_records)
@@ -398,7 +396,7 @@ def run_parallel_extraction(
     else:
         df = pd.DataFrame()
     
-    # Save to CSV (single write operation)
+    # Save to CSV
     if output_path and not df.empty:
         import os
         
@@ -424,6 +422,17 @@ def run_parallel_extraction(
                 decimal=','
             )
             logger.info(f"💾 Saved: {output_path}")
+        
+        # Clean up partial files after successful save
+        for pf in partial_files:
+            try:
+                if pf and Path(pf).exists():
+                    Path(pf).unlink()
+            except Exception as e:
+                logger.warning(f"⚠️ Could not delete partial file {pf}: {e}")
+        
+        if partial_files:
+            logger.info(f"🧹 Cleaned up {len(partial_files)} partial files")
     
     elapsed = time.time() - start_time
     
