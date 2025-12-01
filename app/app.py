@@ -54,10 +54,18 @@ st.set_page_config(
 # Custom CSS
 st.markdown("""
 <style>
-    /* Hide Streamlit menu and footer */
-    #MainMenu {visibility: hidden;}
-    footer {visibility: hidden;}
-    header {visibility: hidden;}
+    /* Hide Streamlit menu, header and footer completely */
+    #MainMenu {display: none;}
+    footer {display: none;}
+    header {display: none;}
+    
+    /* Remove top padding from main content */
+    .block-container {
+        padding-top: 1rem !important;
+    }
+    
+    /* Remove deploy button area */
+    .stDeployButton {display: none;}
     
     .stat-card {
         background-color: #f0f2f6;
@@ -675,7 +683,7 @@ def main():
     """Main application entry point"""
     
     # Header
-    st.title("Totality Precatórios Extração TJRJ")
+    st.title("⚖️ Totality Precatórios Extração TJRJ")
     
     # Tabs
     tab1, tab2 = st.tabs(["📥 Extração", "📁 Downloads"])

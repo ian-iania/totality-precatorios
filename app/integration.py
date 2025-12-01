@@ -218,6 +218,13 @@ class ExtractionRunner:
         Returns:
             subprocess.Popen object
         """
+        # Calculate dynamic timeout based on pages per worker
+        # ~3 seconds per page + 5 min margin, minimum 30 min, maximum 120 min
+        pages_per_worker = total_pages // num_processes
+        timeout_minutes = max(30, min(120, (pages_per_worker * 3) // 60 + 5))
+        
+        logger.info(f"Dynamic timeout: {timeout_minutes} min for {pages_per_worker} pages/worker")
+        
         # Build command - Use V4 fast extraction
         cmd = [
             sys.executable,  # Use same Python interpreter
@@ -227,7 +234,7 @@ class ExtractionRunner:
             "--regime", regime,
             "--total-pages", str(total_pages),
             "--num-processes", str(num_processes),
-            "--timeout", "20"  # 20 min timeout per worker
+            "--timeout", str(timeout_minutes)
         ]
         
         if output_file:

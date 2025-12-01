@@ -250,12 +250,11 @@ def run_parallel_extraction(
     all_records = []
     results = []
     
-    # Dynamic timeout based on pages per worker
-    # ~3 seconds per page + 60s margin, minimum 5 minutes
-    pages_per_worker = total_pages // num_processes
-    worker_timeout = max(300, pages_per_worker * 3 + 60)
+    # Use timeout_minutes passed from CLI (already calculated dynamically in integration.py)
+    # Convert to seconds for apply_async
+    worker_timeout = timeout_minutes * 60
     
-    logger.info(f"\n🔄 Starting extraction (worker timeout: {worker_timeout}s = {worker_timeout//60}min)...")
+    logger.info(f"\n🔄 Starting extraction (worker timeout: {worker_timeout}s = {timeout_minutes}min)...")
     
     with mp.Pool(processes=num_processes) as pool:
         # Submit all workers
