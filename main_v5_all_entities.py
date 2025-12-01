@@ -225,6 +225,14 @@ def extract_worker(args: Dict) -> Dict:
                 # Log format compatible with UI: [P1] Page X/Y (Z/W)
                 logger.info(f"[P{process_id}] Page {current_page}/{end_page} ({page_in_range}/{total_pages_in_range})")
                 
+                # Set shorter timeout for last pages to avoid hanging
+                pages_remaining = end_page - current_page
+                if pages_remaining <= 5:
+                    page.set_default_timeout(10000)  # 10s for last 5 pages
+                
+                # Track page extraction time (watchdog)
+                page_start_time = time.time()
+                
                 try:
                     # Extract precatórios from current page
                     precatorios = scraper._extract_precatorios_from_page(page, entidade)
@@ -234,12 +242,18 @@ def extract_worker(args: Dict) -> Dict:
                         precatorios_data.append(prec.model_dump())
                     
                     # Log format compatible with UI: [P1] ✅ ... (total: N)
-                    logger.info(f"[P{process_id}]   ✅ {len(precatorios)} records (total: {len(precatorios_data)})")
+                    page_elapsed = time.time() - page_start_time
+                    logger.info(f"[P{process_id}]   ✅ {len(precatorios)} records (total: {len(precatorios_data)}) [{page_elapsed:.1f}s]")
                     consecutive_failures = 0  # Reset on success
                     
                 except Exception as extract_err:
-                    logger.warning(f"[P{process_id}] ⚠️ Extraction error on page {current_page}: {extract_err}")
+                    page_elapsed = time.time() - page_start_time
+                    logger.warning(f"[P{process_id}] ⚠️ Extraction error on page {current_page} after {page_elapsed:.1f}s: {extract_err}")
                     consecutive_failures += 1
+                    
+                    # If page took too long, likely stuck - skip to next
+                    if page_elapsed > 30:
+                        logger.warning(f"[P{process_id}] ⏱️ Page {current_page} took too long ({page_elapsed:.1f}s) - skipping")
                     
                     if consecutive_failures >= max_consecutive_failures:
                         logger.error(f"[P{process_id}] ❌ Too many consecutive failures - stopping")
