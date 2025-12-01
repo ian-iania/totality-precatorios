@@ -371,10 +371,12 @@ def extract_single_entity(
     
     # Entity-level timeout (all workers must finish within this time)
     entity_timeout = timeout_minutes * 60  # Total time for entity
+    stall_timeout = 120  # If no progress for 2 minutes, consider stalled
     check_interval = 5  # Check every 5 seconds
     
-    logger.info(f"\n🔄 Starting extraction (timeout: {timeout_minutes}min)...")
+    logger.info(f"\n🔄 Starting extraction (timeout: {timeout_minutes}min, stall: {stall_timeout}s)...")
     start_time = time.time()
+    last_progress_time = start_time
     
     with mp.Pool(processes=effective_workers) as pool:
         # Submit all workers
@@ -385,6 +387,7 @@ def extract_single_entity(
         # Poll for completion with global timeout
         pending = {pid: ar for pid, ar in async_results}
         completed = {}
+        last_pending_count = len(pending)
         
         while pending and (time.time() - start_time) < entity_timeout:
             # Check each pending worker
@@ -416,10 +419,20 @@ def extract_single_entity(
             
             pending = still_pending
             
+            # Check for progress (stall detection)
+            if len(pending) < last_pending_count:
+                last_progress_time = time.time()
+                last_pending_count = len(pending)
+            
+            # Check for stall - no progress for stall_timeout seconds
+            if pending and (time.time() - last_progress_time) > stall_timeout:
+                logger.warning(f"⏱️ STALL DETECTED - no progress for {stall_timeout}s, killing stuck workers")
+                break
+            
             if pending:
                 time.sleep(check_interval)
         
-        # Handle timeout - kill stuck workers
+        # Handle timeout or stall - kill stuck workers
         if pending:
             stuck_workers = list(pending.keys())
             logger.warning(f"⏱️ ENTITY TIMEOUT after {timeout_minutes}min - {len(stuck_workers)} workers stuck: {stuck_workers}")
