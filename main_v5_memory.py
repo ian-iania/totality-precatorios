@@ -364,7 +364,56 @@ def run_full_extraction(
             sep=';',
             decimal=','
         )
-        logger.info(f"💾 Saved: {output_path}")
+        logger.info(f"💾 Saved CSV: {output_path}")
+        
+        # === GENERATE EXCEL WITH FILTERS ===
+        try:
+            from openpyxl import Workbook
+            from openpyxl.utils.dataframe import dataframe_to_rows
+            from openpyxl.styles import Font, Alignment, PatternFill, Border, Side
+            from openpyxl.utils import get_column_letter
+            
+            excel_path = output_path.replace('.csv', '.xlsx')
+            
+            wb = Workbook()
+            ws = wb.active
+            ws.title = "Precatórios"
+            
+            # Write data
+            for r_idx, row in enumerate(dataframe_to_rows(df, index=False, header=True), 1):
+                for c_idx, value in enumerate(row, 1):
+                    cell = ws.cell(row=r_idx, column=c_idx, value=value)
+                    
+                    # Header styling
+                    if r_idx == 1:
+                        cell.font = Font(bold=True, color="FFFFFF")
+                        cell.fill = PatternFill(start_color="1F4E79", end_color="1F4E79", fill_type="solid")
+                        cell.alignment = Alignment(horizontal="center", vertical="center")
+            
+            # Auto-filter on all columns
+            ws.auto_filter.ref = ws.dimensions
+            
+            # Freeze header row
+            ws.freeze_panes = "A2"
+            
+            # Auto-adjust column widths
+            for col_idx, column in enumerate(df.columns, 1):
+                max_length = len(str(column))
+                for row in ws.iter_rows(min_row=2, min_col=col_idx, max_col=col_idx):
+                    for cell in row:
+                        try:
+                            if cell.value:
+                                max_length = max(max_length, len(str(cell.value)))
+                        except:
+                            pass
+                adjusted_width = min(max_length + 2, 50)  # Cap at 50
+                ws.column_dimensions[get_column_letter(col_idx)].width = adjusted_width
+            
+            wb.save(excel_path)
+            logger.info(f"📊 Saved Excel: {excel_path} (with filters)")
+            
+        except Exception as e:
+            logger.warning(f"⚠️ Failed to generate Excel: {e}")
     
     elapsed = time.time() - start_time
     
