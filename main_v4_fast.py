@@ -165,7 +165,10 @@ def extract_worker(args: Dict) -> Dict:
                 
                 current_page += 1
             
+            # Diagnostic logging for debugging hangs
+            logger.info(f"[P{process_id}] 🔄 Extraction loop finished, closing browser...")
             browser.close()
+            logger.info(f"[P{process_id}] ✅ Browser closed successfully")
         
         elapsed = time.time() - start_time
         logger.info(f"[P{process_id}] ✅ Complete: {len(precatorios_data)} records in {elapsed/60:.1f}min")
@@ -173,12 +176,14 @@ def extract_worker(args: Dict) -> Dict:
         # Save partial file immediately (prevents data loss if parent process crashes)
         partial_file = None
         if precatorios_data:
+            logger.info(f"[P{process_id}] 🔄 Creating DataFrame with {len(precatorios_data)} records...")
             partial_dir = Path("output/partial")
             partial_dir.mkdir(parents=True, exist_ok=True)
             timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
             partial_file = partial_dir / f"partial_p{process_id}_{entity_id}_{timestamp}.csv"
             
             df_partial = pd.DataFrame(precatorios_data)
+            logger.info(f"[P{process_id}] 🔄 Saving partial CSV to {partial_file}...")
             df_partial.to_csv(partial_file, index=False, encoding='utf-8-sig', sep=';', decimal=',')
             logger.info(f"[P{process_id}] 💾 Saved partial: {partial_file}")
         
