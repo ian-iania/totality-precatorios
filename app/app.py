@@ -677,11 +677,11 @@ def render_success_view():
     
     result = st.session_state.get('extraction_result', {})
     entities = st.session_state.get('entities_to_process', [])
-    completed = st.session_state.get('completed_entities', set())
     total_stats = st.session_state.get('total_stats', {})
     regime = st.session_state.get('processing_regime', 'geral')
     output_file = st.session_state.get('output_file', '')
     start_time = st.session_state.get('extraction_start_time')
+    use_v5 = st.session_state.get('use_v5', False)
     
     # Calculate duration
     if start_time:
@@ -689,6 +689,17 @@ def render_success_view():
         duration_str = f"{int(duration.total_seconds() // 60)}min {int(duration.total_seconds() % 60)}s"
     else:
         duration_str = "N/A"
+    
+    # For V5, all entities are processed together
+    if use_v5:
+        total_entities = total_stats.get('entities', len(entities))
+        completed_count = total_entities  # V5 processes all at once
+        records_count = result.get('records', total_stats.get('pendentes', 0))
+    else:
+        completed = st.session_state.get('completed_entities', set())
+        completed_count = len(completed)
+        total_entities = len(entities)
+        records_count = total_stats.get('pendentes', 0)
     
     # Show confetti animation
     show_confetti()
@@ -699,9 +710,9 @@ def render_success_view():
     # Summary metrics
     col1, col2, col3 = st.columns(3)
     with col1:
-        st.metric("Entidades", f"{len(completed)}/{len(entities)}")
+        st.metric("Entidades Processadas", f"{completed_count}/{total_entities}")
     with col2:
-        st.metric("Registros", format_number(total_stats.get('pendentes', 0)))
+        st.metric("Registros", format_number(records_count))
     with col3:
         st.metric("Duração", duration_str)
     
@@ -711,11 +722,10 @@ def render_success_view():
     
     st.markdown("---")
     
-    # Show completed entities in expander
-    with st.expander(f"Ver entidades processadas ({len(completed)})", expanded=False):
+    # Show entities in expander
+    with st.expander(f"Ver entidades processadas ({completed_count})", expanded=False):
         for entity in entities:
-            if entity['id'] in completed:
-                st.caption(f"✓ {entity['nome']} ({format_number(entity['precatorios_pendentes'])})")
+            st.caption(f"✓ {entity['nome']} ({format_number(entity['precatorios_pendentes'])})")
     
     st.markdown("---")
     
@@ -732,6 +742,8 @@ def render_success_view():
         st.session_state.current_entity_index = 0
         st.session_state.completed_entities = set()
         st.session_state.processing_regime = None
+        st.session_state.use_v5 = False
+        st.session_state.v5_runner = None
         st.rerun()
     
     st.caption("Os arquivos CSV estão disponíveis na aba 'Downloads'.")
