@@ -56,7 +56,7 @@ def load_gaps() -> tuple:
     return entity, entity_id, total, pages
 
 
-def fill_gaps():
+def fill_gaps(regime: str = "geral"):
     """Extract only the missing pages"""
     entity_name, entity_id, total_pages, missing_pages = load_gaps()
     
@@ -66,9 +66,7 @@ def fill_gaps():
     
     logger.info(f"🔧 Filling {len(missing_pages)} missing pages for: {entity_name}")
     logger.info(f"📄 Pages to process: {missing_pages}")
-    
-    # Determine regime based on entity
-    regime = "especial"  # Default for Estado do RJ
+    logger.info(f"📋 Regime: {regime}")
     
     # Create entity
     entidade = EntidadeDevedora(
@@ -175,4 +173,9 @@ def fill_gaps():
 
 
 if __name__ == '__main__':
-    fill_gaps()
+    import argparse
+    parser = argparse.ArgumentParser(description='Fill missing pages')
+    parser.add_argument('--regime', choices=['geral', 'especial'], default='geral',
+                       help='Regime to extract')
+    args = parser.parse_args()
+    fill_gaps(regime=args.regime)

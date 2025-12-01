@@ -371,42 +371,17 @@ def extract_single_entity(
     
     # Entity-level timeout (all workers must finish within this time)
     entity_timeout = timeout_minutes * 60  # Total time for entity
-    stall_timeout = 120  # If no progress for 2 minutes, consider stalled
     check_interval = 5  # Check every 5 seconds
     
-    logger.info(f"\n🔄 Starting extraction (timeout: {timeout_minutes}min, stall: {stall_timeout}s)...")
+    # NOTE: Removed stall detection watchdog - it was killing active workers
+    # The problem was: progress_time only updated when workers COMPLETE, not when they advance pages
+    # So workers actively processing were killed because no worker had finished yet
+    # Now we only use entity_timeout as the safety net
+    
+    logger.info(f"\n🔄 Starting extraction (timeout: {timeout_minutes}min)...")
     start_time = time.time()
-    progress_time = [start_time]  # Use list for thread-safe sharing
-    
-    # Shared state for watchdog
-    import threading
-    watchdog_triggered = threading.Event()
-    pool_ref = [None]  # Use list to allow modification in nested function
-    
-    def watchdog_timer():
-        """Kill pool if stall timeout exceeded"""
-        while not watchdog_triggered.is_set():
-            time.sleep(10)  # Check every 10s
-            if pool_ref[0] is None:
-                continue
-            elapsed_since_progress = time.time() - progress_time[0]
-            if elapsed_since_progress > stall_timeout:
-                logger.warning(f"🐕 WATCHDOG: Stall detected ({elapsed_since_progress:.0f}s), forcing termination!")
-                try:
-                    pool_ref[0].terminate()
-                    import subprocess
-                    subprocess.run(['pkill', '-9', '-f', 'chromium'], capture_output=True)
-                except:
-                    pass
-                watchdog_triggered.set()
-                break
-    
-    # Start watchdog thread
-    watchdog = threading.Thread(target=watchdog_timer, daemon=True)
-    watchdog.start()
     
     with mp.Pool(processes=effective_workers) as pool:
-        pool_ref[0] = pool  # Give watchdog access to pool
         # Submit all workers
         async_results = []
         for args in worker_args:
@@ -415,7 +390,7 @@ def extract_single_entity(
         # Poll for completion with global timeout
         pending = {pid: ar for pid, ar in async_results}
         completed = {}
-        last_pending_count = len(pending)
+        last_log_time = start_time
         
         while pending and (time.time() - start_time) < entity_timeout:
             # Check each pending worker
@@ -432,6 +407,7 @@ def extract_single_entity(
                             logger.info(f"✅ P{result['process_id']} done: {result['records_count']} records")
                         else:
                             logger.error(f"❌ P{result['process_id']} failed: {result['error']}")
+                            # Still collect any partial records from failed workers
                             all_records.extend(result['records'])
                     except Exception as e:
                         logger.error(f"❌ P{process_id} ERROR getting result: {e}")
@@ -447,28 +423,20 @@ def extract_single_entity(
             
             pending = still_pending
             
-            # Check for progress (stall detection)
-            if len(pending) < last_pending_count:
-                progress_time[0] = time.time()  # Update shared progress time
-                last_pending_count = len(pending)
-                logger.info(f"📊 Progress: {len(completed)}/{len(async_results)} workers done, {len(pending)} pending")
-            
-            # Check for stall - no progress for stall_timeout seconds
-            time_since_progress = time.time() - progress_time[0]
-            if pending and time_since_progress > stall_timeout:
-                logger.warning(f"⏱️ STALL DETECTED - no progress for {time_since_progress:.0f}s, killing {len(pending)} stuck workers")
-                break
+            # Log progress periodically (every 30s)
+            elapsed = time.time() - start_time
+            if time.time() - last_log_time > 30:
+                logger.info(f"⏳ {len(completed)}/{len(async_results)} workers done, {len(pending)} pending ({elapsed/60:.1f}min elapsed)")
+                last_log_time = time.time()
             
             if pending:
-                # Log stall check periodically
-                if int(time_since_progress) % 30 == 0 and time_since_progress > 5:
-                    logger.info(f"⏳ Waiting for {len(pending)} workers... ({time_since_progress:.0f}s since last progress)")
                 time.sleep(check_interval)
         
-        # Handle timeout or stall - kill stuck workers
+        # Handle timeout - kill stuck workers
         if pending:
             stuck_workers = list(pending.keys())
-            logger.warning(f"⏱️ ENTITY TIMEOUT after {timeout_minutes}min - {len(stuck_workers)} workers stuck: {stuck_workers}")
+            elapsed = time.time() - start_time
+            logger.warning(f"⏱️ ENTITY TIMEOUT after {elapsed/60:.1f}min - {len(stuck_workers)} workers stuck: {stuck_workers}")
             
             # Terminate the pool (kills all workers)
             pool.terminate()
@@ -490,9 +458,6 @@ def extract_single_entity(
                     'success': False,
                     'error': f'Timeout - worker stuck'
                 })
-    
-    # Stop watchdog
-    watchdog_triggered.set()
     
     elapsed = time.time() - start_time
     
