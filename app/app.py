@@ -33,6 +33,9 @@ from app.utils import (
     list_csv_files, count_csv_records
 )
 
+# Configuration
+NUM_WORKERS = 12  # Number of parallel workers
+
 # Try to import streamlit-extras for animations
 try:
     from streamlit_extras.let_it_rain import rain
@@ -295,7 +298,7 @@ def start_next_entity():
             entity_name=entity['nome'],
             regime=regime,
             total_pages=total_pages,
-            num_processes=8,  # 8 parallel workers
+            num_processes=NUM_WORKERS,
             output_file=output_file,
             append_mode=not is_first_entity  # Append after first entity
         )
