@@ -708,7 +708,7 @@ def main():
     
     parser.add_argument('--regime', choices=['geral', 'especial'], default='especial',
                        help='Regime to extract')
-    parser.add_argument('--num-processes', type=int, default=12,
+    parser.add_argument('--num-processes', type=int, default=10,
                        help='Number of parallel processes per entity')
     parser.add_argument('--timeout', type=int, default=60,
                        help='Timeout per entity (minutes)')
@@ -771,9 +771,14 @@ def main():
     logger.info(f"  Total pendentes: {total_pendentes:,}")
     logger.info(f"  Total pages: {total_pages:,}")
     
-    # Show top 5 entities
-    logger.info(f"\n🏛️ Top 5 entities by size:")
-    for i, e in enumerate(entities[:5], 1):
+    # Sort entities by size (smallest first) - process quick ones first
+    entities = sorted(entities, key=lambda e: e['precatorios_pendentes'])
+    logger.info(f"\n📊 Sorted entities by size (smallest first)")
+    
+    # Show top 5 largest entities (will be processed last)
+    largest = sorted(entities, key=lambda e: e['precatorios_pendentes'], reverse=True)[:5]
+    logger.info(f"\n🏛️ Top 5 largest entities (processed last):")
+    for i, e in enumerate(largest, 1):
         pages = (e['precatorios_pendentes'] + 9) // 10
         logger.info(f"  {i}. {e['nome']}: {e['precatorios_pendentes']:,} pendentes ({pages:,} pages)")
     
