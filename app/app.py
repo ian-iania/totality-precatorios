@@ -26,7 +26,7 @@ from typing import List, Dict, Optional
 # Add parent directory to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from app.integration import EntityLoader, ExtractionRunner
+from app.integration import EntityLoader, ExtractionRunner, FullMemoryExtractionRunner
 from app.utils import (
     get_output_dir, format_number, format_duration, format_time,
     format_datetime, format_filesize, estimate_time_minutes,
@@ -126,6 +126,13 @@ def init_session_state():
     
     if 'total_stats' not in st.session_state:
         st.session_state.total_stats = {"pendentes": 0, "paginas": 0}
+    
+    # V5 Full Memory Mode
+    if 'use_v5' not in st.session_state:
+        st.session_state.use_v5 = False
+    
+    if 'v5_runner' not in st.session_state:
+        st.session_state.v5_runner = None
 
 init_session_state()
 
@@ -180,7 +187,11 @@ def render_extraction_tab():
     
     # Check if extraction is running
     if st.session_state.extraction_running:
-        render_progress_view()
+        # Use V5 progress view if V5 mode is active
+        if st.session_state.use_v5:
+            render_v5_progress_view()
+        else:
+            render_progress_view()
         return
     
     # Normal extraction setup view
@@ -205,7 +216,8 @@ def render_setup_view():
 
 
 def start_all_entities_extraction(regime: str):
-    """Start extraction of all entities for a regime"""
+    """Start extraction of all entities for a regime using V5 Full Memory Mode"""
+    from loguru import logger
     
     # Load entities
     with st.spinner("Carregando entidades do TJRJ..."):
@@ -232,23 +244,35 @@ def start_all_entities_extraction(regime: str):
     
     # Store in session state
     st.session_state.entities_to_process = entities
-    st.session_state.current_entity_index = 0
-    st.session_state.completed_entities = set()
     st.session_state.processing_regime = regime
     st.session_state.total_stats = {
         "pendentes": total_pendentes,
-        "paginas": total_paginas
+        "paginas": total_paginas,
+        "entities": len(entities)
     }
     st.session_state.extraction_running = True
     st.session_state.show_success = False
+    st.session_state.use_v5 = True  # Flag for V5 mode
     
     # Create consolidated output file name for this regime
     timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-    st.session_state.output_file = f"output/precatorios_regime_{regime}_{timestamp}.csv"
+    output_file = f"output/precatorios_{regime}_{timestamp}.csv"
+    st.session_state.output_file = output_file
     st.session_state.extraction_start_time = datetime.now()
     
-    # Start first entity
-    start_next_entity()
+    # Start V5 Full Memory Extraction (ALL entities at once)
+    logger.info(f"Starting V5 Full Memory Extraction: {len(entities)} entities, {total_paginas} pages")
+    
+    runner = FullMemoryExtractionRunner()
+    runner.start_full_extraction(
+        entities=entities,
+        regime=regime,
+        max_concurrent=4,  # 4 concurrent entity extractions
+        timeout_minutes=60,  # 60 min timeout per entity
+        output_file=output_file
+    )
+    
+    st.session_state.v5_runner = runner
     
     st.rerun()
 
@@ -344,6 +368,70 @@ def start_extraction(entity: Dict, regime: str, num_processes: int, pendentes: i
     
     except Exception as e:
         st.error(f"Erro ao iniciar extração: {e}")
+
+
+def render_v5_progress_view():
+    """Render progress view for V5 Full Memory Mode"""
+    
+    runner = st.session_state.v5_runner
+    total_stats = st.session_state.total_stats
+    regime = st.session_state.processing_regime
+    
+    if not runner:
+        st.error("Runner não encontrado")
+        st.session_state.extraction_running = False
+        st.rerun()
+        return
+    
+    # Get progress
+    progress = runner.get_progress()
+    
+    # Check if finished
+    if not progress.get('is_running', False):
+        st.session_state.extraction_running = False
+        st.session_state.show_success = True
+        st.session_state.extraction_result = {
+            "success": True,
+            "total_entities": total_stats.get('entities', 0),
+            "records": progress.get('records', 0),
+            "expected_records": progress.get('expected_records', 0)
+        }
+        st.rerun()
+        return
+    
+    # === HEADER ===
+    st.markdown("## 🚀 Extração V5 - Full Memory Mode")
+    st.markdown(f"**Regime:** {regime.upper()}")
+    
+    # === PROGRESS ===
+    col1, col2, col3 = st.columns(3)
+    
+    with col1:
+        st.metric("📊 Entidades", f"{progress.get('entities_done', 0)} / {total_stats.get('entities', 0)}")
+    
+    with col2:
+        st.metric("📝 Registros em Memória", f"{progress.get('records', 0):,}")
+    
+    with col3:
+        elapsed = progress.get('elapsed_seconds', 0)
+        st.metric("⏱️ Tempo", format_duration(elapsed))
+    
+    # Progress bar
+    percent = progress.get('percent', 0) / 100
+    st.progress(percent, text=f"Progresso: {percent*100:.1f}%")
+    
+    # Expected vs actual
+    expected = progress.get('expected_records', 0)
+    actual = progress.get('records', 0)
+    if expected > 0:
+        st.caption(f"Esperado: ~{expected:,} registros | Em memória: {actual:,}")
+    
+    # Info box
+    st.info("💾 **Modo Full Memory**: Todos os dados são acumulados em memória. O CSV será gravado apenas no final.")
+    
+    # Auto-refresh
+    time.sleep(3)
+    st.rerun()
 
 
 def render_progress_view():
