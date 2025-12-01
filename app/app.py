@@ -446,6 +446,12 @@ def render_progress_view():
         
         # Compact stats line
         st.caption(f"Registros: {format_number(records_extracted)} / {format_number(expected_records)} ({current_progress * 100:.0f}%)")
+        
+        # Status messages for high progress (finalization phase)
+        if current_progress >= 0.98:
+            st.info("📦 Finalizando extração e consolidando dados dos workers paralelos...")
+        elif current_progress >= 0.95:
+            st.info("⏳ Aguardando workers finalizarem...")
     
     # === OVERALL PROGRESS (based on pages) ===
     # Calculate pages done from completed entities
