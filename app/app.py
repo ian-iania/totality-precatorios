@@ -444,8 +444,22 @@ def render_progress_view():
         # Progress bar for current entity
         st.progress(current_progress)
         
-        # Compact stats line
-        st.caption(f"Registros: {format_number(records_extracted)} / {format_number(expected_records)} ({current_progress * 100:.0f}%)")
+        # Compact stats line with speed
+        elapsed_seconds = progress.get('elapsed_seconds', 0)
+        if elapsed_seconds > 0 and records_extracted > 0:
+            speed = records_extracted / elapsed_seconds
+            st.caption(f"Registros: {format_number(records_extracted)} / {format_number(expected_records)} ({current_progress * 100:.0f}%) — {speed:.1f} rec/s")
+        else:
+            st.caption(f"Registros: {format_number(records_extracted)} / {format_number(expected_records)} ({current_progress * 100:.0f}%)")
+        
+        # Estimated time remaining
+        if elapsed_seconds > 10 and current_progress > 0.01:
+            remaining_progress = 1.0 - current_progress
+            estimated_remaining = (elapsed_seconds / current_progress) * remaining_progress
+            if estimated_remaining > 60:
+                st.caption(f"⏱️ Tempo restante estimado: {estimated_remaining / 60:.0f} min")
+            elif estimated_remaining > 0:
+                st.caption(f"⏱️ Tempo restante estimado: {estimated_remaining:.0f} seg")
         
         # Status messages for high progress (finalization phase)
         if current_progress >= 0.98:
