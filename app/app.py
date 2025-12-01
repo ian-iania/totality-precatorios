@@ -371,11 +371,12 @@ def start_extraction(entity: Dict, regime: str, num_processes: int, pendentes: i
 
 
 def render_v5_progress_view():
-    """Render progress view for V5 Full Memory Mode"""
+    """Render progress view for V5 Full Memory Mode with entity status"""
     
     runner = st.session_state.v5_runner
     total_stats = st.session_state.total_stats
     regime = st.session_state.processing_regime
+    entities = st.session_state.get('entities_to_process', [])
     
     if not runner:
         st.error("Runner não encontrado")
@@ -385,6 +386,7 @@ def render_v5_progress_view():
     
     # Get progress
     progress = runner.get_progress()
+    entity_status = progress.get('entity_status', {})
     
     # Check if finished
     if not progress.get('is_running', False):
@@ -401,13 +403,16 @@ def render_v5_progress_view():
     
     # === HEADER ===
     st.markdown("## 🚀 Extração V5 - Full Memory Mode")
-    st.markdown(f"**Regime:** {regime.upper()}")
+    st.markdown(f"**Regime:** {regime.upper()} | **Workers:** 4 simultâneos")
     
-    # === PROGRESS ===
+    # === PROGRESS METRICS ===
     col1, col2, col3 = st.columns(3)
     
+    entities_done = progress.get('entities_done', 0)
+    total_entities = total_stats.get('entities', len(entities))
+    
     with col1:
-        st.metric("📊 Entidades", f"{progress.get('entities_done', 0)} / {total_stats.get('entities', 0)}")
+        st.metric("📊 Entidades", f"{entities_done} / {total_entities}")
     
     with col2:
         st.metric("📝 Registros em Memória", f"{progress.get('records', 0):,}")
@@ -420,14 +425,41 @@ def render_v5_progress_view():
     percent = progress.get('percent', 0) / 100
     st.progress(percent, text=f"Progresso: {percent*100:.1f}%")
     
-    # Expected vs actual
-    expected = progress.get('expected_records', 0)
-    actual = progress.get('records', 0)
-    if expected > 0:
-        st.caption(f"Esperado: ~{expected:,} registros | Em memória: {actual:,}")
+    # === ENTITY STATUS LIST ===
+    st.markdown("---")
+    st.markdown("### 📋 Status das Entidades")
     
-    # Info box
-    st.info("💾 **Modo Full Memory**: Todos os dados são acumulados em memória. O CSV será gravado apenas no final.")
+    # Count by status
+    completed = [e for e in entities if entity_status.get(e['id']) == 'done']
+    processing = [e for e in entities if entity_status.get(e['id']) == 'processing']
+    pending = [e for e in entities if entity_status.get(e['id']) not in ['done', 'processing', 'error']]
+    errors = [e for e in entities if entity_status.get(e['id']) == 'error']
+    
+    # Show processing first (max 4)
+    if processing:
+        st.markdown("**⏳ Processando:**")
+        for e in processing[:4]:
+            pages = (e.get('precatorios_pendentes', 0) + 9) // 10
+            st.caption(f"  🔄 {e['nome']} ({pages} págs)")
+    
+    # Show recent completed (max 5)
+    if completed:
+        with st.expander(f"✅ Concluídas ({len(completed)})", expanded=False):
+            for e in completed[-10:]:  # Last 10
+                pages = (e.get('precatorios_pendentes', 0) + 9) // 10
+                records = entity_status.get(f"{e['id']}_records", '?')
+                st.caption(f"✓ {e['nome']} - {records} registros")
+    
+    # Show pending count
+    if pending:
+        st.caption(f"⏸️ Aguardando: {len(pending)} entidades")
+    
+    # Show errors
+    if errors:
+        st.error(f"❌ Erros: {len(errors)} entidades")
+    
+    st.markdown("---")
+    st.info("💾 **Modo Full Memory**: Todos os dados são acumulados em memória. CSV + Excel serão gravados no final.")
     
     # Auto-refresh
     time.sleep(3)

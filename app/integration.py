@@ -619,26 +619,48 @@ class FullMemoryExtractionRunner:
         return self.process.poll() is None
     
     def get_progress(self) -> Dict:
-        """Get extraction progress from log file"""
+        """Get extraction progress from log file with entity status"""
+        import re
+        
         if not self.extraction_info:
-            return {"records": 0, "percent": 0, "entities_done": 0}
+            return {"records": 0, "percent": 0, "entities_done": 0, "entity_status": {}}
         
         # Parse log for progress
         log_file = Path("logs/scraper_v3.log")
         records = 0
         entities_done = 0
+        entity_status = {}  # {entity_id: 'processing'|'done'|'error', entity_id_records: count}
         
         if log_file.exists():
             try:
                 with open(log_file, 'r') as f:
-                    lines = f.readlines()[-200:]  # Last 200 lines
+                    lines = f.readlines()[-500:]  # Last 500 lines for more context
+                    
                     for line in lines:
-                        # Count completed entities
-                        if "✅ Complete:" in line or "✅" in line and "records" in line:
+                        # Detect entity starting: [E107] 🌐 Starting
+                        match_start = re.search(r'\[E(\d+)\].*🌐 Starting', line)
+                        if match_start:
+                            eid = int(match_start.group(1))
+                            entity_status[eid] = 'processing'
+                        
+                        # Detect entity complete: [E107] ✅ Complete: X records
+                        match_complete = re.search(r'\[E(\d+)\].*✅ Complete:\s*(\d+)\s*records', line)
+                        if match_complete:
+                            eid = int(match_complete.group(1))
+                            rec_count = int(match_complete.group(2))
+                            entity_status[eid] = 'done'
+                            entity_status[f"{eid}_records"] = rec_count
                             entities_done += 1
-                        # Get latest record count
+                        
+                        # Detect entity error: [E107] ❌ Failed
+                        match_error = re.search(r'\[E(\d+)\].*❌', line)
+                        if match_error:
+                            eid = int(match_error.group(1))
+                            if entity_status.get(eid) != 'done':  # Don't override done
+                                entity_status[eid] = 'error'
+                        
+                        # Get latest record count from progress line
                         if "records in memory" in line:
-                            import re
                             match = re.search(r'(\d+(?:,\d+)?)\s*records in memory', line)
                             if match:
                                 records = int(match.group(1).replace(',', ''))
@@ -659,7 +681,8 @@ class FullMemoryExtractionRunner:
             "total_entities": self.extraction_info.get("total_entities", 0),
             "expected_records": expected,
             "elapsed_seconds": elapsed_seconds,
-            "is_running": self.is_running()
+            "is_running": self.is_running(),
+            "entity_status": entity_status
         }
     
     def stop(self):
