@@ -198,6 +198,13 @@ def extract_worker(args: Dict) -> Dict:
                     
                     if not next_clicked:
                         logger.warning(f"[P{process_id}] ⚠️ Next button not found on page {current_page}")
+                        # Take screenshot for debugging
+                        try:
+                            screenshot_path = Path("output") / f"debug_p{process_id}_page{current_page}.png"
+                            page.screenshot(path=str(screenshot_path))
+                            logger.info(f"[P{process_id}] 📸 Screenshot saved: {screenshot_path}")
+                        except Exception as ss_err:
+                            logger.warning(f"[P{process_id}] ⚠️ Screenshot failed: {ss_err}")
                 
                 current_page += 1
             
