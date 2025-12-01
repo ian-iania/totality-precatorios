@@ -403,16 +403,16 @@ def render_v5_progress_view():
     
     # === HEADER ===
     st.markdown("## 🚀 Extração V5 - Full Memory Mode")
-    st.markdown(f"**Regime:** {regime.upper()} | **Workers:** 10 simultâneos (modo híbrido)")
+    st.markdown(f"**Regime:** {regime.upper()} | **Modo Híbrido:** 10 workers simultâneos")
     
     # === PROGRESS METRICS ===
     col1, col2, col3 = st.columns(3)
     
-    entities_done = progress.get('entities_done', 0)
-    total_entities = total_stats.get('entities', len(entities))
+    workers_done = entity_status.get('workers_done', 0)
+    workers_total = entity_status.get('workers_total', len(entities))
     
     with col1:
-        st.metric("📊 Entidades", f"{entities_done} / {total_entities}")
+        st.metric("⚙️ Workers", f"{workers_done} / {workers_total}")
     
     with col2:
         st.metric("📝 Registros em Memória", f"{progress.get('records', 0):,}")
@@ -430,25 +430,28 @@ def render_v5_progress_view():
     st.markdown("### 📋 Status das Entidades")
     
     # Count by status
-    completed = [e for e in entities if entity_status.get(e['id']) == 'done']
     processing = [e for e in entities if entity_status.get(e['id']) == 'processing']
-    pending = [e for e in entities if entity_status.get(e['id']) not in ['done', 'processing', 'error']]
+    with_records = [e for e in entities if entity_status.get(f"{e['id']}_records", 0) > 0]
+    pending = [e for e in entities if entity_status.get(e['id']) not in ['processing', 'error'] and entity_status.get(f"{e['id']}_records", 0) == 0]
     errors = [e for e in entities if entity_status.get(e['id']) == 'error']
     
-    # Show processing first (max 4)
+    # Show processing entities
     if processing:
         st.markdown("**⏳ Processando:**")
-        for e in processing[:4]:
+        for e in processing[:6]:
             pages = (e.get('precatorios_pendentes', 0) + 9) // 10
-            st.caption(f"  🔄 {e['nome']} ({pages} págs)")
+            records = entity_status.get(f"{e['id']}_records", 0)
+            if records > 0:
+                st.caption(f"  🔄 {e['nome']} ({pages} págs) - {records:,} registros")
+            else:
+                st.caption(f"  🔄 {e['nome']} ({pages} págs)")
     
-    # Show recent completed (max 5)
-    if completed:
-        with st.expander(f"✅ Concluídas ({len(completed)})", expanded=False):
-            for e in completed[-10:]:  # Last 10
-                pages = (e.get('precatorios_pendentes', 0) + 9) // 10
-                records = entity_status.get(f"{e['id']}_records", '?')
-                st.caption(f"✓ {e['nome']} - {records} registros")
+    # Show entities with records (completed or partial)
+    if with_records:
+        with st.expander(f"✅ Com registros ({len(with_records)})", expanded=False):
+            for e in with_records[-10:]:
+                records = entity_status.get(f"{e['id']}_records", 0)
+                st.caption(f"✓ {e['nome']} - {records:,} registros")
     
     # Show pending count
     if pending:

@@ -636,27 +636,38 @@ class FullMemoryExtractionRunner:
                 with open(log_file, 'r') as f:
                     lines = f.readlines()[-500:]  # Last 500 lines for more context
                     
+                    workers_done = 0
+                    workers_total = 0
+                    
                     for line in lines:
-                        # Detect entity starting: [E107] 🌐 Starting
-                        match_start = re.search(r'\[E(\d+)\].*🌐 Starting', line)
+                        # Detect worker count from header: Workers: 65 tasks, 10 concurrent
+                        match_workers = re.search(r'Workers:\s*(\d+)\s*tasks', line)
+                        if match_workers:
+                            workers_total = int(match_workers.group(1))
+                        
+                        # Detect worker starting: [E1:W0] 🌐 Starting
+                        match_start = re.search(r'\[E(\d+):W(\d+)\].*🌐 Starting', line)
                         if match_start:
                             eid = int(match_start.group(1))
                             entity_status[eid] = 'processing'
                         
-                        # Detect entity complete: [E107] ✅ Complete: X records
-                        match_complete = re.search(r'\[E(\d+)\].*✅ Complete:\s*(\d+)\s*records', line)
+                        # Detect worker complete: [E1:W0] ✅ Complete: X records
+                        match_complete = re.search(r'\[E(\d+):W(\d+)\].*✅ Complete:\s*(\d+)\s*records', line)
                         if match_complete:
                             eid = int(match_complete.group(1))
-                            rec_count = int(match_complete.group(2))
-                            entity_status[eid] = 'done'
-                            entity_status[f"{eid}_records"] = rec_count
-                            entities_done += 1
+                            rec_count = int(match_complete.group(3))
+                            workers_done += 1
+                            # Accumulate records per entity
+                            if f"{eid}_records" in entity_status:
+                                entity_status[f"{eid}_records"] += rec_count
+                            else:
+                                entity_status[f"{eid}_records"] = rec_count
                         
-                        # Detect entity error: [E107] ❌ Failed
-                        match_error = re.search(r'\[E(\d+)\].*❌', line)
+                        # Detect worker error: [E1:W0] ❌ Failed
+                        match_error = re.search(r'\[E(\d+):W(\d+)\].*❌', line)
                         if match_error:
                             eid = int(match_error.group(1))
-                            if entity_status.get(eid) != 'done':  # Don't override done
+                            if entity_status.get(eid) != 'done':
                                 entity_status[eid] = 'error'
                         
                         # Get latest record count from progress line
@@ -664,6 +675,12 @@ class FullMemoryExtractionRunner:
                             match = re.search(r'(\d+(?:,\d+)?)\s*records in memory', line)
                             if match:
                                 records = int(match.group(1).replace(',', ''))
+                    
+                    # Calculate entities done based on workers
+                    entities_done = workers_done
+                    entity_status['workers_done'] = workers_done
+                    entity_status['workers_total'] = workers_total
+                    
             except:
                 pass
         
