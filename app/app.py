@@ -425,31 +425,52 @@ def render_v5_progress_view():
     percent = progress.get('percent', 0) / 100
     st.progress(percent, text=f"Progresso: {percent*100:.1f}%")
     
-    # === ENTITY STATUS LIST ===
+    # === ACTIVE WORKERS ===
     st.markdown("---")
-    st.markdown("### 📋 Status das Entidades")
+    st.markdown("### ⚙️ Workers Ativos")
+    
+    # Get active workers from entity_status
+    active_workers = []
+    for key, value in entity_status.items():
+        if key.startswith('worker_') and isinstance(value, dict):
+            if value.get('status') in ['starting', 'extracting']:
+                active_workers.append(value)
+    
+    # Sort by entity_id, worker_id
+    active_workers.sort(key=lambda w: (w.get('entity_id', 0), w.get('worker_id', 0)))
+    
+    if active_workers:
+        for w in active_workers[:10]:  # Show max 10
+            entity_name = w.get('entity_name', '?')[:25]
+            wid = w.get('worker_id', 0)
+            current = w.get('current_page', 0)
+            end = w.get('end_page', 0)
+            start = w.get('start_page', 1)
+            
+            # Calculate progress
+            if end > start:
+                pct = int(100 * (current - start) / (end - start))
+            else:
+                pct = 0
+            
+            status_icon = "🔄" if w.get('status') == 'extracting' else "⏳"
+            st.caption(f"{status_icon} W{wid}: {entity_name} - pág {current}/{end} ({pct}%)")
+    else:
+        st.caption("Aguardando workers...")
+    
+    # === ENTITY SUMMARY ===
+    st.markdown("---")
+    st.markdown("### 📋 Entidades")
     
     # Count by status
-    processing = [e for e in entities if entity_status.get(e['id']) == 'processing']
     with_records = [e for e in entities if entity_status.get(f"{e['id']}_records", 0) > 0]
     pending = [e for e in entities if entity_status.get(e['id']) not in ['processing', 'error'] and entity_status.get(f"{e['id']}_records", 0) == 0]
     errors = [e for e in entities if entity_status.get(e['id']) == 'error']
     
-    # Show processing entities
-    if processing:
-        st.markdown("**⏳ Processando:**")
-        for e in processing[:6]:
-            pages = (e.get('precatorios_pendentes', 0) + 9) // 10
-            records = entity_status.get(f"{e['id']}_records", 0)
-            if records > 0:
-                st.caption(f"  🔄 {e['nome']} ({pages} págs) - {records:,} registros")
-            else:
-                st.caption(f"  🔄 {e['nome']} ({pages} págs)")
-    
-    # Show entities with records (completed or partial)
+    # Show entities with records
     if with_records:
         with st.expander(f"✅ Com registros ({len(with_records)})", expanded=False):
-            for e in with_records[-10:]:
+            for e in with_records:
                 records = entity_status.get(f"{e['id']}_records", 0)
                 st.caption(f"✓ {e['nome']} - {records:,} registros")
     

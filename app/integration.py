@@ -645,18 +645,49 @@ class FullMemoryExtractionRunner:
                         if match_workers:
                             workers_total = int(match_workers.group(1))
                         
-                        # Detect worker starting: [E1:W0] 🌐 Starting
-                        match_start = re.search(r'\[E(\d+):W(\d+)\].*🌐 Starting', line)
+                        # Detect worker starting: [E1:W0] 🌐 Starting EntityName pages X-Y
+                        match_start = re.search(r'\[E(\d+):W(\d+)\].*🌐 Starting (.+?) pages (\d+)-(\d+)', line)
                         if match_start:
                             eid = int(match_start.group(1))
+                            wid = int(match_start.group(2))
+                            entity_name = match_start.group(3).strip()
+                            start_pg = int(match_start.group(4))
+                            end_pg = int(match_start.group(5))
                             entity_status[eid] = 'processing'
+                            # Track active workers
+                            worker_key = f"worker_{eid}_{wid}"
+                            entity_status[worker_key] = {
+                                'entity_id': eid,
+                                'worker_id': wid,
+                                'entity_name': entity_name,
+                                'start_page': start_pg,
+                                'end_page': end_pg,
+                                'current_page': start_pg,
+                                'status': 'starting'
+                            }
+                        
+                        # Detect worker page progress: [E1:W0] Page X/Y
+                        match_page = re.search(r'\[E(\d+):W(\d+)\] Page (\d+)/(\d+)', line)
+                        if match_page:
+                            eid = int(match_page.group(1))
+                            wid = int(match_page.group(2))
+                            current_pg = int(match_page.group(3))
+                            worker_key = f"worker_{eid}_{wid}"
+                            if worker_key in entity_status:
+                                entity_status[worker_key]['current_page'] = current_pg
+                                entity_status[worker_key]['status'] = 'extracting'
                         
                         # Detect worker complete: [E1:W0] ✅ Complete: X records
                         match_complete = re.search(r'\[E(\d+):W(\d+)\].*✅ Complete:\s*(\d+)\s*records', line)
                         if match_complete:
                             eid = int(match_complete.group(1))
+                            wid = int(match_complete.group(2))
                             rec_count = int(match_complete.group(3))
                             workers_done += 1
+                            # Mark worker as done
+                            worker_key = f"worker_{eid}_{wid}"
+                            if worker_key in entity_status:
+                                entity_status[worker_key]['status'] = 'done'
                             # Accumulate records per entity
                             if f"{eid}_records" in entity_status:
                                 entity_status[f"{eid}_records"] += rec_count
