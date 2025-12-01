@@ -631,17 +631,27 @@ class FullMemoryExtractionRunner:
         entities_done = 0
         entity_status = {}  # {entity_id: 'processing'|'done'|'error', entity_id_records: count}
         
+        # Get start time string for filtering
+        start_str = self.start_time.strftime('%Y-%m-%d %H:%M') if self.start_time else None
+        
         if log_file.exists():
             try:
                 with open(log_file, 'r') as f:
-                    lines = f.readlines()[-500:]  # Last 500 lines for more context
+                    lines = f.readlines()[-1000:]  # Last 1000 lines for more context
                     
                     workers_done = 0
                     workers_total = 0
+                    current_records = {}  # Track records per worker from page logs
                     
                     for line in lines:
-                        # Detect worker count from header: Workers: 65 tasks, 10 concurrent
-                        match_workers = re.search(r'Workers:\s*(\d+)\s*tasks', line)
+                        # Filter by start time if available
+                        if start_str:
+                            ts_match = re.match(r'(\d{4}-\d{2}-\d{2} \d{2}:\d{2})', line)
+                            if ts_match and ts_match.group(1) < start_str:
+                                continue
+                        
+                        # Detect worker count from header: Workers: 1 (1 per entity), 10 concurrent
+                        match_workers = re.search(r'Workers:\s*(\d+)', line)
                         if match_workers:
                             workers_total = int(match_workers.group(1))
                         
@@ -654,7 +664,6 @@ class FullMemoryExtractionRunner:
                             start_pg = int(match_start.group(4))
                             end_pg = int(match_start.group(5))
                             entity_status[eid] = 'processing'
-                            # Track active workers
                             worker_key = f"worker_{eid}_{wid}"
                             entity_status[worker_key] = {
                                 'entity_id': eid,
@@ -663,19 +672,23 @@ class FullMemoryExtractionRunner:
                                 'start_page': start_pg,
                                 'end_page': end_pg,
                                 'current_page': start_pg,
+                                'records': 0,
                                 'status': 'starting'
                             }
                         
-                        # Detect worker page progress: [E1:W0] Page X/Y
-                        match_page = re.search(r'\[E(\d+):W(\d+)\] Page (\d+)/(\d+)', line)
+                        # Detect worker page progress: [E1:W0] Page X/Y - Z records
+                        match_page = re.search(r'\[E(\d+):W(\d+)\] Page (\d+)/(\d+)\s*-\s*(\d+)\s*records', line)
                         if match_page:
                             eid = int(match_page.group(1))
                             wid = int(match_page.group(2))
                             current_pg = int(match_page.group(3))
+                            rec_count = int(match_page.group(5))
                             worker_key = f"worker_{eid}_{wid}"
                             if worker_key in entity_status:
                                 entity_status[worker_key]['current_page'] = current_pg
+                                entity_status[worker_key]['records'] = rec_count
                                 entity_status[worker_key]['status'] = 'extracting'
+                            current_records[worker_key] = rec_count
                         
                         # Detect worker complete: [E1:W0] ✅ Complete: X records
                         match_complete = re.search(r'\[E(\d+):W(\d+)\].*✅ Complete:\s*(\d+)\s*records', line)
@@ -684,10 +697,11 @@ class FullMemoryExtractionRunner:
                             wid = int(match_complete.group(2))
                             rec_count = int(match_complete.group(3))
                             workers_done += 1
-                            # Mark worker as done
                             worker_key = f"worker_{eid}_{wid}"
                             if worker_key in entity_status:
                                 entity_status[worker_key]['status'] = 'done'
+                                entity_status[worker_key]['records'] = rec_count
+                            current_records[worker_key] = rec_count
                             # Accumulate records per entity
                             if f"{eid}_records" in entity_status:
                                 entity_status[f"{eid}_records"] += rec_count
@@ -700,17 +714,14 @@ class FullMemoryExtractionRunner:
                             eid = int(match_error.group(1))
                             if entity_status.get(eid) != 'done':
                                 entity_status[eid] = 'error'
-                        
-                        # Get latest record count from progress line
-                        if "records in memory" in line:
-                            match = re.search(r'(\d+(?:,\d+)?)\s*records in memory', line)
-                            if match:
-                                records = int(match.group(1).replace(',', ''))
+                    
+                    # Calculate total records from all workers (real-time)
+                    records = sum(current_records.values())
                     
                     # Calculate entities done based on workers
                     entities_done = workers_done
                     entity_status['workers_done'] = workers_done
-                    entity_status['workers_total'] = workers_total
+                    entity_status['workers_total'] = workers_total if workers_total > 0 else 1
                     
             except:
                 pass

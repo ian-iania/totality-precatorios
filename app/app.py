@@ -477,24 +477,30 @@ def render_v5_progress_view():
         st.caption(f"Tempo decorrido: {format_duration(elapsed)}")
     
     with col_entities:
-        # Entity list
-        st.caption("**Entidades:**")
+        # Get active workers
+        active_workers = []
+        for key, value in entity_status.items():
+            if isinstance(key, str) and key.startswith('worker_') and isinstance(value, dict):
+                active_workers.append(value)
         
-        # Count by status
-        processing = [e for e in entities if entity_status.get(e['id']) == 'processing']
-        done_entities = [e for e in entities if isinstance(entity_status.get(f"{e['id']}_records"), int) and entity_status.get(f"{e['id']}_records", 0) > 0]
-        pending_entities = [e for e in entities if entity_status.get(e['id']) not in ['processing', 'error'] and entity_status.get(f"{e['id']}_records", 0) == 0]
-        
-        # Show processing
-        for e in processing[:5]:
-            rec = entity_status.get(f"{e['id']}_records", 0)
-            if isinstance(rec, int) and rec > 0:
-                st.caption(f"🔄 {e['nome'][:30]} ({rec:,})")
-            else:
-                st.caption(f"🔄 {e['nome'][:30]}")
-        
-        # Summary
-        st.caption(f"✅ {len(done_entities)} completas | ⏸️ {len(pending_entities)} aguardando")
+        if active_workers:
+            st.caption("**Workers:**")
+            for w in active_workers[:10]:
+                entity_name = w.get('entity_name', '?')[:25]
+                current = w.get('current_page', 0)
+                end = w.get('end_page', 0)
+                rec = w.get('records', 0)
+                status = w.get('status', 'starting')
+                
+                if status == 'extracting' and end > 0:
+                    pct = int(100 * current / end)
+                    st.caption(f"🔄 {entity_name}: pág {current}/{end} ({pct}%) - {rec:,} rec")
+                elif status == 'done':
+                    st.caption(f"✅ {entity_name}: {rec:,} registros")
+                else:
+                    st.caption(f"⏳ {entity_name}: iniciando...")
+        else:
+            st.caption("Aguardando workers...")
     
     st.markdown("---")
     st.info("💾 **Full Memory**: CSV + Excel gravados ao final")
