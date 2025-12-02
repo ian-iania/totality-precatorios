@@ -299,16 +299,22 @@ def render_extraction_tab():
 
 def render_setup_view():
     """Render extraction setup view"""
-    regime = st.radio(
-        "Regime",
-        options=["especial", "geral"],
-        format_func=lambda x: f"🔷 ESPECIAL (41 entidades)" if x == 'especial' else f"🔶 GERAL (56 entidades)",
-        horizontal=True
-    )
+    col1, col2 = st.columns([2, 1])
+    
+    with col1:
+        regime = st.radio(
+            "Regime",
+            options=["especial", "geral"],
+            format_func=lambda x: f"🔷 ESPECIAL (41 entidades)" if x == 'especial' else f"🔶 GERAL (56 entidades)",
+            horizontal=True
+        )
+    
+    with col2:
+        num_workers = st.number_input("Workers", min_value=1, max_value=20, value=10)
     
     if st.button("▶️ Iniciar"):
         with st.spinner("Iniciando..."):
-            pid = start_extraction(regime, num_processes=10)
+            pid = start_extraction(regime, num_processes=int(num_workers))
             time.sleep(2)
             st.rerun()
 
