@@ -2,10 +2,11 @@
 Version information for Totality Precatórios
 """
 
-__version__ = "2.0.4"
+__version__ = "2.0.5"
 __version_date__ = "2025-12-02"
 
 # Changelog:
+# v2.0.5 (2025-12-02) - Elapsed time calculated from start timestamp (survives refresh)
 # v2.0.4 (2025-12-02) - Entity counter survives page refresh (reads from log)
 # v2.0.3 (2025-12-02) - Use session_state for entity counter (never drops)
 # v2.0.2 (2025-12-02) - Fix entity counter dropping (increase log lines to 50k)

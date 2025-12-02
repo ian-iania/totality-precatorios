@@ -39,6 +39,7 @@ LOGS_DIR = PROJECT_ROOT / "logs"
 OUTPUT_DIR = PROJECT_ROOT / "output"
 PID_FILE = LOGS_DIR / "extraction.pid"
 REGIME_FILE = LOGS_DIR / "extraction.regime"
+START_TIME_FILE = LOGS_DIR / "extraction.start_time"
 SCRAPER_LOG = LOGS_DIR / "scraper_v3.log"
 ORCHESTRATOR_LOG = LOGS_DIR / "orchestrator_v6.log"
 
@@ -169,12 +170,27 @@ def is_process_running() -> bool:
         return False
 
 
+def get_elapsed_time() -> float:
+    """Get elapsed time in minutes from start_time file"""
+    if not START_TIME_FILE.exists():
+        return 0.0
+    try:
+        start_ts = float(START_TIME_FILE.read_text().strip())
+        elapsed_seconds = time.time() - start_ts
+        return elapsed_seconds / 60.0
+    except:
+        return 0.0
+
+
 def start_extraction(regime: str, num_processes: int = 10, timeout: int = 60):
     """Start extraction process (desacoplado)"""
     # Reset entity counter in session state
     st.session_state.last_entity_count = 0
     st.session_state.seen_entity_lines = set()
     st.session_state.entity_counter_initialized = True  # Mark as initialized with 0
+    
+    # Save start timestamp
+    START_TIME_FILE.write_text(str(time.time()))
     
     # Clear old logs
     for log_file in [SCRAPER_LOG, ORCHESTRATOR_LOG]:
@@ -430,7 +446,9 @@ def render_progress_view():
         st.metric("📄 Registros capturados", f"{summary['total_records']:,}")
     
     with col3:
-        st.metric("⏱️ Tempo decorrido", format_duration(summary['elapsed_minutes']))
+        # Calculate elapsed time from start timestamp (survives refresh)
+        elapsed = get_elapsed_time()
+        st.metric("⏱️ Tempo decorrido", format_duration(elapsed))
     
     with col4:
         active = len(summary['active_workers'])
@@ -460,9 +478,10 @@ def render_progress_view():
 
 def render_complete_view(summary: Dict):
     """Render completion view"""
-    # Clean up PID file since extraction is complete
+    # Clean up tracking files since extraction is complete
     PID_FILE.unlink(missing_ok=True)
     REGIME_FILE.unlink(missing_ok=True)
+    # Keep START_TIME_FILE for final elapsed time display
     
     st.balloons()
     
@@ -477,7 +496,9 @@ def render_complete_view(summary: Dict):
         st.metric("🏛️ Entidades", f"{summary['entities_current']}/{summary['entities_total']}")
     
     with col3:
-        st.metric("⏱️ Tempo Total", format_duration(summary['elapsed_minutes']))
+        # Use calculated elapsed time
+        elapsed = get_elapsed_time()
+        st.metric("⏱️ Tempo Total", format_duration(elapsed if elapsed > 0 else summary['elapsed_minutes']))
     
     if summary['final_output']:
         st.info(f"**Arquivo gerado:** `{summary['final_output']}`")
