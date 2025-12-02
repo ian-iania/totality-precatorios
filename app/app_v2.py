@@ -195,7 +195,7 @@ def get_elapsed_time() -> float:
     return 0.0
 
 
-def start_extraction(regime: str, num_processes: int = 10, timeout: int = 60):
+def start_extraction(regime: str, num_processes: int = 10, timeout: int = 60, entity_id: int = None):
     """Start extraction process (desacoplado)"""
     # Reset entity counter in session state
     st.session_state.last_entity_count = 0
@@ -219,6 +219,10 @@ def start_extraction(regime: str, num_processes: int = 10, timeout: int = 60):
         '--num-processes', str(num_processes),
         '--timeout', str(timeout)
     ]
+    
+    # Add entity_id for single entity extraction (e.g., Estado do RJ)
+    if entity_id:
+        cmd.extend(['--entity-id', str(entity_id)])
     
     process = subprocess.Popen(
         cmd,
@@ -338,19 +342,31 @@ def render_setup_view():
     col1, col2 = st.columns([2, 1])
     
     with col1:
-        regime = st.radio(
+        regime_option = st.radio(
             "Regime",
-            options=["especial", "geral"],
-            format_func=lambda x: f"🔷 ESPECIAL (41 entidades)" if x == 'especial' else f"🔶 GERAL (56 entidades)",
+            options=["especial", "especial_rj", "geral"],
+            format_func=lambda x: {
+                'especial': "🔷 ESPECIAL (41 entidades)",
+                'especial_rj': "🏛️ ESPECIAL - Estado do RJ",
+                'geral': "🔶 GERAL (56 entidades)"
+            }.get(x, x),
             horizontal=True
         )
     
     with col2:
-        num_workers = st.number_input("Workers", min_value=1, max_value=20, value=10)
+        num_workers = st.number_input("Workers", min_value=1, max_value=20, value=15)
     
     if st.button("▶️ Iniciar"):
         with st.spinner("Iniciando..."):
-            pid = start_extraction(regime, num_processes=int(num_workers))
+            # Parse regime and entity_id from option
+            if regime_option == "especial_rj":
+                regime = "especial"
+                entity_id = 1  # Estado do Rio de Janeiro
+            else:
+                regime = regime_option
+                entity_id = None
+            
+            pid = start_extraction(regime, num_processes=int(num_workers), entity_id=entity_id)
             time.sleep(2)
             st.rerun()
 
