@@ -353,7 +353,7 @@ def render_progress_view():
     """Render progress view (polling logs)"""
     
     # Read logs - full log for entity counting, last lines for terminal
-    scraper_lines_full = read_last_lines(SCRAPER_LOG, 5000)  # Full log for counting
+    scraper_lines_full = read_last_lines(SCRAPER_LOG, 50000)  # Full log for counting (needs all Entity complete: lines)
     scraper_lines = scraper_lines_full[-100:]  # Last 100 for parsing
     orchestrator_lines = read_last_lines(ORCHESTRATOR_LOG, 50)
     all_lines = orchestrator_lines + scraper_lines  # For phase detection
