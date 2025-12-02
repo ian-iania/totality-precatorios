@@ -32,6 +32,7 @@ from app.utils import (
     format_datetime, format_filesize, estimate_time_minutes,
     list_csv_files, count_csv_records
 )
+from version import __version__
 
 # Configuration
 NUM_WORKERS = 12  # Number of parallel workers
@@ -831,7 +832,7 @@ def main():
     # Footer
     st.markdown("---")
     st.caption(
-        "Totality Precatórios v1.0 | "
+        f"Totality Precatórios v{__version__} | "
         "Dados extraídos do Portal de Precatórios do TJRJ"
     )
 
