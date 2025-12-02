@@ -2,10 +2,11 @@
 Version information for Totality Precatórios
 """
 
-__version__ = "2.0.7"
+__version__ = "2.0.8"
 __version_date__ = "2025-12-02"
 
 # Changelog:
+# v2.0.8 (2025-12-02) - Sort CSV/Excel by id_entidade_grupo and ordem (numeric)
 # v2.0.7 (2025-12-02) - Show current entity between header and metrics
 # v2.0.6 (2025-12-02) - Fix elapsed time fallback, accurate total records from log
 # v2.0.5 (2025-12-02) - Elapsed time calculated from start timestamp (survives refresh)

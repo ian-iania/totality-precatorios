@@ -399,15 +399,19 @@ def merge_and_finalize(
     df_combined = clean_ordem_column(df_combined)
     df_combined = format_monetary_columns(df_combined)
     
-    # Sort
+    # Sort by id_entidade_grupo (numeric) and ordem (numeric)
     sort_cols = []
-    if 'entidade_devedora' in df_combined.columns:
-        sort_cols.append('entidade_devedora')
+    if 'id_entidade_grupo' in df_combined.columns:
+        # Ensure id_entidade_grupo is numeric for proper sorting
+        df_combined['id_entidade_grupo'] = pd.to_numeric(df_combined['id_entidade_grupo'], errors='coerce').fillna(0).astype(int)
+        sort_cols.append('id_entidade_grupo')
     if 'ordem' in df_combined.columns:
+        # Ensure ordem is numeric for proper sorting
+        df_combined['ordem'] = pd.to_numeric(df_combined['ordem'], errors='coerce').fillna(0).astype(int)
         sort_cols.append('ordem')
     
     if sort_cols:
-        df_combined = df_combined.sort_values(sort_cols)
+        df_combined = df_combined.sort_values(sort_cols, ascending=[True, True])
         logger.info(f"   Sorted by: {', '.join(sort_cols)}")
     
     # Generate output path if not provided
