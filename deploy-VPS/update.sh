@@ -26,8 +26,8 @@ echo "🧹 Cleaning old logs..."
 rm -f $APP_DIR/logs/scraper_v3.log
 rm -rf $APP_DIR/logs/screenshots/*.png
 
-echo "🚀 Starting Streamlit..."
-screen -dmS charles ./venv/bin/streamlit run app/app.py --server.port 8501 --server.address 0.0.0.0
+echo "🚀 Starting Streamlit V2..."
+screen -dmS charles ./venv/bin/streamlit run app/app_v2.py --server.port 8501 --server.address 0.0.0.0
 
 echo "✅ Update complete!"
 echo ""
