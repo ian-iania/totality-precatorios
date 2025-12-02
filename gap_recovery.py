@@ -29,6 +29,7 @@ from pathlib import Path
 from datetime import datetime
 from typing import List, Dict, Tuple, Optional
 from loguru import logger
+import unicodedata
 
 # Add project root to path for imports
 sys.path.insert(0, str(Path(__file__).parent))
@@ -339,6 +340,18 @@ def recover_failed_entities(
 # PHASE 3: MERGE & FINALIZE
 # =============================================================================
 
+def slugify(value: str) -> str:
+    """Create filesystem-friendly slug from entity name"""
+    if not value:
+        return "entity"
+    normalized = unicodedata.normalize('NFKD', value)
+    ascii_value = normalized.encode('ascii', 'ignore').decode('ascii')
+    ascii_value = ascii_value.lower()
+    ascii_value = re.sub(r'[^a-z0-9]+', '-', ascii_value)
+    ascii_value = re.sub(r'-{2,}', '-', ascii_value).strip('-')
+    return ascii_value or "entity"
+
+
 def merge_and_finalize(
     main_csv: str,
     gaps_csv: str = None,
@@ -414,12 +427,29 @@ def merge_and_finalize(
         df_combined = df_combined.sort_values(sort_cols, ascending=[True, True])
         logger.info(f"   Sorted by: {', '.join(sort_cols)}")
     
+    single_entity_slug = None
+    single_entity_name = None
+    main_stem = Path(main_csv).stem
+    if "_entity-" in main_stem:
+        for column in ["entidade_grupo", "entidade_devedora"]:
+            if column in df_combined.columns and not df_combined[column].empty:
+                unique_values = df_combined[column].dropna().unique()
+                if len(unique_values) == 1:
+                    candidate = str(unique_values[0]).strip()
+                    if candidate:
+                        single_entity_name = candidate
+                        single_entity_slug = slugify(candidate)
+                        break
+
     # Generate output path if not provided
     if not output_path:
         timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-        # Extract regime from main CSV name
         regime = 'geral' if 'geral' in main_csv.lower() else 'especial'
-        output_path = f"output/precatorios_{regime}_COMPLETE_{timestamp}.csv"
+        if single_entity_slug:
+            prefix = f"precatorios_{regime}_{single_entity_slug}_COMPLETE"
+        else:
+            prefix = f"precatorios_{regime}_COMPLETE"
+        output_path = f"output/{prefix}_{timestamp}.csv"
     
     # Save
     excel_path = save_dataframe(df_combined, output_path)
@@ -433,10 +463,15 @@ def merge_and_finalize(
         "output_csv": output_path,
         "output_excel": str(excel_path)
     }
+    if single_entity_name:
+        result["entity_name"] = single_entity_name
+        result["single_entity"] = True
     
     logger.info(f"\n✅ Merge complete!")
     logger.info(f"   Total records: {result['total_records']}")
     logger.info(f"   Output: {output_path}")
+    if single_entity_name:
+        logger.info(f"   Entity: {single_entity_name}")
     
     return result
 

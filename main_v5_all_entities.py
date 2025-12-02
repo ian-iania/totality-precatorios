@@ -25,6 +25,8 @@ from datetime import datetime
 from typing import List, Dict, Optional, Tuple
 from loguru import logger
 import pandas as pd
+import unicodedata
+import os
 
 # Add project root to path
 sys.path.insert(0, str(Path(__file__).parent))
@@ -35,6 +37,18 @@ from src.models import ScraperConfig, EntidadeDevedora
 
 # Global flag for graceful shutdown
 SHUTDOWN_REQUESTED = False
+
+
+def slugify(value: str) -> str:
+    """Convert entity name to filesystem-friendly slug"""
+    if not value:
+        return "entity"
+    normalized = unicodedata.normalize('NFKD', value)
+    ascii_value = normalized.encode('ascii', 'ignore').decode('ascii')
+    ascii_value = ascii_value.lower()
+    ascii_value = re.sub(r'[^a-z0-9]+', '-', ascii_value)
+    ascii_value = re.sub(r'-{2,}', '-', ascii_value).strip('-')
+    return ascii_value or "entity"
 
 
 def signal_handler(signum, frame):
@@ -719,11 +733,19 @@ def main():
         return 1
     
     # Filter entities if specified
+    single_entity_identifier = None
+    single_entity_name = None
     if args.entity_id:
         # Single entity mode
         entities = [e for e in entities if e['id'] == args.entity_id]
         if entities:
-            logger.info(f"🎯 Single entity mode: {entities[0]['nome']} (ID: {args.entity_id})")
+            single_entity_name = entities[0]['nome']
+            entity_slug = slugify(single_entity_name)
+            single_entity_identifier = f"entity-{args.entity_id}-{entity_slug}"
+            logger.info(
+                f"🎯 Single entity mode: {single_entity_name} "
+                f"(ID: {args.entity_id}, slug: {entity_slug})"
+            )
         else:
             logger.error(f"Entity ID {args.entity_id} not found!")
             return 1
@@ -820,7 +842,11 @@ def main():
         
         # Generate output path
         timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-        output_path = args.output or f"output/precatorios_{args.regime}_ALL_{timestamp}.csv"
+        if single_entity_identifier:
+            prefix = f"precatorios_{args.regime}_{single_entity_identifier}"
+        else:
+            prefix = f"precatorios_{args.regime}_ALL"
+        output_path = args.output or f"output/{prefix}_{timestamp}.csv"
         
         # Save ONCE at the end
         save_dataframe(df, output_path)

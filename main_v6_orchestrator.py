@@ -99,8 +99,9 @@ def run_main_extraction(regime: str, num_processes: int, timeout: int = 60, enti
             
             # Find the output CSV
             output_dir = Path("output")
-            pattern = f"precatorios_{regime}_ALL_*.csv"
-            csv_files = sorted(output_dir.glob(pattern), key=lambda x: x.stat().st_mtime, reverse=True)
+            pattern = f"precatorios_{regime}_*.csv"
+            csv_candidates = [p for p in output_dir.glob(pattern) if "_COMPLETE_" not in p.stem]
+            csv_files = sorted(csv_candidates, key=lambda x: x.stat().st_mtime, reverse=True)
             
             if csv_files:
                 output_csv = str(csv_files[0])
