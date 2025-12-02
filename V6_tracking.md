@@ -327,7 +327,7 @@ AllEntitiesRunnerV6 available: True
 
 | # | Issue | Resolution | Date |
 |---|-------|------------|------|
-| - | - | - | - |
+| 1 | RJ single-entity run stops at ~23,640 records vs. 29,839 expected | Identified stale entity metadata / missing completeness check. Pending fix: force metadata refresh for `--entity-id`, add completeness sanity check, and temporary RJ page safeguard. | 2025-12-02 |
 
 ---
 

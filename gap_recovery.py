@@ -41,12 +41,13 @@ sys.path.insert(0, str(Path(__file__).parent))
 
 def detect_failed_entities(log_file: str, start_time: str = None) -> List[Dict]:
     """
-    Parse extraction log to find entities that failed.
+    Parse extraction log to find entities that failed or are incomplete.
     
     Detects:
     - Entities with 0 records extracted
     - Entities with timeout errors
     - Entities with Page.goto timeout errors
+    - Entities with completeness below threshold (incomplete)
     
     Args:
         log_file: Path to scraper_v3.log
@@ -54,7 +55,8 @@ def detect_failed_entities(log_file: str, start_time: str = None) -> List[Dict]:
                    If None, analyzes entire log file
     
     Returns:
-        List of dicts: [{"id": 62, "name": "Município X", "reason": "timeout", "expected_records": 100}]
+        List of dicts: [{"id": 62, "name": "Município X", "reason": "timeout|incomplete|zero_records", 
+                        "expected_records": 100, "actual_records": 80}]
     """
     log_path = Path(log_file)
     if not log_path.exists():
@@ -118,6 +120,15 @@ def detect_failed_entities(log_file: str, start_time: str = None) -> List[Dict]:
                 if current_entity_id not in entity_errors:
                     entity_errors[current_entity_id] = "zero_records"
                 continue
+            
+            # Detect completeness issues (below threshold)
+            # Pattern: "⚠️ Entity completeness below threshold: ENTITY_NAME (ID: X)"
+            completeness_match = re.search(r'completeness below threshold.*\(ID:\s*(\d+)\)', line)
+            if completeness_match:
+                incomplete_id = int(completeness_match.group(1))
+                if incomplete_id not in entity_errors:
+                    entity_errors[incomplete_id] = "incomplete"
+                continue
     
     # Build failed entities list
     failed_entities = []
@@ -126,13 +137,25 @@ def detect_failed_entities(log_file: str, start_time: str = None) -> List[Dict]:
         error = entity_errors.get(entity_id)
         expected = info.get("expected", 0)
         
-        # Entity is successful if it has records > 0
         # Entity failed if:
         # 1. Has 0 records AND expected > 0 (extraction failed or empty page)
         # 2. Has explicit error AND 0 records (timeout with no data saved)
-        # Note: If records > 0, entity is successful regardless of errors
+        # 3. Has "incomplete" error (records > 0 but below completeness threshold)
+        
+        # Case 3: Incomplete entities (have records but below threshold)
+        if error == "incomplete":
+            failed_entities.append({
+                "id": entity_id,
+                "name": info["name"],
+                "reason": "incomplete",
+                "expected_records": expected,
+                "actual_records": records
+            })
+            continue
+        
+        # Case 1 & 2: Zero records with expected > 0 or explicit error
         if records > 0:
-            continue  # Success - has data
+            continue  # Success - has data and no completeness issue
             
         # records == 0 at this point
         if expected > 0 or error:

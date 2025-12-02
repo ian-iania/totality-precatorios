@@ -2,10 +2,11 @@
 Version information for Totality Precatórios
 """
 
-__version__ = "2.1.2"
+__version__ = "2.1.3"
 __version_date__ = "2025-12-02"
 
 # Changelog:
+# v2.1.3 (2025-12-02) - RJ page safeguard + completeness check + gap detection for incomplete entities
 # v2.1.2 (2025-12-02) - Show configured workers count (stable, not from log parsing)
 # v2.1.1 (2025-12-02) - Fix entity count for single entity mode (shows 0/1 for RJ)
 # v2.1.0 (2025-12-02) - Add "ESPECIAL - Estado do RJ" option in UI

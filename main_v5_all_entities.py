@@ -38,6 +38,11 @@ from src.models import ScraperConfig, EntidadeDevedora
 # Global flag for graceful shutdown
 SHUTDOWN_REQUESTED = False
 
+RJ_ENTITY_ID = 1
+RJ_MIN_PAGES_DEFAULT = 3000
+RJ_MIN_PAGES = int(os.getenv("RJ_MIN_PAGES", str(RJ_MIN_PAGES_DEFAULT)))
+ENTITY_COMPLETENESS_THRESHOLD = float(os.getenv("ENTITY_COMPLETENESS_THRESHOLD", "0.97"))
+
 
 def slugify(value: str) -> str:
     """Convert entity name to filesystem-friendly slug"""
@@ -785,22 +790,34 @@ def main():
     start_time = time.time()
     
     for idx, entity in enumerate(entities, 1):
+        entity_id = entity['id']
         if SHUTDOWN_REQUESTED:
             logger.warning("⚠️ Shutdown requested - stopping before next entity")
             break
         
-        entity_pages = (entity['precatorios_pendentes'] + 9) // 10
+        expected_records = entity.get('precatorios_pendentes', 0)
+        entity_pages = (expected_records + 9) // 10
+        if entity_id == RJ_ENTITY_ID:
+            forced_pages = max(entity_pages, RJ_MIN_PAGES)
+            if forced_pages != entity_pages:
+                logger.info(
+                    f"🛡️ Applying RJ page safeguard: {entity_pages:,} -> {forced_pages:,} pages"
+                )
+            entity_pages = forced_pages
         
         logger.info(f"\n{'='*80}")
         logger.info(f"📍 ENTITY {idx}/{len(entities)}: {entity['nome']}")
         logger.info(f"{'='*80}")
+        logger.info(
+            f"🎯 Expected records: {expected_records:,} | Pages scheduled: {entity_pages:,}"
+        )
         
         # Calculate dynamic timeout based on pages
         # ~3 seconds per page + 10 min margin
         dynamic_timeout = max(args.timeout, (entity_pages * 3) // 60 + 10)
         
         records, stats = extract_single_entity(
-            entity_id=entity['id'],
+            entity_id=entity_id,
             entity_name=entity['nome'],
             regime=args.regime,
             total_pages=entity_pages,
@@ -808,6 +825,26 @@ def main():
             headless=headless,
             timeout_minutes=dynamic_timeout
         )
+        
+        stats['expected_records'] = expected_records
+        stats['completeness_issue'] = False
+        if expected_records > 0:
+            completeness_ratio = len(records) / expected_records
+        else:
+            completeness_ratio = 1.0
+        stats['completeness_ratio'] = completeness_ratio
+        if expected_records > 0 and completeness_ratio < ENTITY_COMPLETENESS_THRESHOLD:
+            logger.warning(
+                f"⚠️ Entity completeness below threshold: {entity['nome']} (ID: {entity_id}) - "
+                f"expected {expected_records:,} records, got {len(records):,} "
+                f"({completeness_ratio*100:.2f}%)"
+            )
+            stats['completeness_issue'] = True
+        else:
+            logger.info(
+                f"✅ Completeness: {len(records):,}/{expected_records:,} "
+                f"({completeness_ratio*100:.2f}%)"
+            )
         
         all_records.extend(records)
         entity_stats.append(stats)
