@@ -60,20 +60,40 @@ Fixed with regex: r'(?:complete|Entity complete):\s*0\s*records'
 ```
 
 ### Test Results
-```
-$ python gap_recovery.py --summary --log-file "logs/scraper_v3.log"
 
-============================================================
-EXTRACTION SUMMARY
-============================================================
+#### Test 1: GERAL (2025-12-01 20:24)
+```
+$ python main_v5_all_entities.py --regime geral --num-processes 10
+Duration: 15.5 min
+Records: 5,384
+Entities: 56/56 (100%)
+
+$ python gap_recovery.py --summary
 Regime: geral
 Total Entities: 56
 Successful: 56
 Failed: 0
-Total Records: 5,384
-Expected Records: 5,384
 Completeness: 100.0%
 ```
+
+#### Test 2: ESPECIAL (2025-12-01 20:59)
+```
+$ python main_v5_all_entities.py --regime especial --num-processes 10
+Duration: 44.9 min
+Records: 40,243
+Entities: 41/41 (100%)
+
+$ python gap_recovery.py --summary
+Regime: especial
+Total Entities: 41
+Successful: 40
+Failed: 1
+  - ID 330: ESTADO DO TOCANTINS (zero_records)
+Total Records: 40,243
+Expected Records: 40,252
+Completeness: 99.98%
+```
+**Gap Detection Working!** Found 1 failed entity with 0 records.
 
 ---
 
