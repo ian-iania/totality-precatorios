@@ -34,6 +34,8 @@ ENV/
 
 # Project specific
 .env
+*.env
+vps_credentials.env
 data/raw/*
 data/processed/*
 data/cache/*
