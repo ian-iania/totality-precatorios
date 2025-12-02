@@ -172,10 +172,9 @@ def is_process_running() -> bool:
 def start_extraction(regime: str, num_processes: int = 10, timeout: int = 60):
     """Start extraction process (desacoplado)"""
     # Reset entity counter in session state
-    if 'last_entity_count' in st.session_state:
-        st.session_state.last_entity_count = 0
-    if 'seen_entity_lines' in st.session_state:
-        st.session_state.seen_entity_lines = set()
+    st.session_state.last_entity_count = 0
+    st.session_state.seen_entity_lines = set()
+    st.session_state.entity_counter_initialized = True  # Mark as initialized with 0
     
     # Clear old logs
     for log_file in [SCRAPER_LOG, ORCHESTRATOR_LOG]:
@@ -346,18 +345,38 @@ def get_regime_entity_count(regime: str) -> int:
     return 0
 
 
+def count_completed_entities_from_log() -> int:
+    """Count all completed entities directly from log file (for refresh recovery)"""
+    if not SCRAPER_LOG.exists():
+        return 0
+    try:
+        with open(SCRAPER_LOG, 'r', encoding='utf-8', errors='ignore') as f:
+            content = f.read()
+        # Count unique "Entity complete:" occurrences
+        import re
+        matches = re.findall(r'📊 Entity complete:|Entity complete:', content)
+        return len(matches) // 2  # Each line appears twice in log (duplicate logging)
+    except:
+        return 0
+
+
 def count_completed_entities(lines: List[str]) -> int:
-    """Count completed entities from log using session state for persistence"""
-    # Initialize session state if needed
-    if 'last_entity_count' not in st.session_state:
-        st.session_state.last_entity_count = 0
-    if 'seen_entity_lines' not in st.session_state:
+    """Count completed entities using session state, with refresh recovery"""
+    # Initialize session state on first load (or after refresh)
+    if 'entity_counter_initialized' not in st.session_state:
+        # Recover count from full log on refresh
+        st.session_state.last_entity_count = count_completed_entities_from_log()
         st.session_state.seen_entity_lines = set()
+        st.session_state.entity_counter_initialized = True
+        # Mark all current lines as seen
+        for line in lines:
+            if 'Entity complete:' in line or '📊 Entity complete:' in line:
+                st.session_state.seen_entity_lines.add(hash(line.strip()))
+        return st.session_state.last_entity_count
     
-    # Count new entity completions
+    # Count new entity completions (incremental)
     for line in lines:
         if 'Entity complete:' in line or '📊 Entity complete:' in line:
-            # Use line hash to avoid counting same entity twice
             line_hash = hash(line.strip())
             if line_hash not in st.session_state.seen_entity_lines:
                 st.session_state.seen_entity_lines.add(line_hash)
