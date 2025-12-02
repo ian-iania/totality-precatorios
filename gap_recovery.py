@@ -123,14 +123,23 @@ def detect_failed_entities(log_file: str, start_time: str = None) -> List[Dict]:
     for entity_id, info in entities_info.items():
         records = entity_records.get(entity_id, 0)
         error = entity_errors.get(entity_id)
+        expected = info.get("expected", 0)
         
-        # Entity failed if: has error OR has 0 records
-        if error or records == 0:
+        # Entity is successful if it has records > 0
+        # Entity failed if:
+        # 1. Has 0 records AND expected > 0 (extraction failed or empty page)
+        # 2. Has explicit error AND 0 records (timeout with no data saved)
+        # Note: If records > 0, entity is successful regardless of errors
+        if records > 0:
+            continue  # Success - has data
+            
+        # records == 0 at this point
+        if expected > 0 or error:
             failed_entities.append({
                 "id": entity_id,
                 "name": info["name"],
                 "reason": error or "zero_records",
-                "expected_records": info["expected"],
+                "expected_records": expected,
                 "actual_records": records
             })
     

@@ -95,6 +95,26 @@ Completeness: 99.98%
 ```
 **Gap Detection Working!** Found 1 failed entity with 0 records.
 
+#### Test 3: Gap Recovery (2025-12-01 21:47)
+```
+$ python -c "from gap_recovery import recover_failed_entities..."
+
+Recovery attempt for Estado do Tocantins (ID: 330):
+- Result: 0 records recovered
+- Reason: "No precatório rows found" - page exists but is empty
+- This is NOT an extraction error, the entity legitimately has no data
+
+Conclusion: Gap detection correctly identified the entity, but recovery
+confirmed it's an empty entity (not a failed extraction).
+```
+
+### Bug Fixes Applied
+1. **False positive fix**: `'10 records in 0.1min'` was matching `'0 records in'`
+   - Fixed with regex: `r'(?:complete|Entity complete):\s*0\s*records'`
+   
+2. **Success override**: Entities with `records > 0` are now always marked successful
+   - Previously, error flags could mark successful entities as failed
+
 ---
 
 ## Phase 2: Gap Recovery
