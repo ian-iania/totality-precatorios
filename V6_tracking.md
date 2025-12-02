@@ -13,7 +13,7 @@
 | 2 | Gap Recovery | ✅ DONE | 2025-12-01 20:46 | 2025-12-01 20:47 |
 | 3 | Merge & Finalize | ✅ DONE | 2025-12-01 20:47 | 2025-12-01 20:47 |
 | 4 | Orchestrator | ✅ DONE | 2025-12-01 22:06 | 2025-12-01 22:22 |
-| 5 | Integration Layer | ⏳ Pending | - | - |
+| 5 | Integration Layer | ✅ DONE | 2025-12-01 22:28 | 2025-12-01 22:35 |
 | 6 | UI Updates | ⏳ Pending | - | - |
 
 ---
@@ -254,12 +254,35 @@ Final records: 5,383
 Add V6 runner to integration layer.
 
 ### Tasks
-- [ ] Add `V6ExtractionRunner` class
-- [ ] Test new runner independently
+- [x] Add `AllEntitiesRunnerV6` class
+- [x] Test new runner independently
 
 ### Implementation Notes
 ```
-(pending)
+Completed: 2025-12-01 22:35
+
+Created AllEntitiesRunnerV6 in app/integration.py:
+- Uses main_v6_orchestrator.py as subprocess
+- Tracks workflow phases: extraction, detection, recovery, merge, complete
+- Parses both scraper_v3.log and orchestrator_v6.log
+- Progress percent: 0-95% for extraction, 95-100% for post-processing
+- Returns gaps_detected and gaps_recovered in results
+
+Key methods:
+- start_extraction(regime, num_processes, timeout_minutes)
+- is_running()
+- get_progress() - includes phase, phase_message, gaps info
+- get_result() - includes gaps_detected, gaps_recovered
+- cancel()
+- cleanup()
+```
+
+### Test Results
+```
+$ python -c "from app.integration import AllEntitiesRunnerV6; ..."
+
+AllEntitiesRunnerV6 imported successfully!
+Phases: extraction, detection, recovery, merge, complete
 ```
 
 ---

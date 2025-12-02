@@ -806,3 +806,354 @@ def get_entity_page_count(entity_id: int, regime: str, headless: bool = True) ->
     except Exception as e:
         logger.error(f"Error getting page count: {e}")
         return 0
+
+
+class AllEntitiesRunnerV6:
+    """
+    V6 Runner - Full extraction workflow with gap detection and recovery
+    
+    Uses main_v6_orchestrator.py which:
+    1. Runs main extraction (V5)
+    2. Detects gaps (failed entities)
+    3. Recovers gaps if any
+    4. Merges and finalizes output
+    
+    This provides automatic gap recovery without manual intervention.
+    """
+    
+    # Workflow phases for progress tracking
+    PHASE_EXTRACTION = "extraction"
+    PHASE_DETECTION = "detection"
+    PHASE_RECOVERY = "recovery"
+    PHASE_MERGE = "merge"
+    PHASE_COMPLETE = "complete"
+    
+    def __init__(self):
+        self.project_root = get_project_root()
+        self.output_dir = get_output_dir()
+        self.process: Optional[subprocess.Popen] = None
+        self.start_time: Optional[datetime] = None
+        self.extraction_info: Optional[Dict] = None
+        self.current_phase: str = self.PHASE_EXTRACTION
+    
+    def start_extraction(
+        self,
+        regime: str,
+        num_processes: int = 10,
+        timeout_minutes: int = 60
+    ) -> subprocess.Popen:
+        """
+        Start V6 extraction workflow
+        
+        Args:
+            regime: 'geral' or 'especial'
+            num_processes: Number of parallel workers
+            timeout_minutes: Timeout per entity
+        
+        Returns:
+            subprocess.Popen object
+        """
+        # Clear previous log
+        log_file = self.project_root / "logs" / "scraper_v3.log"
+        if log_file.exists():
+            log_file.unlink()
+        
+        orchestrator_log = self.project_root / "logs" / "orchestrator_v6.log"
+        if orchestrator_log.exists():
+            orchestrator_log.unlink()
+        
+        # Build command
+        cmd = [
+            sys.executable,
+            "main_v6_orchestrator.py",
+            "--regime", regime,
+            "--num-processes", str(num_processes),
+            "--timeout", str(timeout_minutes)
+        ]
+        
+        logger.info(f"Starting V6 extraction: {' '.join(cmd)}")
+        
+        # Start subprocess
+        self.process = subprocess.Popen(
+            cmd,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            cwd=str(self.project_root),
+            text=True,
+            bufsize=1
+        )
+        
+        self.start_time = datetime.now()
+        self.extraction_info = {
+            "regime": regime,
+            "num_processes": num_processes,
+            "timeout_minutes": timeout_minutes
+        }
+        self.current_phase = self.PHASE_EXTRACTION
+        
+        return self.process
+    
+    def is_running(self) -> bool:
+        """Check if extraction is still running"""
+        if self.process is None:
+            return False
+        return self.process.poll() is None
+    
+    def get_progress(self) -> Dict:
+        """
+        Get current extraction progress
+        
+        Parses both scraper_v3.log (for extraction progress) and
+        orchestrator_v6.log (for phase detection).
+        """
+        if not self.extraction_info:
+            return {
+                "records": 0,
+                "percent": 0,
+                "elapsed_seconds": 0,
+                "current_entity": None,
+                "current_entity_idx": 0,
+                "total_entities": 0,
+                "is_running": False,
+                "workers": {},
+                "phase": self.PHASE_EXTRACTION,
+                "phase_message": "Not started"
+            }
+        
+        elapsed_seconds = 0
+        if self.start_time:
+            elapsed_seconds = (datetime.now() - self.start_time).total_seconds()
+        
+        # Detect current phase from orchestrator log
+        orchestrator_log = self.project_root / "logs" / "orchestrator_v6.log"
+        phase = self.PHASE_EXTRACTION
+        phase_message = "Extracting data..."
+        gaps_detected = 0
+        gaps_recovered = 0
+        
+        if orchestrator_log.exists():
+            try:
+                with open(orchestrator_log, 'r') as f:
+                    content = f.read()
+                
+                if "PHASE 4: MERGE" in content or "MERGE & FINALIZE" in content:
+                    phase = self.PHASE_MERGE
+                    phase_message = "Merging and finalizing..."
+                elif "PHASE 3: GAP RECOVERY" in content:
+                    phase = self.PHASE_RECOVERY
+                    phase_message = "Recovering failed entities..."
+                    # Check how many gaps
+                    gaps_match = re.search(r'Recovering (\d+) failed entities', content)
+                    if gaps_match:
+                        gaps_detected = int(gaps_match.group(1))
+                        phase_message = f"Recovering {gaps_detected} failed entities..."
+                elif "PHASE 2: GAP DETECTION" in content:
+                    phase = self.PHASE_DETECTION
+                    phase_message = "Detecting gaps..."
+                elif "WORKFLOW COMPLETE" in content:
+                    phase = self.PHASE_COMPLETE
+                    phase_message = "Complete!"
+                    # Check for recovered records
+                    recovered_match = re.search(r'Recovered (\d+) records', content)
+                    if recovered_match:
+                        gaps_recovered = int(recovered_match.group(1))
+                
+            except Exception as e:
+                logger.warning(f"Error parsing orchestrator log: {e}")
+        
+        self.current_phase = phase
+        
+        # Parse scraper log for extraction progress (same as V5)
+        log_file = self.project_root / "logs" / "scraper_v3.log"
+        start_str = self.start_time.strftime('%Y-%m-%d %H:%M:%S') if self.start_time else None
+        
+        current_entity = None
+        current_entity_idx = 0
+        total_entities = 0
+        total_records = 0
+        total_pendentes = 0
+        workers_data = {}
+        
+        if log_file.exists():
+            try:
+                with open(log_file, 'r') as f:
+                    content = f.read()
+                
+                for line in content.split('\n'):
+                    # Filter by start time
+                    if start_str:
+                        ts_match = re.match(r'(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})', line)
+                        if ts_match and ts_match.group(1) < start_str:
+                            continue
+                    
+                    # Match total pendentes
+                    pendentes_match = re.search(r'Total pendentes:\s*([\d,]+)', line)
+                    if pendentes_match:
+                        total_pendentes = int(pendentes_match.group(1).replace(',', ''))
+                    
+                    # Match entity progress
+                    entity_match = re.search(r'ENTITY\s*(\d+)/(\d+):\s*(.+)', line)
+                    if entity_match:
+                        current_entity_idx = int(entity_match.group(1))
+                        total_entities = int(entity_match.group(2))
+                        current_entity = entity_match.group(3).strip()
+                    
+                    # Match worker page progress
+                    page_match = re.search(r'\[P(\d+)\] Page (\d+)/(\d+) \((\d+)/(\d+)\)', line)
+                    if page_match:
+                        proc_id = page_match.group(1)
+                        pages_done = int(page_match.group(4))
+                        pages_total = int(page_match.group(5))
+                        if proc_id not in workers_data:
+                            workers_data[proc_id] = {'records': 0}
+                        workers_data[proc_id].update({
+                            'pages_done': pages_done,
+                            'pages_total': pages_total,
+                            'progress': pages_done / pages_total if pages_total > 0 else 0
+                        })
+                    
+                    # Match worker records
+                    record_match = re.search(r'\[P(\d+)\].*\(total:\s*(\d+)\)', line)
+                    if record_match:
+                        proc_id = record_match.group(1)
+                        records = int(record_match.group(2))
+                        if proc_id not in workers_data:
+                            workers_data[proc_id] = {}
+                        workers_data[proc_id]['records'] = records
+                    
+                    # Match total progress
+                    progress_match = re.search(r'Progress:\s*(\d+)/(\d+)\s*entities\s*\|\s*([\d,]+)\s*total records', line)
+                    if progress_match:
+                        current_entity_idx = int(progress_match.group(1))
+                        total_entities = int(progress_match.group(2))
+                        total_records = int(progress_match.group(3).replace(',', ''))
+                
+            except Exception as e:
+                logger.warning(f"Error parsing log: {e}")
+        
+        # Calculate records
+        current_records = sum(w.get('records', 0) for w in workers_data.values()) if workers_data else 0
+        display_records = total_records if total_records > 0 else current_records
+        
+        # Calculate percent
+        percent = 0
+        if phase == self.PHASE_COMPLETE:
+            percent = 100
+        elif phase in [self.PHASE_MERGE, self.PHASE_RECOVERY, self.PHASE_DETECTION]:
+            # Post-extraction phases: 95-100%
+            percent = 95 + (5 * (list([self.PHASE_DETECTION, self.PHASE_RECOVERY, self.PHASE_MERGE, self.PHASE_COMPLETE]).index(phase) / 3))
+        elif total_pendentes > 0 and display_records > 0:
+            # Extraction phase: 0-95%
+            percent = min(95, (display_records / total_pendentes) * 95)
+        elif total_entities > 0:
+            entity_progress = (current_entity_idx - 1) / total_entities if current_entity_idx > 0 else 0
+            percent = entity_progress * 95
+        
+        return {
+            "records": display_records,
+            "percent": min(percent, 100),
+            "elapsed_seconds": elapsed_seconds,
+            "current_entity": current_entity,
+            "current_entity_idx": current_entity_idx,
+            "total_entities": total_entities,
+            "total_pendentes": total_pendentes,
+            "is_running": self.is_running(),
+            "workers": workers_data,
+            "num_processes": self.extraction_info.get("num_processes", 10),
+            "phase": phase,
+            "phase_message": phase_message,
+            "gaps_detected": gaps_detected,
+            "gaps_recovered": gaps_recovered
+        }
+    
+    def get_result(self) -> Dict:
+        """Get extraction result after completion"""
+        if self.is_running():
+            return {"success": False, "error": "Still running"}
+        
+        if self.process is None:
+            return {"success": False, "error": "No process"}
+        
+        return_code = self.process.returncode
+        
+        # Find output file (V6 creates COMPLETE files)
+        output_file = None
+        records = 0
+        
+        regime = self.extraction_info.get("regime", "especial") if self.extraction_info else "especial"
+        
+        # Try COMPLETE files first (V6 output)
+        pattern = f"precatorios_{regime}_COMPLETE_*.csv"
+        files = sorted(
+            self.output_dir.glob(pattern),
+            key=lambda x: x.stat().st_mtime,
+            reverse=True
+        )
+        
+        # Fallback to ALL files (V5 output)
+        if not files:
+            pattern = f"precatorios_{regime}_ALL_*.csv"
+            files = sorted(
+                self.output_dir.glob(pattern),
+                key=lambda x: x.stat().st_mtime,
+                reverse=True
+            )
+        
+        if files:
+            output_file = files[0]
+            records = count_csv_records(output_file)
+        
+        duration_seconds = 0
+        if self.start_time:
+            duration_seconds = (datetime.now() - self.start_time).total_seconds()
+        
+        # Check for gaps info from orchestrator log
+        gaps_detected = 0
+        gaps_recovered = 0
+        orchestrator_log = self.project_root / "logs" / "orchestrator_v6.log"
+        if orchestrator_log.exists():
+            try:
+                with open(orchestrator_log, 'r') as f:
+                    content = f.read()
+                gaps_match = re.search(r'Failed: (\d+)', content)
+                if gaps_match:
+                    gaps_detected = int(gaps_match.group(1))
+                recovered_match = re.search(r'recovered_records": (\d+)', content)
+                if recovered_match:
+                    gaps_recovered = int(recovered_match.group(1))
+            except:
+                pass
+        
+        return {
+            "success": return_code == 0,
+            "return_code": return_code,
+            "output_file": str(output_file) if output_file else None,
+            "output_filename": output_file.name if output_file else None,
+            "records": records,
+            "duration_seconds": duration_seconds,
+            "gaps_detected": gaps_detected,
+            "gaps_recovered": gaps_recovered,
+            "error": None if return_code == 0 else f"Process exited with code {return_code}"
+        }
+    
+    def cancel(self):
+        """Cancel running extraction"""
+        if self.process and self.is_running():
+            self.process.terminate()
+            try:
+                self.process.wait(timeout=10)
+            except subprocess.TimeoutExpired:
+                self.process.kill()
+            # Also kill any chromium processes
+            try:
+                subprocess.run(['pkill', '-9', '-f', 'chromium'], capture_output=True)
+            except:
+                pass
+            logger.info("V6 extraction cancelled")
+    
+    def cleanup(self):
+        """Clean up resources"""
+        self.process = None
+        self.start_time = None
+        self.extraction_info = None
+        self.current_phase = self.PHASE_EXTRACTION
