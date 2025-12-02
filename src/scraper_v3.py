@@ -600,17 +600,32 @@ class TJRJPrecatoriosScraperV3:
         precatorios = []
 
         try:
+            # Wait for overlay to disappear with explicit timeout and logging
             try:
-                page.wait_for_selector('.block-ui-overlay', state='hidden', timeout=5000)
-            except:
-                pass
+                logger.debug("Waiting for overlay to disappear...")
+                page.wait_for_selector('.block-ui-overlay', state='hidden', timeout=10000)
+                logger.debug("Overlay hidden")
+            except Exception as overlay_err:
+                logger.debug(f"Overlay wait skipped: {overlay_err}")
+                # Continue anyway - overlay might not exist
 
-            page.wait_for_timeout(1500)
+            # Shorter fixed wait
+            page.wait_for_timeout(1000)
 
+            # Wait for table rows with explicit timeout
+            logger.debug("Waiting for table rows...")
+            try:
+                page.wait_for_selector('tbody tr[ng-repeat-start]', timeout=15000)
+            except Exception as rows_wait_err:
+                logger.warning(f"Timeout waiting for rows: {rows_wait_err}")
+                # Try once more after a brief wait
+                page.wait_for_timeout(2000)
+            
             rows = page.query_selector_all('tbody tr[ng-repeat-start]')
+            logger.debug(f"Found {len(rows)} rows")
 
             if not rows or len(rows) == 0:
-                logger.warning("No precatório rows found")
+                logger.warning("No precatório rows found on page")
                 return precatorios
 
             for idx in range(len(rows)):
