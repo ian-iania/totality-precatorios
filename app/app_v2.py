@@ -459,6 +459,10 @@ def render_progress_view():
             stop_extraction()
             st.rerun()
     
+    # Current entity (between header and metrics)
+    if summary['current_entity']:
+        st.info(f"**Processando:** {summary['current_entity']}")
+    
     # Get entity counts independently
     total_entities = get_regime_entity_count(regime)
     completed_entities = count_completed_entities(scraper_lines_full)
@@ -486,13 +490,9 @@ def render_progress_view():
         st.metric("🔄 Workers ativos", f"{active}")
     
     # Progress bar
-    if summary['entities_total'] > 0:
-        progress = summary['entities_current'] / summary['entities_total']
+    if total_entities > 0:
+        progress = completed_entities / total_entities
         st.progress(progress, text=f"{progress*100:.1f}%")
-    
-    # Current entity
-    if summary['current_entity']:
-        st.info(f"**Processando:** {summary['current_entity']}")
     
     # Terminal view
     st.markdown("**📟 Terminal**")
