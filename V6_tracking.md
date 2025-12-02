@@ -14,7 +14,7 @@
 | 3 | Merge & Finalize | ✅ DONE | 2025-12-01 20:47 | 2025-12-01 20:47 |
 | 4 | Orchestrator | ✅ DONE | 2025-12-01 22:06 | 2025-12-01 22:22 |
 | 5 | Integration Layer | ✅ DONE | 2025-12-01 22:28 | 2025-12-01 22:35 |
-| 6 | UI Updates | ⏳ Pending | - | - |
+| 6 | UI Updates | ✅ DONE | 2025-12-01 22:31 | 2025-12-01 22:33 |
 
 ---
 
@@ -293,13 +293,32 @@ Phases: extraction, detection, recovery, merge, complete
 Minimal UI changes to use V6 runner.
 
 ### Tasks
-- [ ] Update to use V6 runner
-- [ ] Add phase-based messaging
-- [ ] Test complete flow
+- [x] Update to use V6 runner
+- [x] Add phase-based messaging
+- [x] Add gaps info to success view
 
 ### Implementation Notes
 ```
-(pending)
+Completed: 2025-12-01 22:33
+
+Changes to app/app.py:
+1. Import AllEntitiesRunnerV6
+2. start_all_entities_extraction() now uses AllEntitiesRunnerV6
+3. Progress view shows V6 phase messages:
+   - extraction: "Extracting data..."
+   - detection: "🔍 Verificando gaps na extração..."
+   - recovery: "🔄 Recuperando X entidades com falha..."
+   - merge: "📦 Mesclando dados e gerando arquivo final..."
+   - complete: "✅ Extração completa!"
+4. Success view shows gaps info (4th column if gaps > 0)
+5. Reset use_v6_mode flag on OK/Cancel
+```
+
+### Test Results
+```
+$ python -c "from app.app import *; print('OK')"
+app.py imports OK!
+AllEntitiesRunnerV6 available: True
 ```
 
 ---

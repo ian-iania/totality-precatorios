@@ -26,7 +26,7 @@ from typing import List, Dict, Optional
 # Add parent directory to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from app.integration import EntityLoader, ExtractionRunner, AllEntitiesRunner
+from app.integration import EntityLoader, ExtractionRunner, AllEntitiesRunner, AllEntitiesRunnerV6
 from app.utils import (
     get_output_dir, format_number, format_duration, format_time,
     format_datetime, format_filesize, estimate_time_minutes,
@@ -209,23 +209,23 @@ def render_setup_view():
 
 def start_all_entities_extraction(regime: str):
     """
-    Start extraction of ALL entities for a regime using V5 single-process mode
+    Start extraction of ALL entities for a regime using V6 workflow
     
-    V5 Mode:
-    - Single subprocess handles all entities sequentially
-    - No intermediate I/O - all data in memory until final save
-    - Entities processed in order (largest first for optimal worker usage)
+    V6 Mode:
+    - Uses main_v6_orchestrator.py for full workflow
+    - Automatic gap detection and recovery
+    - Merge and finalize with duplicate removal
     - Single CSV/Excel output at the end
     """
     from loguru import logger
     
-    logger.info(f"Starting V5 all-entities extraction for regime: {regime}")
+    logger.info(f"Starting V6 all-entities extraction for regime: {regime}")
     
-    # Create V5 runner
-    runner = AllEntitiesRunner()
+    # Create V6 runner (with gap detection and recovery)
+    runner = AllEntitiesRunnerV6()
     
     try:
-        # Start extraction - V5 handles entity loading internally
+        # Start extraction - V6 handles everything including gaps
         runner.start_extraction(
             regime=regime,
             num_processes=NUM_WORKERS,
@@ -238,13 +238,14 @@ def start_all_entities_extraction(regime: str):
         st.session_state.extraction_running = True
         st.session_state.show_success = False
         st.session_state.extraction_start_time = datetime.now()
-        st.session_state.use_v5_mode = True  # Flag for V5 progress view
+        st.session_state.use_v5_mode = True  # Flag for V5/V6 progress view
+        st.session_state.use_v6_mode = True  # Flag for V6 specific features
         
-        logger.info("V5 extraction started successfully")
+        logger.info("V6 extraction started successfully")
         st.rerun()
         
     except Exception as e:
-        logger.error(f"Failed to start V5 extraction: {e}")
+        logger.error(f"Failed to start V6 extraction: {e}")
         st.error(f"Erro ao iniciar extração: {e}")
 
 
@@ -423,11 +424,29 @@ def render_progress_view():
                 else:
                     st.caption(f"⏱️ Tempo restante: ~{estimated_remaining:.0f} seg")
             
-            # Status messages
-            if overall_percent >= 0.98:
-                st.info("📦 Finalizando extração e salvando CSV + Excel...")
-            elif overall_percent >= 0.95:
-                st.info("⏳ Finalizando últimas entidades...")
+            # Status messages - V6 phase-aware
+            use_v6 = st.session_state.get('use_v6_mode', False)
+            if use_v6:
+                phase = progress.get('phase', 'extraction')
+                phase_message = progress.get('phase_message', '')
+                gaps_detected = progress.get('gaps_detected', 0)
+                
+                if phase == 'complete':
+                    st.success("✅ Extração completa!")
+                elif phase == 'merge':
+                    st.info("📦 Mesclando dados e gerando arquivo final...")
+                elif phase == 'recovery':
+                    st.warning(f"🔄 Recuperando {gaps_detected} entidades com falha...")
+                elif phase == 'detection':
+                    st.info("🔍 Verificando gaps na extração...")
+                elif overall_percent >= 0.95:
+                    st.info("⏳ Finalizando extração...")
+            else:
+                # Legacy V5 messages
+                if overall_percent >= 0.98:
+                    st.info("📦 Finalizando extração e salvando CSV + Excel...")
+                elif overall_percent >= 0.95:
+                    st.info("⏳ Finalizando últimas entidades...")
         
         with col_workers:
             # Workers status
@@ -591,6 +610,7 @@ def render_progress_view():
         st.session_state.extraction_running = False
         st.session_state.extraction_runner = None
         st.session_state.use_v5_mode = False
+        st.session_state.use_v6_mode = False
         st.warning("Extração cancelada.")
         st.rerun()
     
@@ -632,15 +652,40 @@ def render_success_view():
     output_file = result.get('output_file', '')
     output_filename = result.get('output_filename', '')
     
-    # Summary metrics
-    col1, col2, col3 = st.columns(3)
-    with col1:
-        st.metric("Registros", format_number(records))
-    with col2:
-        regime_label = "Especial" if regime == "especial" else "Geral"
-        st.metric("Regime", regime_label)
-    with col3:
-        st.metric("Duração", duration_str)
+    # Summary metrics - V6 aware
+    use_v6 = st.session_state.get('use_v6_mode', False)
+    gaps_detected = result.get('gaps_detected', 0)
+    gaps_recovered = result.get('gaps_recovered', 0)
+    
+    if use_v6 and gaps_detected > 0:
+        # V6 with gaps - show 4 columns
+        col1, col2, col3, col4 = st.columns(4)
+        with col1:
+            st.metric("Registros", format_number(records))
+        with col2:
+            regime_label = "Especial" if regime == "especial" else "Geral"
+            st.metric("Regime", regime_label)
+        with col3:
+            st.metric("Duração", duration_str)
+        with col4:
+            if gaps_recovered > 0:
+                st.metric("Gaps Recuperados", f"{gaps_recovered}")
+            else:
+                st.metric("Gaps Detectados", f"{gaps_detected}*")
+        
+        # Note about gaps
+        if gaps_detected > 0 and gaps_recovered == 0:
+            st.caption("*Entidades com 0 registros (páginas vazias no site)")
+    else:
+        # Standard 3 columns
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            st.metric("Registros", format_number(records))
+        with col2:
+            regime_label = "Especial" if regime == "especial" else "Geral"
+            st.metric("Regime", regime_label)
+        with col3:
+            st.metric("Duração", duration_str)
     
     # File info
     if output_filename:
@@ -658,6 +703,7 @@ def render_success_view():
         st.session_state.extraction_result = None
         st.session_state.extraction_complete = False
         st.session_state.use_v5_mode = False
+        st.session_state.use_v6_mode = False
         st.session_state.processing_regime = None
         st.rerun()
     
