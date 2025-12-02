@@ -177,8 +177,10 @@ def start_extraction(regime: str, num_processes: int = 10, timeout: int = 60):
             log_file.unlink()
     
     # Start process with start_new_session=True (fully independent)
+    # Use sys.executable to get the correct Python path (works in venv)
+    import sys
     cmd = [
-        'python', 'main_v6_orchestrator.py',
+        sys.executable, 'main_v6_orchestrator.py',
         '--regime', regime,
         '--num-processes', str(num_processes),
         '--timeout', str(timeout)
