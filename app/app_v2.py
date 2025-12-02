@@ -171,6 +171,12 @@ def is_process_running() -> bool:
 
 def start_extraction(regime: str, num_processes: int = 10, timeout: int = 60):
     """Start extraction process (desacoplado)"""
+    # Reset entity counter in session state
+    if 'last_entity_count' in st.session_state:
+        st.session_state.last_entity_count = 0
+    if 'seen_entity_lines' in st.session_state:
+        st.session_state.seen_entity_lines = set()
+    
     # Clear old logs
     for log_file in [SCRAPER_LOG, ORCHESTRATOR_LOG]:
         if log_file.exists():
@@ -341,19 +347,30 @@ def get_regime_entity_count(regime: str) -> int:
 
 
 def count_completed_entities(lines: List[str]) -> int:
-    """Count completed entities from log"""
-    count = 0
+    """Count completed entities from log using session state for persistence"""
+    # Initialize session state if needed
+    if 'last_entity_count' not in st.session_state:
+        st.session_state.last_entity_count = 0
+    if 'seen_entity_lines' not in st.session_state:
+        st.session_state.seen_entity_lines = set()
+    
+    # Count new entity completions
     for line in lines:
         if 'Entity complete:' in line or '📊 Entity complete:' in line:
-            count += 1
-    return count
+            # Use line hash to avoid counting same entity twice
+            line_hash = hash(line.strip())
+            if line_hash not in st.session_state.seen_entity_lines:
+                st.session_state.seen_entity_lines.add(line_hash)
+                st.session_state.last_entity_count += 1
+    
+    return st.session_state.last_entity_count
 
 
 def render_progress_view():
     """Render progress view (polling logs)"""
     
-    # Read logs - full log for entity counting, last lines for terminal
-    scraper_lines_full = read_last_lines(SCRAPER_LOG, 50000)  # Full log for counting (needs all Entity complete: lines)
+    # Read logs - last 500 lines for entity counting (session_state persists count)
+    scraper_lines_full = read_last_lines(SCRAPER_LOG, 500)
     scraper_lines = scraper_lines_full[-100:]  # Last 100 for parsing
     orchestrator_lines = read_last_lines(ORCHESTRATOR_LOG, 50)
     all_lines = orchestrator_lines + scraper_lines  # For phase detection
