@@ -40,6 +40,7 @@ OUTPUT_DIR = PROJECT_ROOT / "output"
 PID_FILE = LOGS_DIR / "extraction.pid"
 REGIME_FILE = LOGS_DIR / "extraction.regime"
 ENTITY_COUNT_FILE = LOGS_DIR / "extraction.entity_count"
+WORKERS_FILE = LOGS_DIR / "extraction.workers"
 START_TIME_FILE = LOGS_DIR / "extraction.start_time"
 SCRAPER_LOG = LOGS_DIR / "scraper_v3.log"
 ORCHESTRATOR_LOG = LOGS_DIR / "orchestrator_v6.log"
@@ -243,6 +244,9 @@ def start_extraction(regime: str, num_processes: int = 10, timeout: int = 60, en
     else:
         count = 41 if regime == "especial" else 56
         ENTITY_COUNT_FILE.write_text(str(count))
+    
+    # Save workers count
+    WORKERS_FILE.write_text(str(num_processes))
     
     return process.pid
 
@@ -518,8 +522,12 @@ def render_progress_view():
         st.metric("⏱️ Tempo decorrido", format_duration(elapsed))
     
     with col4:
-        active = len(summary['active_workers'])
-        st.metric("🔄 Workers ativos", f"{active}")
+        # Show configured workers count (not from log parsing which is unreliable)
+        try:
+            workers = int(WORKERS_FILE.read_text().strip()) if WORKERS_FILE.exists() else len(summary['active_workers'])
+        except:
+            workers = len(summary['active_workers'])
+        st.metric("🔄 Workers", f"{workers}")
     
     # Progress bar
     if total_entities > 0:
