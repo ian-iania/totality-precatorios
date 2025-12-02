@@ -421,12 +421,13 @@ def merge_and_finalize(
     excel_path = save_dataframe(df_combined, output_path)
     
     result = {
+        "success": True,
         "total_records": len(df_combined),
         "initial_records": initial_count,
         "gaps_added": len(df_combined) - initial_count + duplicates_removed,
         "duplicates_removed": duplicates_removed,
-        "output_file": output_path,
-        "excel_file": str(excel_path)
+        "output_csv": output_path,
+        "output_excel": str(excel_path)
     }
     
     logger.info(f"\n✅ Merge complete!")

@@ -12,7 +12,7 @@
 | 1 | Gap Detection | ✅ DONE | 2025-12-01 20:16 | 2025-12-01 20:45 |
 | 2 | Gap Recovery | ✅ DONE | 2025-12-01 20:46 | 2025-12-01 20:47 |
 | 3 | Merge & Finalize | ✅ DONE | 2025-12-01 20:47 | 2025-12-01 20:47 |
-| 4 | Orchestrator | ⏳ Pending | - | - |
+| 4 | Orchestrator | ✅ DONE | 2025-12-01 22:06 | 2025-12-01 22:22 |
 | 5 | Integration Layer | ⏳ Pending | - | - |
 | 6 | UI Updates | ⏳ Pending | - | - |
 
@@ -23,7 +23,7 @@
 ### New Files (V6)
 | File | Purpose | Phase |
 |------|---------|-------|
-| `main_v6_orchestrator.py` | Main V6 entry point with full pipeline | 4 |
+| `main_v6_orchestrator.py` | Full workflow orchestrator | 4 |
 | `gap_recovery.py` | Gap detection, recovery, merge functions | 1-3 |
 | `V6_implementation_plan.md` | Implementation plan | - |
 | `V6_tracking.md` | This tracking document | - |
@@ -181,13 +181,69 @@ Total records: 5383
 Create `main_v6_orchestrator.py` as the new main entry point.
 
 ### Tasks
-- [ ] Create `main_v6_orchestrator.py`
-- [ ] Implement `run_complete_extraction()`
-- [ ] Test full pipeline
+- [x] Create `main_v6_orchestrator.py`
+- [x] Implement `run_full_workflow()`
+- [x] Test full pipeline
 
 ### Implementation Notes
 ```
-(pending)
+Completed: 2025-12-01 22:22
+
+Created main_v6_orchestrator.py with:
+- run_main_extraction() - calls main_v5_all_entities.py as subprocess
+- run_gap_detection() - calls detect_failed_entities()
+- run_gap_recovery() - calls recover_failed_entities()
+- run_merge_and_finalize() - calls merge_and_finalize()
+- run_full_workflow() - orchestrates all phases
+
+CLI options:
+  --regime geral|especial
+  --num-processes N
+  --timeout N (minutes per entity)
+  --skip-extraction (use existing CSV)
+  --main-csv PATH (with --skip-extraction)
+```
+
+### Test Results
+```
+$ python main_v6_orchestrator.py --regime geral --num-processes 10
+
+V6 ORCHESTRATOR - FULL WORKFLOW
+================================
+Started: 2025-12-01 22:07:08
+Regime: geral
+Workers: 10
+
+PHASE 1: MAIN EXTRACTION
+========================
+Running: python main_v5_all_entities.py --regime geral --num-processes 10
+Main extraction completed in 15.0 min
+Output CSV: output/precatorios_geral_ALL_20251201_222208.csv
+
+PHASE 2: GAP DETECTION
+======================
+Total entities: 56
+Successful: 56
+Failed: 0
+Total records: 5,384
+Completeness: 100%
+No failed entities detected!
+
+PHASE 3: GAP RECOVERY
+=====================
+No gaps to recover - skipping
+
+PHASE 4: MERGE & FINALIZE
+=========================
+Main CSV: 5384 records
+Removed 1 duplicates
+Final output: output/precatorios_geral_COMPLETE_20251201_222209.csv
+Total records: 5,383
+
+WORKFLOW COMPLETE
+=================
+Total time: 15.1 min
+Final records: 5,383
 ```
 
 ---
