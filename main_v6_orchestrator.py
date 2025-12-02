@@ -48,7 +48,7 @@ def setup_logging():
     )
 
 
-def run_main_extraction(regime: str, num_processes: int, timeout: int = 60) -> Tuple[bool, str]:
+def run_main_extraction(regime: str, num_processes: int, timeout: int = 60, entity_id: int = None) -> Tuple[bool, str]:
     """
     Run the main V5 extraction as a subprocess.
     
@@ -56,6 +56,7 @@ def run_main_extraction(regime: str, num_processes: int, timeout: int = 60) -> T
         regime: 'geral' or 'especial'
         num_processes: Number of parallel workers
         timeout: Timeout per entity in minutes
+        entity_id: Optional single entity ID to extract
         
     Returns:
         Tuple of (success, output_csv_path)
@@ -66,6 +67,8 @@ def run_main_extraction(regime: str, num_processes: int, timeout: int = 60) -> T
     logger.info(f"Regime: {regime}")
     logger.info(f"Workers: {num_processes}")
     logger.info(f"Timeout: {timeout} min/entity")
+    if entity_id:
+        logger.info(f"Entity ID: {entity_id} (single entity mode)")
     
     cmd = [
         sys.executable,
@@ -74,6 +77,9 @@ def run_main_extraction(regime: str, num_processes: int, timeout: int = 60) -> T
         "--num-processes", str(num_processes),
         "--timeout", str(timeout)
     ]
+    
+    if entity_id:
+        cmd.extend(["--entity-id", str(entity_id)])
     
     logger.info(f"Running: {' '.join(cmd)}")
     start_time = time.time()
@@ -241,7 +247,8 @@ def run_full_workflow(
     num_processes: int = 10,
     timeout: int = 60,
     skip_extraction: bool = False,
-    main_csv: str = None
+    main_csv: str = None,
+    entity_id: int = None
 ) -> Dict:
     """
     Run the complete V6 extraction workflow.
@@ -252,6 +259,7 @@ def run_full_workflow(
         timeout: Timeout per entity in minutes
         skip_extraction: If True, skip main extraction (use existing CSV)
         main_csv: Path to existing main CSV (if skip_extraction=True)
+        entity_id: Optional single entity ID to extract
         
     Returns:
         Result dict with workflow stats
@@ -265,10 +273,13 @@ def run_full_workflow(
     logger.info(f"Started: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     logger.info(f"Regime: {regime}")
     logger.info(f"Workers: {num_processes}")
+    if entity_id:
+        logger.info(f"Entity ID: {entity_id} (single entity mode)")
     
     result = {
         "regime": regime,
         "start_time": datetime.now().isoformat(),
+        "entity_id": entity_id,
         "phases": {}
     }
     
@@ -278,7 +289,7 @@ def run_full_workflow(
         extraction_success = True
         output_csv = main_csv
     else:
-        extraction_success, output_csv = run_main_extraction(regime, num_processes, timeout)
+        extraction_success, output_csv = run_main_extraction(regime, num_processes, timeout, entity_id)
     
     result["phases"]["extraction"] = {
         "success": extraction_success,
@@ -348,6 +359,9 @@ Examples:
     # Full extraction for geral regime (smaller)
     python main_v6_orchestrator.py --regime geral --num-processes 5
     
+    # Single entity extraction (e.g., Estado do RJ = ID 1)
+    python main_v6_orchestrator.py --regime especial --entity-id 1 --num-processes 15
+    
     # Skip extraction, just process existing CSV
     python main_v6_orchestrator.py --regime geral --skip-extraction --main-csv output/precatorios_geral_ALL_20251201.csv
         """
@@ -373,6 +387,11 @@ Examples:
         help="Timeout per entity in minutes (default: 60)"
     )
     parser.add_argument(
+        "--entity-id",
+        type=int,
+        help="Single entity ID to extract (e.g., 1 for Estado do RJ)"
+    )
+    parser.add_argument(
         "--skip-extraction",
         action="store_true",
         help="Skip main extraction (use existing CSV)"
@@ -392,7 +411,8 @@ Examples:
         num_processes=args.num_processes,
         timeout=args.timeout,
         skip_extraction=args.skip_extraction,
-        main_csv=args.main_csv
+        main_csv=args.main_csv,
+        entity_id=args.entity_id
     )
     
     # Exit with appropriate code

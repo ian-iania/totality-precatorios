@@ -685,6 +685,8 @@ def main():
                        help='Log level')
     parser.add_argument('--log-file', type=str,
                        help='Additional log file path')
+    parser.add_argument('--entity-id', type=int,
+                       help='Single entity ID to process (e.g., 1 for Estado do RJ)')
     parser.add_argument('--entity-ids', type=str,
                        help='Comma-separated list of entity IDs to process (optional)')
     parser.add_argument('--skip-entity-ids', type=str,
@@ -717,7 +719,15 @@ def main():
         return 1
     
     # Filter entities if specified
-    if args.entity_ids:
+    if args.entity_id:
+        # Single entity mode
+        entities = [e for e in entities if e['id'] == args.entity_id]
+        if entities:
+            logger.info(f"🎯 Single entity mode: {entities[0]['nome']} (ID: {args.entity_id})")
+        else:
+            logger.error(f"Entity ID {args.entity_id} not found!")
+            return 1
+    elif args.entity_ids:
         target_ids = set(int(x.strip()) for x in args.entity_ids.split(','))
         entities = [e for e in entities if e['id'] in target_ids]
         logger.info(f"Filtered to {len(entities)} entities by ID")
