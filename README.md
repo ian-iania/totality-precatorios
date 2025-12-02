@@ -1,20 +1,27 @@
-# TJRJ Precatórios Web Scraper
+# Totality Precatórios - TJRJ Web Scraper
 
 **Production-ready web scraper** for extracting court-ordered payment (precatório) data from the Rio de Janeiro Court of Justice (TJRJ) portal using browser automation.
 
+## 🌐 VPS Access (Production)
+
+| Item | Value |
+|------|-------|
+| **URL** | http://209.126.12.243:8501 |
+| **SSH** | `ssh root@209.126.12.243` |
+| **Project Path** | `/root/charles/totality-precatorios` |
+
 ## 🎯 Features
 
-- ✅ **V4 Memory Mode**: Full in-memory extraction with no intermediate I/O
-- ✅ **12 Parallel Workers**: Configurable concurrent workers for maximum speed
-- ✅ **Streamlit UI**: User-friendly web interface with real-time progress
+- ✅ **V6 Orchestrator**: Complete workflow with gap detection and recovery
+- ✅ **Decoupled UI V2**: Streamlit UI that doesn't interfere with extraction
+- ✅ **1-20 Parallel Workers**: Configurable concurrent workers
+- ✅ **Real-time Progress**: Log-based progress tracking
 - ✅ **Excel Export**: Auto-filter, styled headers, freeze panes
-- ✅ **Data Formatting**: Numeric ordem, formatted monetary values
-- ✅ **Comprehensive Coverage**: Both regime geral and especial
-- ✅ **Automatic Pagination**: Direct page navigation for any page
+- ✅ **Gap Recovery**: Automatic detection and recovery of failed entities
+- ✅ **Comprehensive Coverage**: Both regime GERAL (56) and ESPECIAL (41)
 - ✅ **Robust Error Handling**: Per-worker timeouts and graceful degradation
 - ✅ **Data Validation**: Pydantic models ensure data integrity
-- ✅ **CSV Export**: Excel-compatible format with Brazilian standards
-- ✅ **Real-time Progress**: Workers table with page/records tracking
+- ✅ **CSV + Excel Export**: Brazilian format standards
 
 ## 📊 Extracted Data
 
@@ -68,87 +75,74 @@ cp .env.example .env
 # Edit .env with your preferences
 ```
 
-### Option 1: Streamlit Web Interface (Recommended)
+### Option 1: Streamlit Web Interface V2 (Recommended)
 
 ```bash
-# Start the Streamlit app
-streamlit run app/app.py
+# Start the Streamlit V2 app (decoupled UI)
+streamlit run app/app_v2.py --server.port 8501
 
 # Open http://localhost:8501 in your browser
 ```
 
-The Streamlit UI provides:
-- Regime selection (Especial/Geral)
-- One-click extraction of all entities
-- Real-time progress tracking with workers table
-- 12 parallel workers with page/records status
-- Overall progress in bold red
-- ETA calculation and completion time
-- CSV + Excel output with formatting
-- Success animation and download management
+The Streamlit V2 UI provides:
+- Regime selection (ESPECIAL/GERAL) with radio buttons
+- Configurable workers (1-20)
+- Real-time progress via log polling (no interference)
+- Metrics: Entities, Records, Time, Workers
+- Terminal view with last 15 log lines
+- Downloads tab with file filters
+- Process runs independently (survives browser close)
 
-### Option 2: Command Line (V4 Memory Mode)
+### Option 2: Command Line (V6 Orchestrator)
 
 ```bash
-# Extract single entity with 12 parallel workers (full memory mode)
-python main_v4_memory.py \
-  --entity-id 1 \
-  --entity-name "Estado do Rio de Janeiro" \
-  --regime especial \
-  --total-pages 2984 \
-  --num-processes 12 \
-  --timeout 30
+# Extract all entities with V6 orchestrator (includes gap recovery)
+python main_v6_orchestrator.py --regime especial --num-processes 10 --timeout 60
 
-# Extract with visible browser for debugging
-python main_v4_memory.py \
-  --entity-id 1 \
-  --entity-name "Estado do Rio de Janeiro" \
-  --regime especial \
-  --total-pages 100 \
-  --num-processes 4 \
-  --no-headless
+# Extract GERAL with 15 workers
+python main_v6_orchestrator.py --regime geral --num-processes 15 --timeout 60
 ```
 
-### Option 3: Legacy Scripts
+The V6 Orchestrator provides:
+- **Phase 1**: Main extraction with parallel workers
+- **Phase 2**: Gap detection (finds failed entities)
+- **Phase 3**: Gap recovery (re-extracts failed entities)
+- **Phase 4**: Merge & finalize (creates COMPLETE file)
+
+### Option 3: Legacy Scripts (V5/V4)
 
 ```bash
-# V4 Fast (with intermediate files - deprecated)
-python main_v4_fast.py \
-  --entity-id 1 \
-  --total-pages 2984 \
-  --num-processes 8
+# V5 All Entities (without gap recovery)
+python main_v5_all_entities.py --regime especial --num-processes 10
 
-# V3 parallel extraction (may hang on large extractions)
-python main_v3_parallel.py \
+# V4 Memory Mode (single entity)
+python main_v4_memory.py \
   --entity-id 1 \
+  --entity-name "Estado do Rio de Janeiro" \
+  --regime especial \
   --total-pages 2984 \
-  --num-processes 4 \
-  --skip-expanded
+  --num-processes 12
 ```
 
 ## ⚡ Performance
 
-### V4 Memory Mode Benchmarks
+### V6 Benchmarks (VPS - 4 vCPU, 8GB RAM)
 
-| Metric | Value |
-|--------|-------|
-| Workers | 12 parallel (configurable) |
-| Speed per page | ~2 seconds |
-| Effective speed (12 workers) | ~0.17 seconds/page |
-| Estado do RJ (2,984 pages) | ~10-15 minutes |
-| Timeout protection | 30 min per worker |
-| Storage | Full in-memory (no I/O) |
+| Regime | Entities | Records | Workers | Time |
+|--------|----------|---------|---------|------|
+| ESPECIAL | 41 | ~40,243 | 10 | ~85 min |
+| GERAL | 56 | ~5,384 | 10 | ~15 min |
+| ESPECIAL | 41 | ~40,243 | 15 | ~60 min |
+| ESPECIAL | 41 | ~40,243 | 20 | ~45 min |
 
 ### Version Comparison
 
-| Aspect | V3 | V4 Fast | V4 Memory |
-|--------|----|---------|-----------|
-| Workers | 4 | 8 | 12 |
-| Pool method | `pool.map()` | `apply_async()` | `apply_async()` |
-| Intermediate I/O | Yes | Yes | **No** |
-| Data formatting | No | No | **Yes** |
-| Excel output | No | No | **Yes** |
-| Hang risk | High | Low | Low |
+| Aspect | V5 | V6 | UI V2 |
+|--------|----|----|-------|
+| Gap Recovery | ❌ | ✅ | ✅ |
+| Decoupled UI | ❌ | ❌ | ✅ |
+| Workers | 1-20 | 1-20 | 1-20 |
+| Hang Risk | Medium | Low | None |
 
 ## 📖 Advanced Usage
 
@@ -329,6 +323,6 @@ For issues or questions:
 
 ---
 
-**Version**: 4.1.0
-**Last Updated**: 2025-12-01
-**Status**: Production Ready - V4 Memory Mode with 12 Workers
+**Version**: 2.0.0
+**Last Updated**: 2025-12-02
+**Status**: Production Ready - V6 Orchestrator + UI V2 Decoupled

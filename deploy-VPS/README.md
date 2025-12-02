@@ -1,27 +1,44 @@
-# Deploy TJRJ Scraper V5 on VPS
+# Deploy Totality Precatórios on VPS
+
+## 🌐 Production Access
+
+| Item | Value |
+|------|-------|
+| **URL** | http://209.126.12.243:8501 |
+| **SSH** | `ssh root@209.126.12.243` |
+| **Project** | `/root/charles/totality-precatorios` |
 
 ## Requirements
 
 - **OS**: Ubuntu 20.04+ or Debian 11+
-- **RAM**: 4GB+ recommended (for 12 workers)
-- **CPU**: 2+ cores
+- **RAM**: 8GB+ recommended (for 15-20 workers)
+- **CPU**: 4+ cores
 - **Disk**: 10GB+ free space
 - **Port**: 8501 open for Streamlit UI
 
-## Quick Setup (Existing Clone)
-
-If you already have the repo cloned at `/root/charles/totality-precatorios`:
+## Quick Commands
 
 ```bash
+# SSH into VPS
+ssh root@209.126.12.243
+
+# Go to project
 cd /root/charles/totality-precatorios
-bash deploy-VPS/setup.sh
+
+# Update and restart
+bash deploy-VPS/update.sh
+
+# Or manually:
+git pull origin main
+pkill -f streamlit
+screen -dmS charles ./venv/bin/streamlit run app/app_v2.py --server.port 8501 --server.address 0.0.0.0
 ```
 
 ## First Time Install
 
 ```bash
 # 1. SSH into your VPS
-ssh root@your-vps-ip
+ssh root@209.126.12.243
 
 # 2. Create directory and clone
 mkdir -p /root/charles
@@ -85,7 +102,13 @@ screen -r charles
 
 ## Access UI
 
-Open in browser: `http://YOUR_VPS_IP:8501`
+Open in browser: **http://209.126.12.243:8501**
+
+The UI V2 provides:
+- Regime selection (ESPECIAL/GERAL)
+- Configurable workers (1-20)
+- Real-time progress via log polling
+- Downloads tab with file filters
 
 ## Firewall Configuration
 
@@ -120,13 +143,23 @@ cd /root/charles/totality-precatorios
 
 ```
 /root/charles/totality-precatorios/
-├── app/                    # Streamlit UI
-├── src/                    # Core scraper
+├── app/
+│   ├── app_v2.py           # Streamlit UI V2 (decoupled)
+│   ├── app.py              # Legacy UI (deprecated)
+│   └── integration.py      # Backend integration
+├── src/
+│   └── scraper_v3.py       # Core scraper
+├── main_v6_orchestrator.py # V6 with gap recovery
 ├── main_v5_all_entities.py # V5 script
+├── gap_recovery.py         # Gap detection/recovery
 ├── deploy-VPS/             # Deploy scripts
-├── logs/                   # Logs directory
-│   ├── scraper_v3.log     # Main log
-│   └── screenshots/       # Debug screenshots
-├── output/                 # CSV outputs
+│   ├── setup.sh            # First-time setup
+│   ├── update.sh           # Update and restart
+│   ├── start.sh            # Start Streamlit
+│   └── stop.sh             # Stop all
+├── logs/
+│   ├── scraper_v3.log      # Main extraction log
+│   └── orchestrator_v6.log # Orchestrator log
+├── output/                 # CSV/Excel outputs
 └── venv/                   # Python environment
 ```
