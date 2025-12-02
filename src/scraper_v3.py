@@ -173,7 +173,10 @@ class TJRJPrecatoriosScraperV3:
             # Wait for navigation to complete
             logger.debug(f"Waiting for page {page_number} to load...")
             page.wait_for_timeout(2000)  # AngularJS stabilization
-            page.wait_for_load_state('networkidle')
+            try:
+                page.wait_for_load_state('networkidle', timeout=10000)
+            except Exception as e:
+                logger.debug(f"Network idle timeout (continuing): {e}")
 
             # Wait for table data to populate
             try:
