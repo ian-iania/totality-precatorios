@@ -39,6 +39,7 @@ LOGS_DIR = PROJECT_ROOT / "logs"
 OUTPUT_DIR = PROJECT_ROOT / "output"
 PID_FILE = LOGS_DIR / "extraction.pid"
 REGIME_FILE = LOGS_DIR / "extraction.regime"
+ENTITY_COUNT_FILE = LOGS_DIR / "extraction.entity_count"
 START_TIME_FILE = LOGS_DIR / "extraction.start_time"
 SCRAPER_LOG = LOGS_DIR / "scraper_v3.log"
 ORCHESTRATOR_LOG = LOGS_DIR / "orchestrator_v6.log"
@@ -236,6 +237,13 @@ def start_extraction(regime: str, num_processes: int = 10, timeout: int = 60, en
     PID_FILE.write_text(str(process.pid))
     REGIME_FILE.write_text(regime)
     
+    # Save entity count (1 for single entity, else full count)
+    if entity_id:
+        ENTITY_COUNT_FILE.write_text("1")
+    else:
+        count = 41 if regime == "especial" else 56
+        ENTITY_COUNT_FILE.write_text(str(count))
+    
     return process.pid
 
 
@@ -382,7 +390,15 @@ def get_current_regime() -> str:
 
 
 def get_regime_entity_count(regime: str) -> int:
-    """Get total entities for regime"""
+    """Get total entities for regime (or 1 if single entity mode)"""
+    # Check if single entity mode
+    try:
+        if ENTITY_COUNT_FILE.exists():
+            return int(ENTITY_COUNT_FILE.read_text().strip())
+    except:
+        pass
+    
+    # Default counts
     if regime.upper() == "ESPECIAL":
         return 41
     elif regime.upper() == "GERAL":

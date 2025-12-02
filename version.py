@@ -2,10 +2,11 @@
 Version information for Totality Precatórios
 """
 
-__version__ = "2.1.0"
+__version__ = "2.1.1"
 __version_date__ = "2025-12-02"
 
 # Changelog:
+# v2.1.1 (2025-12-02) - Fix entity count for single entity mode (shows 0/1 for RJ)
 # v2.1.0 (2025-12-02) - Add "ESPECIAL - Estado do RJ" option in UI
 # v2.0.9 (2025-12-02) - Add --entity-id parameter for single entity extraction
 # v2.0.8 (2025-12-02) - Sort CSV/Excel by id_entidade_grupo and ordem (numeric)
