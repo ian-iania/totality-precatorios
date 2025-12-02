@@ -29,8 +29,8 @@ rm -rf $APP_DIR/logs/screenshots/*.png
 echo "🚀 Starting Streamlit V2..."
 screen -dmS charles ./venv/bin/streamlit run app/app_v2.py --server.port 8501 --server.address 0.0.0.0
 
-# Get public IP
-PUBLIC_IP=$(curl -s ifconfig.me 2>/dev/null || echo "YOUR_VPS_IP")
+# Get public IPv4
+PUBLIC_IP=$(curl -4 -s ifconfig.me 2>/dev/null || echo "209.126.12.243")
 
 echo "✅ Update complete!"
 echo ""
