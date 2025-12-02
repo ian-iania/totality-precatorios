@@ -171,15 +171,28 @@ def is_process_running() -> bool:
 
 
 def get_elapsed_time() -> float:
-    """Get elapsed time in minutes from start_time file"""
-    if not START_TIME_FILE.exists():
-        return 0.0
-    try:
-        start_ts = float(START_TIME_FILE.read_text().strip())
-        elapsed_seconds = time.time() - start_ts
-        return elapsed_seconds / 60.0
-    except:
-        return 0.0
+    """Get elapsed time in minutes from start_time file or log file creation time"""
+    # Try start_time file first
+    if START_TIME_FILE.exists():
+        try:
+            start_ts = float(START_TIME_FILE.read_text().strip())
+            elapsed_seconds = time.time() - start_ts
+            return elapsed_seconds / 60.0
+        except:
+            pass
+    
+    # Fallback: use log file creation time
+    if SCRAPER_LOG.exists():
+        try:
+            start_ts = SCRAPER_LOG.stat().st_mtime - (SCRAPER_LOG.stat().st_size / 100)  # Approximate start
+            # Better: use file creation time if available
+            start_ts = SCRAPER_LOG.stat().st_ctime  # Creation time
+            elapsed_seconds = time.time() - start_ts
+            return elapsed_seconds / 60.0
+        except:
+            pass
+    
+    return 0.0
 
 
 def start_extraction(regime: str, num_processes: int = 10, timeout: int = 60):
@@ -369,9 +382,23 @@ def count_completed_entities_from_log() -> int:
         with open(SCRAPER_LOG, 'r', encoding='utf-8', errors='ignore') as f:
             content = f.read()
         # Count unique "Entity complete:" occurrences
-        import re
-        matches = re.findall(r'📊 Entity complete:|Entity complete:', content)
+        matches = re.findall(r'📊 Entity complete:', content)
         return len(matches) // 2  # Each line appears twice in log (duplicate logging)
+    except:
+        return 0
+
+
+def get_total_records_from_log() -> int:
+    """Sum all records from Entity complete lines"""
+    if not SCRAPER_LOG.exists():
+        return 0
+    try:
+        with open(SCRAPER_LOG, 'r', encoding='utf-8', errors='ignore') as f:
+            content = f.read()
+        # Sum records from "Entity complete: X records" lines
+        matches = re.findall(r'📊 Entity complete:\s*(\d+)\s*records', content)
+        total = sum(int(m) for m in matches)
+        return total // 2  # Each line appears twice in log
     except:
         return 0
 
@@ -443,7 +470,11 @@ def render_progress_view():
         st.metric("🏛️ Entidades processadas", f"{completed_entities}/{total_entities}")
     
     with col2:
-        st.metric("📄 Registros capturados", f"{summary['total_records']:,}")
+        # Get total records from full log (more accurate than parsing last lines)
+        total_records = get_total_records_from_log()
+        if total_records == 0:
+            total_records = summary['total_records']
+        st.metric("📄 Registros capturados", f"{total_records:,}")
     
     with col3:
         # Calculate elapsed time from start timestamp (survives refresh)
