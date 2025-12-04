@@ -470,6 +470,96 @@ def get_records_progress_from_log() -> tuple:
         return 0, 0
 
 
+def get_entities_progress_from_log() -> List[Dict]:
+    """
+    Extract entity progress data from log for the progress table.
+    Only shows entities that have started processing, in order of processing.
+    Returns list of dicts: [{"num": int, "name": str, "expected": int, "actual": int, "status": str}]
+    """
+    if not SCRAPER_LOG.exists():
+        return []
+    
+    try:
+        with open(SCRAPER_LOG, 'r', encoding='utf-8', errors='ignore') as f:
+            content = f.read()
+        
+        entities = []
+        seen_ids = set()
+        entity_num = 0
+        
+        # Pattern: 🏛️ ENTITY: NAME (ID: X)
+        entity_pattern = re.compile(r'ENTITY:\s*(.+?)\s*\(ID:\s*(\d+)\)')
+        # Pattern: X. ENTITY_NAME: Y pendentes (from initial entity list)
+        pendentes_pattern = re.compile(r'\d+\.\s*(.+?):\s*([\d,]+)\s*pendentes')
+        # Pattern: 📊 Entity complete: X records
+        complete_pattern = re.compile(r'Entity complete:\s*(\d+)\s*records')
+        
+        # First pass: collect pendentes from initial entity list
+        entity_pendentes = {}  # {name_normalized: pendentes}
+        for line in content.split('\n'):
+            pendentes_match = pendentes_pattern.search(line)
+            if pendentes_match:
+                name = pendentes_match.group(1).strip().upper()
+                pendentes = int(pendentes_match.group(2).replace(',', ''))
+                entity_pendentes[name] = pendentes
+        
+        lines = content.split('\n')
+        current_entity = None
+        
+        for line in lines:
+            # Detect new entity
+            entity_match = entity_pattern.search(line)
+            if entity_match:
+                name = entity_match.group(1).strip()
+                entity_id = entity_match.group(2)
+                
+                # Skip duplicates
+                if entity_id in seen_ids:
+                    continue
+                seen_ids.add(entity_id)
+                
+                entity_num += 1
+                # Look up pendentes from initial entity list
+                name_upper = name.upper()
+                expected_from_site = entity_pendentes.get(name_upper, 0)
+                
+                current_entity = {
+                    "num": entity_num,
+                    "id": entity_id,
+                    "name": name[:25] + "..." if len(name) > 25 else name,
+                    "expected": expected_from_site,
+                    "actual": "-",
+                    "status": "🔄"
+                }
+                entities.append(current_entity)
+                continue
+            
+            # Detect completion
+            if current_entity:
+                complete_match = complete_pattern.search(line)
+                if complete_match:
+                    actual = int(complete_match.group(1))
+                    current_entity["actual"] = actual
+                    
+                    # Determine status
+                    if actual == 0 and current_entity["expected"] > 0:
+                        current_entity["status"] = "⚠️"  # Warning: 0 records
+                    elif current_entity["expected"] > 0:
+                        completeness = actual / current_entity["expected"]
+                        if completeness >= 0.98:
+                            current_entity["status"] = "✅"
+                        else:
+                            current_entity["status"] = "⚠️"  # Below threshold
+                    else:
+                        current_entity["status"] = "✅"
+                    
+                    current_entity = None  # Reset for next entity
+        
+        return entities
+    except:
+        return []
+
+
 def count_completed_entities(lines: List[str]) -> int:
     """Count completed entities using session state, with refresh recovery"""
     # Initialize session state on first load (or after refresh)
@@ -532,28 +622,35 @@ def render_progress_view():
     
     # Get entity counts independently
     total_entities = get_regime_entity_count(regime)
-    completed_entities = count_completed_entities(scraper_lines_full)
+    # Use same source as table for consistency
+    entities_data = get_entities_progress_from_log()
+    completed_entities = len([e for e in entities_data if e["status"] != "🔄"])
     
-    # Summary metrics
+    # Summary metrics with smaller font
     col1, col2, col3, col4 = st.columns(4)
     
     with col1:
-        st.metric("🏛️ Entidades processadas", f"{completed_entities}/{total_entities}")
+        captured_ent = completed_entities
+        total_ent = total_entities
+        st.markdown(f"**🏛️ Entidades processadas**")
+        st.markdown(f"<span style='font-size:1.2rem'>{captured_ent}/{total_ent}</span>", unsafe_allow_html=True)
     
     with col2:
         # Get captured/expected records from log (same format as entities)
         captured, expected = get_records_progress_from_log()
         if captured == 0:
             captured = summary['total_records']
+        st.markdown(f"**📄 Registros capturados**")
         if expected > 0:
-            st.metric("📄 Registros capturados", f"{captured:,}/{expected:,}")
+            st.markdown(f"<span style='font-size:1.2rem'>{captured}/{expected}</span>", unsafe_allow_html=True)
         else:
-            st.metric("📄 Registros capturados", f"{captured:,}")
+            st.markdown(f"<span style='font-size:1.2rem'>{captured}</span>", unsafe_allow_html=True)
     
     with col3:
         # Calculate elapsed time from start timestamp (survives refresh)
         elapsed = get_elapsed_time()
-        st.metric("⏱️ Tempo decorrido", format_duration(elapsed))
+        st.markdown(f"**⏱️ Tempo decorrido**")
+        st.markdown(f"<span style='font-size:1.2rem'>{format_duration(elapsed)}</span>", unsafe_allow_html=True)
     
     with col4:
         # Show configured workers count (not from log parsing which is unreliable)
@@ -561,7 +658,8 @@ def render_progress_view():
             workers = int(WORKERS_FILE.read_text().strip()) if WORKERS_FILE.exists() else len(summary['active_workers'])
         except:
             workers = len(summary['active_workers'])
-        st.metric("🔄 Workers", f"{workers}")
+        st.markdown(f"**🔄 Workers**")
+        st.markdown(f"<span style='font-size:1.2rem'>{workers}</span>", unsafe_allow_html=True)
     
     # Progress bar
     if total_entities > 0:
@@ -573,31 +671,31 @@ def render_progress_view():
     
     with col_terminal:
         st.markdown("**📟 Terminal**")
-        # Show last 12 lines from scraper log
-        terminal_lines = scraper_lines[-12:] if scraper_lines else ["Aguardando logs..."]
+        # Show last 18 lines from scraper log
+        terminal_lines = scraper_lines[-18:] if scraper_lines else ["Aguardando logs..."]
         terminal_text = '\n'.join(terminal_lines)
-        st.code(terminal_text, language='log')
+        st.code(terminal_text, language='log', height=420)
     
     with col_table:
         st.markdown("**📊 Progresso por Entidade**")
-        entities_data = get_entities_progress_from_log()
+        # entities_data already loaded above for metrics
         
         if entities_data:
             # Create dataframe for display
             import pandas as pd
             df = pd.DataFrame(entities_data)
-            df = df[["status", "name", "expected", "actual"]]
-            df.columns = ["Status", "Entidade", "Esperado", "Extraído"]
+            df = df[["num", "name", "expected", "actual", "status"]]
+            df.columns = ["#", "Entidade", "Esperado", "Extraído", "Status"]
             
-            # Show last 10 entities (most recent at top)
-            df_display = df.tail(10).iloc[::-1]
+            # Show all entities with scroll (oldest first, current last)
+            df_display = df
             
             # Style the dataframe
             st.dataframe(
                 df_display,
                 hide_index=True,
                 use_container_width=True,
-                height=350
+                height=420
             )
             
             # Show warning count if any
@@ -606,6 +704,10 @@ def render_progress_view():
                 st.warning(f"⚠️ {len(warnings)} entidade(s) com extração incompleta")
         else:
             st.info("Aguardando dados das entidades...")
+    
+    # Footer
+    st.markdown("---")
+    st.markdown("<div style='text-align:center; color:#666; font-size:0.8rem'>Totality Precatórios TJRJ Automator 2025 | v1.0.0</div>", unsafe_allow_html=True)
     
     # Auto-refresh
     time.sleep(3)
@@ -626,7 +728,7 @@ def render_complete_view(summary: Dict):
     col1, col2, col3 = st.columns(3)
     
     with col1:
-        st.metric("📄 Total de Registros", f"{summary['total_records']:,}")
+        st.metric("📄 Total de Registros", f"{summary['total_records']}")
     
     with col2:
         st.metric("🏛️ Entidades", f"{summary['entities_current']}/{summary['entities_total']}")
@@ -682,7 +784,7 @@ def render_downloads_tab():
     st.markdown("---")
     
     # Column headers
-    col1, col2, col3, col4, col5 = st.columns([1.2, 0.8, 3, 0.8, 0.5])
+    col1, col2, col3, col4, col5, col6 = st.columns([1.2, 0.8, 3, 0.8, 0.5, 0.5])
     with col1:
         st.caption("**Data/Hora**")
     with col2:
@@ -693,17 +795,19 @@ def render_downloads_tab():
         st.caption("**Tamanho**")
     with col5:
         st.caption("")
+    with col6:
+        st.caption("")
     
     # File list
     for file in filtered[:20]:  # Limit to 20 files
-        col1, col2, col3, col4, col5 = st.columns([1.2, 0.8, 3, 0.8, 0.5])
+        col1, col2, col3, col4, col5, col6 = st.columns([1.2, 0.8, 3, 0.8, 0.5, 0.5])
         
         with col1:
             st.caption(file['modified'].strftime("%d/%m %H:%M"))
         
         with col2:
             lines = file.get('lines', 0)
-            st.caption(f"{lines:,}" if lines > 0 else "-")
+            st.caption(f"{lines}" if lines > 0 else "-")
         
         with col3:
             icon = "📊" if file['name'].endswith('.xlsx') else "📄"
@@ -719,8 +823,31 @@ def render_downloads_tab():
                     data=f.read(),
                     file_name=file['name'],
                     mime="application/octet-stream",
-                    key=file['name']
+                    key=f"dl_{file['name']}"
                 )
+        
+        with col6:
+            if st.button("🗑️", key=f"del_{file['name']}", help="Excluir arquivo"):
+                st.session_state[f"confirm_delete_{file['name']}"] = True
+    
+    # Handle delete confirmations
+    for file in filtered[:20]:
+        if st.session_state.get(f"confirm_delete_{file['name']}", False):
+            st.warning(f"⚠️ Confirma exclusão de **{file['name']}**?")
+            col_yes, col_no = st.columns(2)
+            with col_yes:
+                if st.button("✅ Sim, excluir", key=f"yes_{file['name']}", type="primary"):
+                    try:
+                        Path(file['path']).unlink()
+                        st.success(f"Arquivo {file['name']} excluído!")
+                        del st.session_state[f"confirm_delete_{file['name']}"]
+                        st.rerun()
+                    except Exception as e:
+                        st.error(f"Erro ao excluir: {e}")
+            with col_no:
+                if st.button("❌ Cancelar", key=f"no_{file['name']}"):
+                    del st.session_state[f"confirm_delete_{file['name']}"]
+                    st.rerun()
 
 
 def render_footer():

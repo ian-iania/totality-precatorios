@@ -2,7 +2,7 @@
 Version information for Totality Precatórios
 """
 
-__version__ = "2.1.3"
+__version__ = "2.1.0"
 __version_date__ = "2025-12-02"
 
 # Changelog:

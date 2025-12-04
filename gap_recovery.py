@@ -511,6 +511,17 @@ def merge_and_finalize(
     if single_entity_name:
         logger.info(f"   Entity: {single_entity_name}")
     
+    # Clean up intermediate files (_ALL_ files) after COMPLETE is generated
+    try:
+        output_dir = Path("output")
+        regime = 'geral' if 'geral' in main_csv.lower() else 'especial'
+        for pattern in [f"precatorios_{regime}_ALL_*.csv", f"precatorios_{regime}_ALL_*.xlsx"]:
+            for old_file in output_dir.glob(pattern):
+                old_file.unlink()
+                logger.info(f"   🗑️ Removed intermediate file: {old_file.name}")
+    except Exception as e:
+        logger.warning(f"   ⚠️ Could not clean up intermediate files: {e}")
+    
     return result
 
 
