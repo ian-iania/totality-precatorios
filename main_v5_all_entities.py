@@ -42,6 +42,7 @@ RJ_ENTITY_ID = 1
 RJ_MIN_PAGES_DEFAULT = 3000
 RJ_MIN_PAGES = int(os.getenv("RJ_MIN_PAGES", str(RJ_MIN_PAGES_DEFAULT)))
 ENTITY_COMPLETENESS_THRESHOLD = float(os.getenv("ENTITY_COMPLETENESS_THRESHOLD", "0.97"))
+TJRJ_TIMEOUT_THRESHOLD = 0.60  # Below 60% = TJRJ timeout, don't save file
 
 
 def slugify(value: str) -> str:
@@ -833,7 +834,16 @@ def main():
         else:
             completeness_ratio = 1.0
         stats['completeness_ratio'] = completeness_ratio
-        if expected_records > 0 and completeness_ratio < ENTITY_COMPLETENESS_THRESHOLD:
+        if expected_records > 0 and completeness_ratio < TJRJ_TIMEOUT_THRESHOLD:
+            # Severe timeout - TJRJ site unstable
+            logger.error(
+                f"❌ Cancelado: timeout TJRJ - {entity['nome']} (ID: {entity_id}) - "
+                f"apenas {completeness_ratio*100:.1f}% extraído ({len(records):,}/{expected_records:,})"
+            )
+            logger.error(f"⚠️ Site TJRJ instável temporariamente. Tente novamente mais tarde.")
+            stats['tjrj_timeout'] = True
+            stats['completeness_issue'] = True
+        elif expected_records > 0 and completeness_ratio < ENTITY_COMPLETENESS_THRESHOLD:
             logger.warning(
                 f"⚠️ Entity completeness below threshold: {entity['nome']} (ID: {entity_id}) - "
                 f"expected {expected_records:,} records, got {len(records):,} "
@@ -852,6 +862,19 @@ def main():
         # Progress update
         elapsed = time.time() - start_time
         logger.info(f"\n📈 Progress: {idx}/{len(entities)} entities | {len(all_records):,} total records | {elapsed/60:.1f}min elapsed")
+    
+    # === CHECK FOR TJRJ TIMEOUT ===
+    tjrj_timeout_entities = [s for s in entity_stats if s.get('tjrj_timeout', False)]
+    if tjrj_timeout_entities:
+        logger.error(f"\n{'='*80}")
+        logger.error(f"❌ EXTRAÇÃO CANCELADA - TIMEOUT TJRJ")
+        logger.error(f"{'='*80}")
+        logger.error(f"Site TJRJ instável temporariamente. Tente novamente mais tarde.")
+        logger.error(f"Entidades afetadas: {len(tjrj_timeout_entities)}")
+        for s in tjrj_timeout_entities:
+            logger.error(f"  - {s.get('entity_name', 'Unknown')}: {s.get('completeness_ratio', 0)*100:.1f}%")
+        logger.error(f"Arquivo não salvo.")
+        return 1
     
     # === FINAL DATA PROCESSING ===
     logger.info(f"\n{'='*80}")

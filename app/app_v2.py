@@ -705,6 +705,17 @@ def render_progress_view():
         else:
             st.info("Aguardando dados das entidades...")
     
+    # Check for TJRJ timeout in logs
+    if SCRAPER_LOG.exists():
+        try:
+            with open(SCRAPER_LOG, 'r', encoding='utf-8', errors='ignore') as f:
+                recent_log = f.read()[-5000:]  # Last 5KB
+            if 'EXTRAÇÃO CANCELADA - TIMEOUT TJRJ' in recent_log or 'Site TJRJ instável' in recent_log:
+                st.error("❌ **Site TJRJ instável temporariamente**")
+                st.error("A extração foi cancelada devido a timeout no site do TJRJ. Tente novamente mais tarde.")
+        except:
+            pass
+    
     # Footer
     st.markdown("---")
     st.markdown("<div style='text-align:center; color:#666; font-size:0.8rem'>Totality Precatórios TJRJ Automator 2025 | v1.0.0</div>", unsafe_allow_html=True)
