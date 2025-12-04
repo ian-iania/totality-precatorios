@@ -470,6 +470,35 @@ def get_records_progress_from_log() -> tuple:
         return 0, 0
 
 
+def get_expected_by_regime_from_log(regime: str) -> int:
+    """
+    Get expected total records for a specific regime from log history.
+    Searches for the most recent extraction of the given regime.
+    """
+    if not SCRAPER_LOG.exists():
+        return 0
+    try:
+        with open(SCRAPER_LOG, 'r', encoding='utf-8', errors='ignore') as f:
+            content = f.read()
+        
+        # Find all extraction starts with regime and their total pendentes
+        # Pattern: "Starting extraction for regime: REGIME" followed by "Total pendentes: X"
+        regime_lower = regime.lower()
+        
+        # Split by extraction starts
+        sections = re.split(r'Starting extraction for regime:', content)
+        
+        for section in reversed(sections):  # Most recent first
+            if section.strip().lower().startswith(regime_lower):
+                pendentes_match = re.search(r'Total pendentes:\s*([\d,]+)', section)
+                if pendentes_match:
+                    return int(pendentes_match.group(1).replace(',', ''))
+        
+        return 0
+    except:
+        return 0
+
+
 def get_entities_progress_from_log() -> List[Dict]:
     """
     Extract entity progress data from log for the progress table.
@@ -791,23 +820,27 @@ def render_downloads_tab():
     st.markdown("---")
     
     # Column headers
-    col1, col2, col3, col4, col5, col6 = st.columns([1.2, 0.8, 3, 0.8, 0.5, 0.5])
+    col1, col2, col3, col4, col5, col6, col7, col8 = st.columns([1.0, 0.6, 0.6, 0.6, 2.5, 0.6, 0.4, 0.4])
     with col1:
         st.caption("**Data/Hora**")
     with col2:
-        st.caption("**Linhas**")
+        st.caption("**Extraído**")
     with col3:
-        st.caption("**Arquivo**")
+        st.caption("**Esperado**")
     with col4:
-        st.caption("**Tamanho**")
+        st.caption("**Dif.**")
     with col5:
-        st.caption("")
+        st.caption("**Arquivo**")
     with col6:
+        st.caption("**Tamanho**")
+    with col7:
+        st.caption("")
+    with col8:
         st.caption("")
     
     # File list
     for file in filtered[:20]:  # Limit to 20 files
-        col1, col2, col3, col4, col5, col6 = st.columns([1.2, 0.8, 3, 0.8, 0.5, 0.5])
+        col1, col2, col3, col4, col5, col6, col7, col8 = st.columns([1.0, 0.6, 0.6, 0.6, 2.5, 0.6, 0.4, 0.4])
         
         with col1:
             st.caption(file['modified'].strftime("%d/%m %H:%M"))
@@ -817,13 +850,31 @@ def render_downloads_tab():
             st.caption(f"{lines}" if lines > 0 else "-")
         
         with col3:
+            # Get expected from log based on regime in filename
+            regime = 'especial' if 'especial' in file['name'].lower() else 'geral' if 'geral' in file['name'].lower() else ''
+            expected = get_expected_by_regime_from_log(regime) if regime else 0
+            st.caption(f"{expected}" if expected > 0 else "-")
+        
+        with col4:
+            # Calculate difference
+            lines = file.get('lines', 0)
+            if expected > 0 and lines > 0:
+                diff = expected - lines
+                if diff == 0:
+                    st.caption("✅")
+                else:
+                    st.caption(f"❓ {diff}")
+            else:
+                st.caption("-")
+        
+        with col5:
             icon = "📊" if file['name'].endswith('.xlsx') else "📄"
             st.markdown(f"{icon} {file['name']}")
         
-        with col4:
+        with col6:
             st.caption(format_size(file['size']))
         
-        with col5:
+        with col7:
             with open(file['path'], 'rb') as f:
                 st.download_button(
                     "⬇️",
@@ -833,7 +884,7 @@ def render_downloads_tab():
                     key=f"dl_{file['name']}"
                 )
         
-        with col6:
+        with col8:
             if st.button("🗑️", key=f"del_{file['name']}", help="Excluir arquivo"):
                 st.session_state[f"confirm_delete_{file['name']}"] = True
     
