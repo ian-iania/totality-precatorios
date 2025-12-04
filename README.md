@@ -192,6 +192,53 @@ TJRJ_PAGE_LOAD_TIMEOUT=30000
 | Module not found | `pip install -r requirements.txt` |
 | Blank screen | Check `logs/streamlit.log` |
 | Stuck extraction | Check `logs/scraper_v3.log` |
+| Incomplete extraction | Run gap recovery or re-extract entity |
+
+---
+
+## 💾 Backup & Recovery
+
+### Local Backup
+```bash
+# Run backup script (saves to vps_backup/)
+./deploy-VPS/backup_vps.sh
+
+# Check VPS status
+./deploy-VPS/check_vps_status.sh
+
+# Restore from backup
+./deploy-VPS/restore_vps.sh ./vps_backup/vps_YYYYMMDD_HHMMSS
+```
+
+### What's Backed Up
+| Component | Size | Location |
+|-----------|------|----------|
+| totality-precatorios | ~27MB | `/root/charles/` |
+| marketfold | ~795MB | `/root/marketfold/` |
+| Caddy config | 1KB | `/etc/caddy/Caddyfile` |
+| DuckDNS | 1KB | `/root/duckdns/` |
+| PostgreSQL | varies | Docker volume |
+
+### VPS Services
+```mermaid
+flowchart LR
+    subgraph Internet
+        U[Users]
+    end
+    
+    subgraph Caddy["Caddy :80/:443"]
+        R[Reverse Proxy]
+    end
+    
+    subgraph Apps
+        S1["tjrj.duckdns.org → :8501"]
+        S2["marketfold.duckdns.org → :3030"]
+    end
+    
+    U --> R --> S1 & S2
+```
+
+See [docs/VPS_BACKUP_RECOVERY.md](docs/VPS_BACKUP_RECOVERY.md) for full documentation.
 
 ---
 
