@@ -11,7 +11,7 @@ VPS_IP="209.126.12.243"
 VPS_USER="root"
 VPS_PASS="Mark3tf0ld2025"
 DATE=$(date +%Y%m%d_%H%M%S)
-BACKUP_BASE="./backups"
+BACKUP_BASE="./vps_backup"
 BACKUP_DIR="$BACKUP_BASE/vps_$DATE"
 
 # Colors
@@ -44,10 +44,10 @@ rsync_cmd --exclude='venv' --exclude='__pycache__' --exclude='.git' \
     "$VPS_USER@$VPS_IP:/root/charles/totality-precatorios/" \
     "$BACKUP_DIR/totality-precatorios/"
 
-echo -e "${YELLOW}[2/6] Backing up Marketfold (deploy-vps)...${NC}"
+echo -e "${YELLOW}[2/6] Backing up Marketfold...${NC}"
 rsync_cmd --exclude='node_modules' --exclude='__pycache__' --exclude='.git' --exclude='venv' \
-    "$VPS_USER@$VPS_IP:/root/deploy-vps/" \
-    "$BACKUP_DIR/deploy-vps/"
+    "$VPS_USER@$VPS_IP:/root/marketfold/" \
+    "$BACKUP_DIR/marketfold/" 2>/dev/null || echo "Marketfold backup skipped"
 
 echo -e "${YELLOW}[3/6] Backing up System Configuration...${NC}"
 mkdir -p "$BACKUP_DIR/system"
