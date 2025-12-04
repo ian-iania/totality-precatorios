@@ -489,24 +489,22 @@ def get_entities_progress_from_log() -> List[Dict]:
         
         # Pattern: 🏛️ ENTITY: NAME (ID: X)
         entity_pattern = re.compile(r'ENTITY:\s*(.+?)\s*\(ID:\s*(\d+)\)')
-        # Pattern: X. ENTITY_NAME: Y pendentes (from initial entity list)
-        pendentes_pattern = re.compile(r'\d+\.\s*(.+?):\s*([\d,]+)\s*pendentes')
+        # Pattern: 🎯 Expected records: X | Pages scheduled: Y
+        expected_pattern = re.compile(r'Expected records:\s*([\d,]+)')
         # Pattern: 📊 Entity complete: X records
         complete_pattern = re.compile(r'Entity complete:\s*(\d+)\s*records')
         
-        # First pass: collect pendentes from initial entity list
-        entity_pendentes = {}  # {name_normalized: pendentes}
-        for line in content.split('\n'):
-            pendentes_match = pendentes_pattern.search(line)
-            if pendentes_match:
-                name = pendentes_match.group(1).strip().upper()
-                pendentes = int(pendentes_match.group(2).replace(',', ''))
-                entity_pendentes[name] = pendentes
-        
         lines = content.split('\n')
         current_entity = None
+        last_expected = 0  # Track expected from previous line
         
         for line in lines:
+            # Capture expected records (appears before ENTITY line)
+            expected_match = expected_pattern.search(line)
+            if expected_match:
+                last_expected = int(expected_match.group(1).replace(',', ''))
+                continue
+            
             # Detect new entity
             entity_match = entity_pattern.search(line)
             if entity_match:
@@ -519,19 +517,17 @@ def get_entities_progress_from_log() -> List[Dict]:
                 seen_ids.add(entity_id)
                 
                 entity_num += 1
-                # Look up pendentes from initial entity list
-                name_upper = name.upper()
-                expected_from_site = entity_pendentes.get(name_upper, 0)
                 
                 current_entity = {
                     "num": entity_num,
                     "id": entity_id,
                     "name": name[:25] + "..." if len(name) > 25 else name,
-                    "expected": expected_from_site,
+                    "expected": last_expected,
                     "actual": "-",
                     "status": "🔄"
                 }
                 entities.append(current_entity)
+                last_expected = 0  # Reset for next entity
                 continue
             
             # Detect completion
