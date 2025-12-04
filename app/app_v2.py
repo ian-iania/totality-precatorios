@@ -439,6 +439,37 @@ def get_total_records_from_log() -> int:
         return 0
 
 
+def get_records_progress_from_log() -> tuple:
+    """
+    Get captured records and expected total from log.
+    Returns (captured, expected) tuple.
+    
+    - captured: from latest "📈 Progress: X/Y entities | Z total records" line
+    - expected: from "Total pendentes: X" line at start of extraction
+    """
+    if not SCRAPER_LOG.exists():
+        return 0, 0
+    try:
+        with open(SCRAPER_LOG, 'r', encoding='utf-8', errors='ignore') as f:
+            content = f.read()
+        
+        # Get expected total from "Total pendentes: X" (appears at start)
+        expected_match = re.search(r'Total pendentes:\s*([\d,]+)', content)
+        expected = int(expected_match.group(1).replace(',', '')) if expected_match else 0
+        
+        # Get latest captured from "📈 Progress: X/Y entities | Z total records"
+        progress_matches = re.findall(r'📈 Progress:.*?\|\s*([\d,]+)\s*total records', content)
+        if progress_matches:
+            captured = int(progress_matches[-1].replace(',', ''))
+        else:
+            # Fallback to Entity complete sum
+            captured = get_total_records_from_log()
+        
+        return captured, expected
+    except:
+        return 0, 0
+
+
 def count_completed_entities(lines: List[str]) -> int:
     """Count completed entities using session state, with refresh recovery"""
     # Initialize session state on first load (or after refresh)
@@ -510,11 +541,14 @@ def render_progress_view():
         st.metric("🏛️ Entidades processadas", f"{completed_entities}/{total_entities}")
     
     with col2:
-        # Get total records from full log (more accurate than parsing last lines)
-        total_records = get_total_records_from_log()
-        if total_records == 0:
-            total_records = summary['total_records']
-        st.metric("📄 Registros capturados", f"{total_records:,}")
+        # Get captured/expected records from log (same format as entities)
+        captured, expected = get_records_progress_from_log()
+        if captured == 0:
+            captured = summary['total_records']
+        if expected > 0:
+            st.metric("📄 Registros capturados", f"{captured:,}/{expected:,}")
+        else:
+            st.metric("📄 Registros capturados", f"{captured:,}")
     
     with col3:
         # Calculate elapsed time from start timestamp (survives refresh)
@@ -534,13 +568,44 @@ def render_progress_view():
         progress = completed_entities / total_entities
         st.progress(progress, text=f"{progress*100:.1f}%")
     
-    # Terminal view
-    st.markdown("**📟 Terminal**")
+    # Side-by-side layout: Terminal + Entity Table
+    col_terminal, col_table = st.columns(2)
     
-    # Show last 15 lines from scraper log only
-    terminal_lines = scraper_lines[-15:] if scraper_lines else ["Aguardando logs..."]
-    terminal_text = '\n'.join(terminal_lines)
-    st.code(terminal_text, language='log')
+    with col_terminal:
+        st.markdown("**📟 Terminal**")
+        # Show last 12 lines from scraper log
+        terminal_lines = scraper_lines[-12:] if scraper_lines else ["Aguardando logs..."]
+        terminal_text = '\n'.join(terminal_lines)
+        st.code(terminal_text, language='log')
+    
+    with col_table:
+        st.markdown("**📊 Progresso por Entidade**")
+        entities_data = get_entities_progress_from_log()
+        
+        if entities_data:
+            # Create dataframe for display
+            import pandas as pd
+            df = pd.DataFrame(entities_data)
+            df = df[["status", "name", "expected", "actual"]]
+            df.columns = ["Status", "Entidade", "Esperado", "Extraído"]
+            
+            # Show last 10 entities (most recent at top)
+            df_display = df.tail(10).iloc[::-1]
+            
+            # Style the dataframe
+            st.dataframe(
+                df_display,
+                hide_index=True,
+                use_container_width=True,
+                height=350
+            )
+            
+            # Show warning count if any
+            warnings = [e for e in entities_data if e["status"] == "⚠️"]
+            if warnings:
+                st.warning(f"⚠️ {len(warnings)} entidade(s) com extração incompleta")
+        else:
+            st.info("Aguardando dados das entidades...")
     
     # Auto-refresh
     time.sleep(3)

@@ -141,6 +141,7 @@ def detect_failed_entities(log_file: str, start_time: str = None) -> List[Dict]:
         # 1. Has 0 records AND expected > 0 (extraction failed or empty page)
         # 2. Has explicit error AND 0 records (timeout with no data saved)
         # 3. Has "incomplete" error (records > 0 but below completeness threshold)
+        # 4. Has timeout/error AND records > 0 but significantly below expected (partial extraction)
         
         # Case 3: Incomplete entities (have records but below threshold)
         if error == "incomplete":
@@ -152,6 +153,20 @@ def detect_failed_entities(log_file: str, start_time: str = None) -> List[Dict]:
                 "actual_records": records
             })
             continue
+        
+        # Case 4: Timeout with partial data (records > 0 but below 98% of expected)
+        # Note: Using 98% because expected is calculated as pages*10, but last page may have fewer records
+        if error in ("timeout", "page_timeout") and records > 0 and expected > 0:
+            completeness = records / expected
+            if completeness < 0.98:  # Below 98% threshold
+                failed_entities.append({
+                    "id": entity_id,
+                    "name": info["name"],
+                    "reason": "partial_timeout",
+                    "expected_records": expected,
+                    "actual_records": records
+                })
+                continue
         
         # Case 1 & 2: Zero records with expected > 0 or explicit error
         if records > 0:
