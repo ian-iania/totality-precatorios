@@ -801,7 +801,7 @@ def render_downloads_tab():
     # Filter options
     col1, col2 = st.columns(2)
     with col1:
-        filter_type = st.radio("Tipo", ["Todos", "CSV", "Excel"], horizontal=True)
+        filter_type = st.radio("Tipo", ["Excel", "CSV", "Todos"], horizontal=True)
     with col2:
         filter_regime = st.radio("Regime", ["Todos", "GERAL", "ESPECIAL"], horizontal=True)
     
