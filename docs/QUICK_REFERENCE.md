@@ -14,6 +14,7 @@ playwright install chromium
 
 ## Common Commands
 
+### Local Development
 ```bash
 # Basic scraping
 python main.py --regime geral                    # Scrape regime geral
@@ -28,6 +29,23 @@ python main.py --regime geral --output results.csv
 
 # Without cache
 python main.py --regime geral --no-cache
+```
+
+### Production/VPS Management (New!)
+```bash
+# Start application remotely (from local machine)
+bash deploy-VPS/remote_start.sh              # Default port 8501
+bash deploy-VPS/remote_start.sh 8502         # Custom port
+
+# Check status
+bash deploy-VPS/check_vps_status.sh          # Quick status
+bash deploy-VPS/diagnose.sh                  # Full diagnostics
+
+# Stop application
+bash deploy-VPS/stop.sh
+
+# Update and restart
+bash deploy-VPS/update.sh
 ```
 
 ## File Locations
@@ -173,12 +191,29 @@ print(config.base_url)
 
 | Problem | Solution |
 |---------|----------|
+| App not running on VPS | `bash deploy-VPS/remote_start.sh` |
+| Port conflict | `bash deploy-VPS/remote_start.sh 8502` (use different port) |
 | Module not found | `pip install -r requirements.txt` |
 | Playwright not found | `playwright install chromium` |
 | Permission denied | `chmod +x main.py` |
 | Import error | Check you're in project root |
 | Browser won't start | `playwright install chromium --force` |
 | Empty results | Run with `--no-headless --log-level DEBUG` |
+
+### VPS Troubleshooting
+```bash
+# Full diagnostics
+bash deploy-VPS/diagnose.sh
+
+# View VPS logs
+ssh root@209.126.12.243 'tail -f /root/charles/totality-precatorios/logs/streamlit.log'
+
+# Access screen session
+ssh root@209.126.12.243
+screen -r charles
+```
+
+**📖 Complete Guide**: See [deploy-VPS/TROUBLESHOOTING.md](../deploy-VPS/TROUBLESHOOTING.md)
 
 ## Important Files to Edit
 

@@ -6,9 +6,15 @@
 
 | Item | Value |
 |------|-------|
+| **Status** | ✅ Running |
 | **URL** | http://209.126.12.243:8501 |
 | **SSH** | `ssh root@209.126.12.243` |
 | **Path** | `/root/charles/totality-precatorios` |
+
+### 📚 Deployment Guides
+- **[Quick Start](deploy-VPS/QUICK_START.md)** - Get started fast
+- **[Troubleshooting](deploy-VPS/TROUBLESHOOTING.md)** - Common issues & solutions
+- **[Deploy README](deploy-VPS/README.md)** - Full deployment docs
 
 ---
 
@@ -186,13 +192,33 @@ TJRJ_PAGE_LOAD_TIMEOUT=30000
 
 ## 🐛 Troubleshooting
 
+### Quick Fixes
+
 | Issue | Solution |
 |-------|----------|
+| App not running | `bash deploy-VPS/remote_start.sh` |
 | Browser not found | `playwright install chromium` |
 | Module not found | `pip install -r requirements.txt` |
 | Blank screen | Check `logs/streamlit.log` |
 | Stuck extraction | Check `logs/scraper_v3.log` |
 | Incomplete extraction | Run gap recovery or re-extract entity |
+
+### 🛠️ Management Scripts (New!)
+
+Start/stop the application from your local machine:
+
+```bash
+# Start application remotely
+bash deploy-VPS/remote_start.sh [PORT]
+
+# Run full diagnostics
+bash deploy-VPS/diagnose.sh
+
+# Check status
+bash deploy-VPS/check_vps_status.sh
+```
+
+**📖 Full Guide**: See [deploy-VPS/TROUBLESHOOTING.md](deploy-VPS/TROUBLESHOOTING.md) for complete troubleshooting documentation.
 
 ---
 
@@ -248,6 +274,12 @@ MIT License
 
 ---
 
-**Version**: 2.1.0  
-**Last Updated**: 2025-12-04  
-**Status**: Production Ready
+**Version**: 2.2.0
+**Last Updated**: 2026-05-13
+**Status**: Production Ready ✅
+
+**Recent Updates**:
+- Added remote management scripts (remote_start.sh, diagnose.sh)
+- Comprehensive troubleshooting guide
+- Quick start guide for deployments
+- Flexible port configuration support

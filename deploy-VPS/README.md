@@ -1,5 +1,15 @@
 # Deploy Totality Precatórios on VPS
 
+## ✅ Current Status
+
+**App is RUNNING**: http://209.126.12.243:8501
+
+## 📚 Quick Links
+
+- **[Quick Start Guide](QUICK_START.md)** - Get up and running fast
+- **[Troubleshooting Guide](TROUBLESHOOTING.md)** - Solutions for common issues
+- **[Original README](README.md)** - Full documentation
+
 ## 🌐 Production Access
 
 | Item | Value |
@@ -7,6 +17,7 @@
 | **URL** | http://209.126.12.243:8501 |
 | **SSH** | `ssh root@209.126.12.243` |
 | **Project** | `/root/charles/totality-precatorios` |
+| **Status** | ✅ Running |
 
 ## Requirements
 
@@ -52,12 +63,40 @@ bash deploy-VPS/setup.sh
 
 ## Scripts Available
 
-| Script | Description |
-|--------|-------------|
-| `setup.sh` | First-time setup (dependencies, venv, Playwright) |
-| `update.sh` | Pull latest code and restart |
-| `start.sh` | Start Streamlit in background |
-| `stop.sh` | Stop Streamlit and cleanup |
+### Core Scripts
+
+| Script | Description | Run From |
+|--------|-------------|----------|
+| `setup.sh` | First-time setup (dependencies, venv, Playwright) | VPS |
+| `update.sh` | Pull latest code and restart | VPS |
+| `start.sh` | Start Streamlit in background (port 8501) | VPS |
+| `stop.sh` | Stop Streamlit and cleanup | VPS |
+
+### 🆕 New Management Scripts (May 2026)
+
+| Script | Description | Run From |
+|--------|-------------|----------|
+| `remote_start.sh [PORT]` | Start Streamlit remotely from local machine | Local |
+| `start_custom.sh [PORT]` | Start with custom port (flexible) | VPS |
+| `diagnose.sh` | Full diagnostic tool (checks everything) | Local |
+| `check_vps_status.sh` | Quick status check | Local |
+
+**Examples:**
+```bash
+# From local machine - start on default port (8501)
+bash deploy-VPS/remote_start.sh
+
+# From local machine - start on custom port
+bash deploy-VPS/remote_start.sh 8502
+
+# From VPS - start with custom port
+ssh root@209.126.12.243
+cd /root/charles/totality-precatorios
+bash deploy-VPS/start_custom.sh 8503
+
+# Run diagnostics
+bash deploy-VPS/diagnose.sh
+```
 
 ## Daily Usage
 
