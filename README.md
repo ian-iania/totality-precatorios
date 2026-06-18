@@ -2,6 +2,77 @@
 
 **Production-ready web scraper** for extracting court-ordered payment (precatório) data from the Rio de Janeiro Court of Justice (TJRJ) portal.
 
+**If production is down, start with [README_FIRST.md](README_FIRST.md).**
+
+## 🚑 Production Runbook: Check and Restart
+
+Use this first when the app appears to be offline.
+
+### 1. Check if the service is online
+
+```bash
+bash deploy-VPS/check_vps_status.sh
+```
+
+Expected healthy result:
+
+- `Streamlit (direct): OK (HTTP 200)`
+- `TJRJ DuckDNS: OK (HTTP 200)`
+- `Streamlit: running`
+
+Manual checks:
+
+```bash
+curl -I --max-time 15 http://209.126.12.243:8501
+curl -I --max-time 15 https://tjrj.duckdns.org
+```
+
+Both endpoints should return `HTTP 200`.
+
+### 2. Restart the app if it is offline
+
+Fast restart from this local project:
+
+```bash
+bash deploy-VPS/remote_start.sh
+```
+
+If the script hangs or does not recover the app, restart manually on the VPS:
+
+```bash
+ssh root@209.126.12.243
+cd /root/charles/totality-precatorios
+mkdir -p logs
+screen -X -S charles quit >/dev/null 2>&1 || true
+screen -dmS charles bash -lc 'cd /root/charles/totality-precatorios && exec ./venv/bin/streamlit run app/app_v2.py --server.port 8501 --server.address 0.0.0.0 >> logs/streamlit.log 2>&1'
+```
+
+Then validate:
+
+```bash
+screen -ls
+lsof -i :8501
+curl -I --max-time 15 http://209.126.12.243:8501
+curl -I --max-time 15 https://tjrj.duckdns.org
+```
+
+The expected runtime state is:
+
+- `screen` session named `charles`
+- Streamlit listening on `*:8501`
+- direct IP and DuckDNS returning `HTTP 200`
+
+Useful debugging commands:
+
+```bash
+ssh root@209.126.12.243 'tail -f /root/charles/totality-precatorios/logs/streamlit.log'
+ssh root@209.126.12.243 'screen -r charles'
+```
+
+Known recovery note from 2026-06-18: the VPS, Caddy, and Docker were online, but the app was down because the Streamlit process had stopped and no `screen` session existed. Restarting `app/app_v2.py` in a detached `screen` session restored both `http://209.126.12.243:8501` and `https://tjrj.duckdns.org`.
+
+---
+
 ## 🌐 Production Access
 
 | Item | Value |
