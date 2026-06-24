@@ -674,26 +674,49 @@ class TJRJPrecatoriosScraperV3:
         try:
             cells = row.query_selector_all('td')
 
-            if len(cells) < 15:
-                return None
-
             cell_texts = [cell.inner_text().strip() for cell in cells]
 
-            ordem = cell_texts[2] if len(cell_texts) > 2 else ""
-            entidade_devedora_especifica = cell_texts[6] if len(cell_texts) > 6 else ""
-            numero_precatorio = cell_texts[7] if len(cell_texts) > 7 else ""
+            if len(cell_texts) >= 15:
+                # Legacy layout observed in 2025. Several hidden/blank columns are
+                # present before the visible data fields.
+                ordem = cell_texts[2]
+                entidade_devedora_especifica = cell_texts[6]
+                numero_precatorio = cell_texts[7]
+                situacao = cell_texts[8]
+                natureza = cell_texts[9]
+                orcamento = cell_texts[10]
+                valor_historico_text = cell_texts[12]
+                saldo_atualizado_text = cell_texts[14]
+            elif len(cell_texts) >= 9:
+                # Compact layout observed on 2026-06-23. The first cell is the
+                # expand/collapse control, followed by the 8 visible data columns.
+                ordem = cell_texts[1]
+                entidade_devedora_especifica = cell_texts[2]
+                numero_precatorio = cell_texts[3]
+                situacao = cell_texts[4]
+                natureza = cell_texts[5]
+                orcamento = cell_texts[6]
+                valor_historico_text = cell_texts[7]
+                saldo_atualizado_text = cell_texts[8]
+            elif len(cell_texts) >= 8:
+                # Defensive fallback if the toggle-control cell is omitted.
+                ordem = cell_texts[0]
+                entidade_devedora_especifica = cell_texts[1]
+                numero_precatorio = cell_texts[2]
+                situacao = cell_texts[3]
+                natureza = cell_texts[4]
+                orcamento = cell_texts[5]
+                valor_historico_text = cell_texts[6]
+                saldo_atualizado_text = cell_texts[7]
+            else:
+                logger.debug(f"Skipping row with unexpected cell count: {len(cell_texts)}")
+                return None
 
             if not numero_precatorio:
                 return None
 
-            situacao = cell_texts[8] if len(cell_texts) > 8 else ""
-            natureza = cell_texts[9] if len(cell_texts) > 9 else ""
-            orcamento = cell_texts[10] if len(cell_texts) > 10 else ""
-
-            valor_historico_text = cell_texts[12] if len(cell_texts) > 12 else ""
             valor_historico = self._parse_currency(valor_historico_text) if valor_historico_text else Decimal('0.00')
 
-            saldo_atualizado_text = cell_texts[14] if len(cell_texts) > 14 else ""
             saldo_atualizado = self._parse_currency(saldo_atualizado_text) if saldo_atualizado_text else valor_historico
 
             # Extract expanded details (V2: only if page is provided)
