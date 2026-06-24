@@ -163,7 +163,29 @@ def is_process_running() -> bool:
     
     try:
         pid = int(PID_FILE.read_text().strip())
-        # Check if process exists
+        # Check if process exists and is still the extraction command. A finished
+        # subprocess can remain as a zombie, and PIDs can also be reused.
+        proc_stat = Path(f"/proc/{pid}/stat")
+        proc_cmdline = Path(f"/proc/{pid}/cmdline")
+        if proc_stat.exists():
+            try:
+                stat_text = proc_stat.read_text(errors='ignore')
+                state = stat_text.split(') ', 1)[1].split()[0]
+                if state == 'Z':
+                    PID_FILE.unlink(missing_ok=True)
+                    return False
+            except:
+                pass
+
+        if proc_cmdline.exists():
+            try:
+                cmdline = proc_cmdline.read_text(errors='ignore').replace('\x00', ' ')
+                if cmdline and 'main_v6_orchestrator.py' not in cmdline and 'main_v5_all_entities.py' not in cmdline:
+                    PID_FILE.unlink(missing_ok=True)
+                    return False
+            except:
+                pass
+
         os.kill(pid, 0)
         return True
     except (ProcessLookupError, ValueError, PermissionError):
@@ -650,6 +672,13 @@ def render_progress_view():
     # Use same source as table for consistency
     entities_data = get_entities_progress_from_log()
     completed_entities = len([e for e in entities_data if e["status"] != "🔄"])
+    observed_total_entities = max(
+        total_entities,
+        summary.get('entities_total', 0),
+        len(entities_data),
+        completed_entities
+    )
+    total_entities = observed_total_entities
     
     # Summary metrics with smaller font
     col1, col2, col3, col4 = st.columns(4)
@@ -689,6 +718,7 @@ def render_progress_view():
     # Progress bar
     if total_entities > 0:
         progress = completed_entities / total_entities
+        progress = max(0.0, min(1.0, progress))
         st.progress(progress, text=f"{progress*100:.1f}%")
     
     # Side-by-side layout: Terminal + Entity Table
